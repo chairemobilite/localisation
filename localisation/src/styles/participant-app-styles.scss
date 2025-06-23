@@ -1,0 +1,15 @@
+@import './common-styles';
+
+#item-nav-user {
+    display: none;
+}
+
+// Fix the top navigation menu title that overflows on small screens
+@media (max-width: 600px) {
+    h1 {
+        max-width: 130px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}

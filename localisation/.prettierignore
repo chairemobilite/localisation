@@ -1,0 +1,10 @@
+/lib/
+/node_modules/
+/references/
+/runtime/
+/assets/images/
+/assets/documents/
+**/__tests__
+jest.config.js
+webpack.config.js
+webpack.admin.config.js

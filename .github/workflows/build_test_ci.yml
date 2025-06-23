@@ -1,0 +1,81 @@
+# This GitHub Actions workflow is designed to ensure code quality and stability across different Node.js versions.
+# It performs several key actions:
+# - Ensures the codebase builds correctly.
+# - Runs unit tests across all supported Node.js versions.
+# Additionally, it sets up a PostgreSQL database service for testing and executes automated UI tests using Playwright.
+# This workflow triggers on push and pull request events to the main branch.
+
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [22.x]
+    env:
+      PROJECT_CONFIG: ${{ github.workspace }}/survey/config.js
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    - name: copy env file
+      run: cp .env.example .env
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: Install
+      run: yarn
+    - name: Compile
+      run: yarn compile
+    - name: Build Client bundle
+      run: yarn build:prod
+    - name: Unit Test
+      run: yarn test
+
+  code-lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    - name: Use latest Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: latest
+    - name: Install
+      run: yarn install
+    - name: Compile
+      run: yarn compile
+    - name: Lint
+      run: yarn lint
+
+  check-format:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    - name: Use latest Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22.x
+    - name: Install
+      run: yarn install --frozen-lockfile
+    - name: Yarn format
+      run: yarn format
+    - name: Check git status
+      run: |
+        if [[ -n "$(git status --porcelain)" ]]; then
+          echo "Code formatting issues found. Please run 'yarn format' locally and commit changes."
+          git status
+          git diff
+          exit 1
+        fi

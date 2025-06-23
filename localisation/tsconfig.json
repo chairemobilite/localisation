@@ -1,0 +1,20 @@
+{
+    "extends": "../evolution/configs/react.tsconfig.json",
+    "compilerOptions": {
+        "outDir": "lib",
+        "rootDir": "src",
+        "isolatedModules": false, // Should be removed to inherit the true eventually
+        "noImplicitAny": false, // Should be removed to inherit the true eventually
+        "strict": false, // Remove when classes are typed
+        "target": "es6"
+    },
+    "include": [
+        "src/**/*",
+        "src/**/*.geojson"
+    ],
+    "exclude": [
+        "node_modules",
+        "**/__tests__",
+        "**/*.test.ts"
+    ]
+}

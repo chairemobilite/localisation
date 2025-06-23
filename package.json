@@ -1,0 +1,52 @@
+{
+    "private": true,
+    "name": "localisation",
+    "version": "0.5.0",
+    "main": "index.js",
+    "author": "Chaire Mobilité",
+    "repository": "github.com/chairemobilite/localisation",
+    "workspaces": [
+        "evolution/transition/packages/chaire-lib-common",
+        "evolution/transition/packages/chaire-lib-backend",
+        "evolution/transition/packages/chaire-lib-frontend",
+        "evolution/packages/evolution-common",
+        "evolution/packages/evolution-backend",
+        "evolution/packages/evolution-frontend",
+        "evolution/packages/evolution-interviewer",
+        "evolution/packages/evolution-generator",
+        "localisation"
+    ],
+    "scripts": {
+        "setup": "yarn workspace chaire-lib-backend run setup",
+        "setup-test": "yarn workspace chaire-lib-backend run setup-test",
+        "migrate": "yarn workspace chaire-lib-backend run migrate && yarn workspace evolution-backend run migrate",
+        "migrate-test": "yarn workspace chaire-lib-backend run migrate-test && yarn workspace evolution-backend run migrate-test",
+        "clean": "yarn workspaces run clean",
+        "cleanModules": "yarn workspace evolution-common run cleanModules && yarn workspace evolution-backend run cleanModules && yarn workspace evolution-frontend run cleanModules && yarn workspace localisation run cleanModules && rimraf node_modules",
+        "compile": "yarn workspaces run compile",
+        "compile:dev": "yarn wsrun compile:dev",
+        "create-user": "yarn workspace chaire-lib-backend run create-user",
+        "build:dev": "yarn workspace localisation run build:dev",
+        "build:prod": "yarn workspace localisation run build:prod",
+        "build:admin:dev": "yarn workspace localisation run build:admin:dev",
+        "build:admin:prod": "yarn workspace localisation run build:admin:prod",
+        "start": "yarn workspace localisation run start",
+        "start:admin": "yarn workspace localisation run start:admin",
+        "start:debug": "yarn workspace localisation run start:debug",
+        "start:tracing": "yarn workspace localisation run start:tracing",
+        "test": "yarn workspace localisation run test",
+        "test:unit": "yarn workspace localisation run test:unit",
+        "test:sequential": "yarn workspace localisation run test:sequential",
+        "test:ui": "yarn workspace localisation run test:ui",
+        "lint": "yarn workspace localisation run lint",
+        "format": "yarn workspace localisation run format",
+        "generate-migration": "knex migrate:make",
+        "reset-submodules": "rimraf evolution/ && git submodule update --init --recursive"
+    },
+    "dependencies": {},
+    "devDependencies": {
+        "depcheck": "^1.4.3",
+        "rimraf": "^6.0.1",
+        "wsrun": "^5.2.4"
+    }
+}
