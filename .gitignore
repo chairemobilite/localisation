@@ -90,10 +90,10 @@ src/tasks/transition/exports/
 localisation/lib
 localisation/runtime
 
-# LibreOfficeL lock file
-originalTranslation/.~lock.LibellesQuestions.csv#
-
 # playwright test output
 **/playwright-report/
 **/test-results/
 **/playwright.config.ts
+
+# Ignore this Excel lock file
+.~lock.questionnaireLocalisation.xlsx#

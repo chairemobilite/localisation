@@ -4,11 +4,16 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import React from 'react';
-import { createRoot } from 'react-dom/client';
+import runClientApp from 'evolution-frontend/lib/apps/participant';
+import { setApplicationConfiguration } from 'chaire-lib-frontend/lib/config/application.config';
 
-const root = createRoot(document.getElementById('app') as HTMLElement);
+import surveySections from './survey/sections';
+import { widgets as widgetsConfig } from './survey/widgetsConfigs';
 
-// TODO This is a placeholder for the actual survey application code.
+setApplicationConfiguration({
+    sections: surveySections,
+    widgets: widgetsConfig,
+    allowedUrlFields: ['source', 'accessCode']
+});
 
-root.render(<div>Localisation</div>);
+runClientApp({ appContext: process.env.EV_VARIANT });

@@ -41,7 +41,8 @@
         "lint": "yarn workspace localisation run lint",
         "format": "yarn workspace localisation run format",
         "generate-migration": "knex migrate:make",
-        "reset-submodules": "rimraf evolution/ && git submodule update --init --recursive"
+        "reset-submodules": "rimraf evolution/ && git submodule update --init --recursive",
+        "generateSurvey": "yarn workspace evolution-generator run generateSurvey --config_path ../../../localisation/references/generatorConfigs.yaml && yarn format"
     },
     "dependencies": {},
     "devDependencies": {

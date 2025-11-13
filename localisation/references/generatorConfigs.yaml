@@ -1,0 +1,16 @@
+survey_folder_path: ../../../localisation
+excel_file_path: ../../../localisation/references/questionnaireLocalisation.xlsx
+
+enabled_scripts:
+    generate_excel: false
+    generate_section_configs: true
+    generate_sections: true
+    generate_widgets_configs: true
+    generate_widgets: true
+    generate_conditionals: true
+    generate_choices: true
+    generate_input_range: true
+    generate_labels: true
+    generate_UI_tests: true
+    generate_questionnaire_list: false
+    generate_questionnaire_dictionary: false

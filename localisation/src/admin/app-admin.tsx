@@ -8,12 +8,12 @@ import runClientApp from 'evolution-frontend/lib/apps/admin';
 import { setApplicationConfiguration } from 'chaire-lib-frontend/lib/config/application.config';
 import appConfig, { EvolutionApplicationConfiguration } from 'evolution-frontend/lib/config/application.config';
 
-// TODO Add survey sections
-// TODO Add survey widgets
+import surveySections from '../survey/sections';
+import * as widgetsConfig from '../survey/widgetsConfigs';
 
 setApplicationConfiguration<EvolutionApplicationConfiguration>({
-    sections: {},
-    widgets: {},
+    sections: surveySections,
+    widgets: widgetsConfig as any,
     allowedUrlFields: ['source', 'accessCode'],
     templateMapping: { ...appConfig.templateMapping }
 });
