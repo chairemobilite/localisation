@@ -16,7 +16,6 @@ $desktop-breakpoint: 50rem;
 
 .button {
     &.turquoise {
-        background: #00B1AC;
         background: linear-gradient(to bottom, #00cec7, #006f6b);
     }
 
@@ -44,15 +43,6 @@ $desktop-breakpoint: 50rem;
 
     @media only screen and (max-width: $desktop-breakpoint) {
         display: block;
-    }
-
-    .survey-visited-places-list,
-    .survey-trips-list {
-        margin-right: 1rem;
-
-        @media only screen and (max-width: $desktop-breakpoint) {
-            margin-right: 0;
-        }
     }
 
     .survey-visited-places-list,
@@ -234,7 +224,6 @@ strong {
 }
 
 .apptr__form-label-container .register-link {
-    //text-align: center;
     display: block;
 }
 
@@ -274,7 +263,6 @@ strong {
 
 .faq-container {
     line-height: 1.6;
-    //margin: 0 auto;
     padding: 2rem;
     max-width: 100rem;
     margin: 0 auto;

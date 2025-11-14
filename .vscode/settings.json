@@ -1,6 +1,6 @@
 {
     "i18n-ally.localesPaths": [
-        "survey/locales"
+        "localisation/locales"
     ],
     "i18n-ally.enabledFrameworks": [
         "react",

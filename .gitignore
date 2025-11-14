@@ -60,7 +60,6 @@ typings/
 
 # macos
 .DS_Store
-**/.DS_Store
 
 # react-boilerplate
 build
@@ -80,7 +79,6 @@ public/index.html
 database.json
 !database.json.example
 monitoring/*
-.DS_Store
 cache/*
 exports/*
 .gh.json

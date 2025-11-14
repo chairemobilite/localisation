@@ -15,7 +15,7 @@
             "runtimeArgs": [
                 "start"
             ],
-            "cwd": "${workspaceRoot}"
+            "cwd": "${workspaceFolder}"
         },
         {
             "type": "node",
@@ -28,9 +28,9 @@
             "runtimeArgs": [
                 "node",
                 "--max-old-space-size=4096",
-                "survey/lib/tasks/nameOfTask.js"
+                "localisation/lib/tasks/nameOfTask.js"
             ],
-            "cwd": "${workspaceRoot}"
+            "cwd": "${workspaceFolder}"
         },
         {
             "type": "node",
@@ -45,9 +45,9 @@
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen",
             "windows": {
-              "program": "${workspaceFolder}/node_modules/jest/bin/jest",
+              "program": "${workspaceFolder}/node_modules/jest/bin/jest"
             },
-            "cwd": "${workspaceRoot}/survey"
+            "cwd": "${workspaceFolder}/localisation"
         }
     ]
 }

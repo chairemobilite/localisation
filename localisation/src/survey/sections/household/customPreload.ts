@@ -1,4 +1,4 @@
-import { SectionConfig } from "evolution-common/lib/services/questionnaire/types";
+import { SectionConfig } from 'evolution-common/lib/services/questionnaire/types';
 
 export const customPreload: SectionConfig['preload'] = function (
     interview,

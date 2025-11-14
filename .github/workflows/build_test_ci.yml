@@ -9,18 +9,18 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [22.x]
+        node-version: [24.x]
     env:
-      PROJECT_CONFIG: ${{ github.workspace }}/survey/config.js
+      PROJECT_CONFIG: ${{ github.workspace }}/localisation/config.js
     steps:
     - uses: actions/checkout@v4
       with:
@@ -49,7 +49,7 @@ jobs:
     - name: Use latest Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: latest
+        node-version: 24.x
     - name: Install
       run: yarn install
     - name: Compile
@@ -66,7 +66,7 @@ jobs:
     - name: Use latest Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: 22.x
+        node-version: 24.x
     - name: Install
       run: yarn install --frozen-lockfile
     - name: Yarn format

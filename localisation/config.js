@@ -1,23 +1,3 @@
-const moment = require('moment');
-
-const holidays = ['2024-09-02', '2024-10-14', '2024-12-25', '2025-01-01'];
-
-moment.updateLocale('fr', {
-    holidays,
-    holidayFormat: 'YYYY-MM-DD',
-    longDateFormat: {
-        LL: "dddd Do MMMM YYYY",
-    }
-});
-
-moment.updateLocale('en', {
-    holidays,
-    holidayFormat: 'YYYY-MM-DD',
-    longDateFormat: {
-        LL: "dddd, MMMM Do YYYY",
-    }
-});
-
 module.exports = {
     projectShortname: `localisation`,
     projectDirectory: `${__dirname}/runtime`,
@@ -25,8 +5,6 @@ module.exports = {
         fr: `/dist/images/localisation_fr.png`,
         en: `/dist/images/localisation_en.png`
     },
-    forceRecalculateTransitTrips: false,
-    updateTransitRoutingIfCalculatedBefore: moment('2024-03-07').unix(), // timestamp, will recalculate transit trips if calculated before this date
     startButtonColor: 'turquoise', // styles for turquoise buttons are in the project's styles.scss file
     interviewableMinimumAge: 5,
     selfResponseMinimumAge: 14,
@@ -78,8 +56,8 @@ module.exports = {
         en: "English"
     },
     title: {
-        fr: "Enquête Nationale Origine-Destination 2025",
-        en: "2025 National Origin-Destination Survey "
+        fr: "Localisation",
+        en: "Localisation"
     },
     defaultLocale: "fr",
     timezone: 'America/Montreal',
