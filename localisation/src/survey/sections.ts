@@ -3,10 +3,14 @@
 // Any changes made to this file will be overwritten.
 
 import { getAndValidateSurveySections, SurveySectionsConfig } from 'evolution-common/lib/services/questionnaire/types';
+import homeConfigs from './sections/home/sectionConfigs';
 import householdConfigs from './sections/household/sectionConfigs';
+import carsConfigs from './sections/cars/sectionConfigs';
 
 // Export all the sections configs
 const sectionsConfigs: SurveySectionsConfig = {
-    household: householdConfigs
+    home: homeConfigs,
+    household: householdConfigs,
+    cars: carsConfigs
 };
 export default getAndValidateSurveySections(sectionsConfigs);

@@ -2,13 +2,15 @@
 // The Evolution Generator is used to automate the creation of consistent, reliable code.
 // Any changes made to this file will be overwritten.
 
+import * as homeWidgets from './sections/home/widgets';
 import * as householdWidgets from './sections/household/widgets';
+import * as carsWidgets from './sections/cars/widgets';
 
 // Define all the widgets
 const widgets: { [key: string]: any } = {};
 
 // Define all the sections widgets
-const sectionsWidgets = [householdWidgets];
+const sectionsWidgets = [homeWidgets, householdWidgets, carsWidgets];
 
 // Loop all sections and add their widgets to the widgets object
 sectionsWidgets.forEach((section) => {
