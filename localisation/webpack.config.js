@@ -20,7 +20,7 @@ const config = configuration.default ? configuration.default : configuration;
 const publicDirectory = path.join(__dirname, '..', 'evolution', 'public');
 const bundleOutputPath = path.join(publicDirectory, 'dist', config.projectShortname, 'survey');
 
-const appIncludeName = 'survey';
+const appIncludeName = 'localisation';
 
 module.exports = (env) => {
     console.log(`building js for project ${config.projectShortname}`);
@@ -162,10 +162,23 @@ module.exports = (env) => {
             new CopyWebpackPlugin({
                 patterns: [
                     {
+                        context: path.join(__dirname, '..', 'node_modules', 'chaire-lib-frontend', 'lib', 'assets'),
+                        from: "**/*",
+                        to: "",
+                        noErrorOnMissing: true
+                    },
+                    {
                         context: path.join(__dirname, '..', 'node_modules', 'evolution-frontend', 'lib', 'assets'),
                         from: '**/*',
                         to: '',
                         noErrorOnMissing: true
+                    },
+                    {
+                        context: path.join(__dirname, 'lib', 'assets'),
+                        from: '**/*',
+                        to: '',
+                        noErrorOnMissing: true,
+                        force: true
                     },
                     {
                         context: path.join(__dirname, 'assets'),

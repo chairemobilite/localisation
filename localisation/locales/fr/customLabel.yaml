@@ -1,0 +1,31 @@
+RefreshGeocodingLabel: Chercher le lieu
+GeographyAfterRefresh: >-
+    <strong>Vérifiez que le lieu est bien placé</strong>, sinon déplacez le
+    marqueur ou cliquez au bon endroit sur la carte.
+HomeHouseholdSizeHelpContent: >-
+    <ul><li><strong>Inclure:</strong></li><ul><li>Vous-même</li><li>Les enfants
+    en garde partagée s'ils étaient présents à votre domicile le
+    <strong>{{assignedDate}}</strong></li><li>Les chambreuses, chambreurs et colocataires, ainsi
+    que tous ceux et celles qui vivent en  communauté domestique</li></ul></ul>
+HybridElectricExceedsTotal: >-
+    Le nombre total de véhicules hybrides et électriques ne peut pas dépasser le
+    nombre total de véhicules possédés par votre ménage.
+Continue: Continuer
+PleaseCompleteSection: Veuillez compléter cette section avant de changer de personne.
+WhyThisDate: Pourquoi cette journée?
+WhyThisDateExplanation: >-
+    <p class="_orange">Le questionnaire me demande mes déplacements pour une
+    journée particulière, mais cette journée ne correspond pas à une journée
+    représentative de mes déplacements.</p><p>L'objectif de l'enquête est de
+    connaître les pratiques de déplacement de l’ensemble de la communauté
+    pendant un jour moyen de semaine. Il est normal et tout à fait acceptable,
+    sur le plan statistique, d’avoir un sous-ensemble de répondants dont les
+    déplacements lors de la journée enquêtée ont été plus ou moins
+    représentatifs de leurs déplacements habituels. Il est important de décrire
+    ce que vous avez réellement fait.</p><p>Pour plus de détails, on peut se
+    référer à l'<a href="http://fr.wikipedia.org/wiki/Loi_des_grands_nombres"
+    target="_blank">article suivant sur la loi des grands nombres</a>.</p><p>En
+    résumé, avec un grand nombre de réponses pour des jours attribués de manière
+    aléatoire, l'agrégé des données devrait tendre vers une modélisation
+    réaliste d'un jour moyen pour l'ensemble de la population recensée.</p>
+Interviewers: Intervieweurs

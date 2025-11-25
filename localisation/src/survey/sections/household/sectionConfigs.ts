@@ -8,8 +8,8 @@ import { widgetsNames } from './widgetsNames';
 import { customPreload } from './customPreload';
 
 export const currentSectionName: string = 'household';
-const previousSectionName: SectionConfig['previousSection'] = null;
-const nextSectionName: SectionConfig['nextSection'] = null;
+const previousSectionName: SectionConfig['previousSection'] = 'home';
+const nextSectionName: SectionConfig['nextSection'] = 'cars';
 
 // Config for the section
 export const sectionConfig: SectionConfig = {
@@ -30,7 +30,9 @@ export const sectionConfig: SectionConfig = {
     // Do some actions before the section is loaded
     preload: customPreload,
     // Allow to click on the section menu
-    enableConditional: true,
+    enableConditional: function (interview) {
+        return isSectionCompleted({ interview, sectionName: previousSectionName });
+    },
     // Allow to click on the section menu
     completionConditional: function (interview) {
         return isSectionCompleted({ interview, sectionName: currentSectionName });

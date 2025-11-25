@@ -36,6 +36,7 @@
   "dependencies": {
     "@fortawesome/free-solid-svg-icons": "^6.7.1",
     "@fortawesome/react-fontawesome": "^0.2.2",
+    "@turf/turf": "^7.1.0",
     "chaire-lib-backend": "^0.2.2",
     "chaire-lib-common": "^0.2.2",
     "chaire-lib-frontend": "^0.2.2",

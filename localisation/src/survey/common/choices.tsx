@@ -109,7 +109,7 @@ export const maleFemaleCustomPreferNotToAnswer: ChoiceType[] = [
         value: 'custom',
         label: {
             fr: 'Cette personne s\'identifie comme:',
-            en: 'This person identifies  as:'
+            en: 'This person identifies as:'
         }
     },
     ...preferNotToAnswer
@@ -218,7 +218,80 @@ export const householdIncomeChoices: ChoiceType[] = [
         value: 'refusal',
         label: {
             fr: 'Je préfère ne pas répondre',
-            en: 'I prefer not to respond'
+            en: 'I prefer not to answer'
+        }
+    }
+];
+
+export const householdOwnershipChoices: ChoiceType[] = [
+    {
+        value: 'rent',
+        label: {
+            fr: 'Louer',
+            en: 'Rent'
+        }
+    },
+    {
+        value: 'own',
+        label: {
+            fr: 'Posséder',
+            en: 'Own'
+        }
+    }
+];
+
+export const carCategoryChoices: ChoiceType[] = [
+    {
+        value: 'passengerCar',
+        label: {
+            fr: 'Voiture',
+            en: 'Passenger Car'
+        }
+    },
+    {
+        value: 'pickup',
+        label: {
+            fr: 'Camionnette',
+            en: 'Pickup'
+        }
+    },
+    {
+        value: 'suv',
+        label: {
+            fr: 'VUS',
+            en: 'SUV'
+        }
+    },
+    ...otherWithoutSpecify
+];
+
+export const carEngineChoices: ChoiceType[] = [
+    {
+        value: 'electric',
+        label: {
+            fr: 'Électrique',
+            en: 'Electric'
+        }
+    },
+    {
+        value: 'pluginHybrid',
+        label: {
+            fr: 'Hybride rechargeable',
+            en: 'Plug-In Hybrid'
+        }
+    },
+    {
+        value: 'hybrid',
+        label: {
+            fr: 'Hybride',
+            en: 'Hybrid'
+        }
+    },
+    {
+        value: 'gas',
+        label: {
+            fr: 'Essence',
+            en: 'Gas'
         }
     }
 ];

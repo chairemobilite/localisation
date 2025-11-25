@@ -7,48 +7,41 @@ import * as defaultInputBase from 'evolution-frontend/lib/components/inputs/defa
 import { defaultConditional } from 'evolution-common/lib/services/widgets/conditionals/defaultConditional';
 import * as WidgetConfig from 'evolution-common/lib/services/questionnaire/types';
 import * as validations from 'evolution-common/lib/services/widgets/validations/validations';
+import * as odSurveyHelpers from 'evolution-common/lib/services/odSurvey/helpers';
+import * as choices from '../../common/choices';
+import * as conditionals from '../../common/conditionals';
+import * as customWidgets from './customWidgets';
 
-export const household_size: WidgetConfig.InputRadioNumberType = {
-    ...defaultInputBase.inputRadioNumberBase,
-    path: 'household.size',
+export const householdMembers = customWidgets.householdMembers;
+
+export const personAge: WidgetConfig.InputStringType = {
+    ...defaultInputBase.inputNumberBase,
+    path: 'age',
     twoColumns: false,
     containsHtml: true,
-    label: (t: TFunction) => t('household:household.size'),
-    valueRange: {
-        min: 1,
-        max: 6
+    label: (t: TFunction, interview, path) => {
+        const countPersons = odSurveyHelpers.countPersons({ interview });
+        return t('household:age', {
+            count: countPersons
+        });
     },
-    overMaxAllowed: true,
     conditional: defaultConditional,
-    validations: validations.householdSizeValidation
+    validations: validations.ageValidation
 };
 
-export const household_carNumber: WidgetConfig.InputRadioNumberType = {
-    ...defaultInputBase.inputRadioNumberBase,
-    path: 'household.carNumber',
+export const personDrivingLicenseOwnership: WidgetConfig.InputRadioType = {
+    ...defaultInputBase.inputRadioBase,
+    path: 'drivingLicenseOwnership',
     twoColumns: false,
     containsHtml: true,
-    label: (t: TFunction) => t('household:household.carNumber'),
-    valueRange: {
-        min: 0,
-        max: 5
-    },
-    overMaxAllowed: true,
-    conditional: defaultConditional,
-    validations: validations.carNumberValidation
+    label: (t: TFunction) => t('household:drivingLicenseOwnership'),
+    choices: choices.yesNoDontKnow,
+    conditional: conditionals.ifAge16OrMoreConditional,
+    validations: validations.requiredValidation
 };
 
-export const household_bicycleNumber: WidgetConfig.InputRadioNumberType = {
-    ...defaultInputBase.inputRadioNumberBase,
-    path: 'household.bicycleNumber',
-    twoColumns: false,
-    containsHtml: true,
-    label: (t: TFunction) => t('household:household.bicycleNumber'),
-    valueRange: {
-        min: 0,
-        max: 5
-    },
-    overMaxAllowed: true,
-    conditional: defaultConditional,
-    validations: validations.bicycleNumberValidation
+export const household_save: WidgetConfig.ButtonWidgetConfig = {
+    ...defaultInputBase.buttonNextBase,
+    path: 'household.save',
+    label: (t: TFunction) => t('household:household.save')
 };

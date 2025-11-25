@@ -1,0 +1,32 @@
+RefreshGeocodingLabel: Search location
+GeographyAfterRefresh: >-
+    <strong>Please check that the location is identified correctly</strong>,
+    else drag the marker or click at the correct location on the map.
+HomeHouseholdSizeHelpContent: >-
+    <ul><li><strong>Include:</strong></li><ul><li>Yourself</li><li>Children in
+    joint custody if they were present at your home on
+    <strong>{{assignedDate}}</strong></li><li>Roomers and roommates, as well as all those living
+    in a domestic community</li></ul></ul>
+HybridElectricExceedsTotal: >-
+    The total number of hybrid and electric vehicles cannot exceed the total
+    number of vehicles owned by your household.
+Continue: Continue
+PleaseCompleteSection: Please fill out this section before switching persons.
+WhyThisDate: Why this date?
+WhyThisDateExplanation: >-
+    <p class="_orange">The questionnaire asks me to describe my trips for a
+    particular day, but that day is not a typical example of my
+    commute.</p><p>The goal of the survey is to measure and reflect the travel
+    practices of the entire region during an average weekday. It is normal and
+    statistically acceptable to have a set of respondents with a higher number
+    of trips through their day and another set with a lower number of trips than
+    their personal average. Same with respect to modes of transport used, where
+    a person who normally takes transit may have driven or vice versa. It is
+    important to describe what you actually did on the requested day.</p><p>For
+    more details, you can refer to the <a
+    href="http://en.wikipedia.org/wiki/Law_of_large_numbers"
+    target="_blank">following article on the law of large numbers</a>.</p><p>In
+    summary, with a large number of responses for days randomly assigned, the
+    aggregate of all responses should accurately reflect an average day of
+    travel for the population surveyed.</p>
+Interviewers: Interviewers
