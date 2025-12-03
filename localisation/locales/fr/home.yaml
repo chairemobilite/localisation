@@ -5,20 +5,10 @@
 household.size: >-
     <strong>Personnes habitant votre domicile</strong> ou logement<br /><span class="_pale
     _oblique">Y compris vous-même et les enfants.</span>
-household.income: <strong>Revenu du ménage</strong> avant impôts (brut), en dollars
-    Canadiens
+household.income: >-
+    <strong>Tranche de revenu</strong> avant impôts (brut) <strong>du ménage</strong>,
+    en 2024?
 household.carNumber: >-
     <strong>Automobiles</strong>, VUS, camions légers ou fourgonnettes, etc.<br /><span
     class="_pale _oblique">À la disposition de votre ménage.</span>
-home.ownership: <strong>Louez-vous ou possédez-vous</strong> cette maison?
-home.address: <strong>Adresse</strong>
-home.city: <strong>Ville</strong> ou <strong>municipalité</strong>
-home.region: <strong>Province</strong>
-home.country: <strong>Pays</strong>
-home.postalCode: <strong>Code postal</strong>
-home.geography: >-
-    <strong>Positionnement de votre domicile</strong><br />Recherchez votre domicile
-    en utilisant son code postal ou son adresse en cliquant sur le bouton ci-dessous,
-    ou veuillez positionner le lieu sur la carte en naviguant, zoomant et cliquant.
-    Une fois le lieu localisé, vous pouvez déplacer le point pour plus de précision.
 home.save: Enregistrer et continuer

@@ -7,23 +7,23 @@ import { SectionConfig } from 'evolution-common/lib/services/questionnaire/types
 import { widgetsNames } from './widgetsNames';
 import { customPreload } from './customPreload';
 
-export const currentSectionName: string = 'household';
-const previousSectionName: SectionConfig['previousSection'] = 'addresses';
-const nextSectionName: SectionConfig['nextSection'] = 'cars';
+export const currentSectionName: string = 'addresses';
+const previousSectionName: SectionConfig['previousSection'] = 'home';
+const nextSectionName: SectionConfig['nextSection'] = 'household';
 
 // Config for the section
 export const sectionConfig: SectionConfig = {
     previousSection: previousSectionName,
     nextSection: nextSectionName,
     title: {
-        fr: 'Ménage',
-        en: 'Household'
+        fr: 'Adresses',
+        en: 'Addresses'
     },
     navMenu: {
         type: 'inNav',
         menuName: {
-            fr: 'Ménage',
-            en: 'Household'
+            fr: 'Adresses',
+            en: 'Addresses'
         }
     },
     widgets: widgetsNames,

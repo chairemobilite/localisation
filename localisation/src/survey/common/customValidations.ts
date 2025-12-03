@@ -64,3 +64,36 @@ export const inaccessibleZoneGeographyCustomValidation: ValidationFunction = (ge
         }
     ];
 };
+
+export const interestRateCustomValidation: ValidationFunction = (value) => {
+    return [
+        {
+            validation: _isBlank(value),
+            errorMessage: {
+                fr: 'Le taux d\'intérêt est requis.',
+                en: 'Interest rate is required.'
+            }
+        },
+        {
+            validation: isNaN(Number(value)),
+            errorMessage: {
+                fr: 'Le taux d\'intérêt est invalide.',
+                en: 'Interest rate is invalid.'
+            }
+        },
+        {
+            validation: Number(value) < 0,
+            errorMessage: {
+                fr: 'Le taux d\'intérêt doit être au moins de 0%.',
+                en: 'Interest rate must be at least 0%.'
+            }
+        },
+        {
+            validation: Number(value) > 100,
+            errorMessage: {
+                fr: 'Le taux d\'intérêt doit être au plus 100%.',
+                en: 'Interest rate must be at most 100%.'
+            }
+        }
+    ];
+};

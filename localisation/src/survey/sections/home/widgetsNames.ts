@@ -6,14 +6,7 @@ import { SectionConfig } from 'evolution-common/lib/services/questionnaire/types
 
 export const widgetsNames: SectionConfig['widgets'] = [
     'household_size',
-    'home_income',
+    'household_income',
     'household_carNumber',
-    'home_ownership',
-    'home_address',
-    'home_city',
-    'home_region',
-    'home_country',
-    'home_postalCode',
-    'home_geography',
     'home_save'
 ];

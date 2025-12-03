@@ -6,19 +6,9 @@ household.size: >-
     <strong>Persons living in your home</strong><br /><span class="_pale _oblique">Including
     yourself and children.</span>
 household.income: >-
-    <strong>Household income</strong> before taxes (gross income), in Canadian dollars
+    What was your <strong>household's income range</strong> before taxes (gross income),
+    in 2024?
 household.carNumber: >-
     <strong>Cars</strong>, SUVs, light-duty trucks or vans, etc.<br /><span class="_pale
     _oblique">Available to one or more members of your household.</span>
-home.ownership: <strong>Do you own or rent</strong> this home?
-home.address: <strong>Address</strong>
-home.city: <strong>City</strong> or <strong>municipality</strong>
-home.region: <strong>Province</strong>
-home.country: <strong>Country</strong>
-home.postalCode: <strong>Postal Code</strong>
-home.geography: >-
-    <strong>Positioning your home</strong><br />Search for your home using its postal
-    code or address by clicking the button below, or please position the location
-    on the map by navigating, zooming, and clicking. Once the location is found, you
-    can move the point for greater precision.
 home.save: Save and continue

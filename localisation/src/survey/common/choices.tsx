@@ -210,15 +210,15 @@ export const householdIncomeChoices: ChoiceType[] = [
     {
         value: 'dontKnow',
         label: {
-            fr: 'Je ne sais pas',
-            en: 'I don\'t know'
+            fr: 'Je ne sais pas (notez que la précision des résultats pourrait être affectée)',
+            en: 'I don\'t know (note that the accuracy of the results may be affected)'
         }
     },
     {
         value: 'refusal',
         label: {
-            fr: 'Je préfère ne pas répondre',
-            en: 'I prefer not to answer'
+            fr: 'Je préfère ne pas répondre (notez que la précision des résultats pourrait être affectée)',
+            en: 'I prefer not to answer (note that the accuracy of the results may be affected)'
         }
     }
 ];
@@ -232,10 +232,10 @@ export const householdOwnershipChoices: ChoiceType[] = [
         }
     },
     {
-        value: 'own',
+        value: 'buy',
         label: {
-            fr: 'Posséder',
-            en: 'Own'
+            fr: 'Acheter',
+            en: 'Buy'
         }
     }
 ];

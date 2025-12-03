@@ -8,9 +8,6 @@ import { defaultConditional } from 'evolution-common/lib/services/widgets/condit
 import * as WidgetConfig from 'evolution-common/lib/services/questionnaire/types';
 import * as validations from 'evolution-common/lib/services/widgets/validations/validations';
 import * as choices from '../../common/choices';
-import * as formatters from 'evolution-common/lib/utils/formatters';
-import * as customConditionals from '../../common/customConditionals';
-import * as customWidgets from './customWidgets';
 
 export const household_size: WidgetConfig.InputRadioNumberType = {
     ...defaultInputBase.inputRadioNumberBase,
@@ -27,12 +24,13 @@ export const household_size: WidgetConfig.InputRadioNumberType = {
     validations: validations.householdSizeValidation
 };
 
-export const home_income: WidgetConfig.InputStringType = {
-    ...defaultInputBase.inputNumberBase,
+export const household_income: WidgetConfig.InputSelectType = {
+    ...defaultInputBase.inputSelectBase,
     path: 'household.income',
     twoColumns: false,
     containsHtml: true,
     label: (t: TFunction) => t('home:household.income'),
+    choices: choices.householdIncomeChoices,
     conditional: defaultConditional,
     validations: validations.requiredValidation
 };
@@ -45,77 +43,12 @@ export const household_carNumber: WidgetConfig.InputRadioNumberType = {
     label: (t: TFunction) => t('home:household.carNumber'),
     valueRange: {
         min: 0,
-        max: 5
+        max: 3
     },
     overMaxAllowed: true,
     conditional: defaultConditional,
     validations: validations.carNumberValidation
 };
-
-export const home_ownership: WidgetConfig.InputRadioType = {
-    ...defaultInputBase.inputRadioBase,
-    path: 'home.ownership',
-    twoColumns: false,
-    containsHtml: true,
-    label: (t: TFunction) => t('home:home.ownership'),
-    choices: choices.householdOwnershipChoices,
-    conditional: defaultConditional,
-    validations: validations.requiredValidation
-};
-
-export const home_address: WidgetConfig.InputStringType = {
-    ...defaultInputBase.inputStringBase,
-    path: 'home.address',
-    twoColumns: false,
-    containsHtml: true,
-    label: (t: TFunction) => t('home:home.address'),
-    conditional: defaultConditional,
-    validations: validations.requiredValidation
-};
-
-export const home_city: WidgetConfig.InputStringType = {
-    ...defaultInputBase.inputStringBase,
-    path: 'home.city',
-    twoColumns: false,
-    containsHtml: true,
-    label: (t: TFunction) => t('home:home.city'),
-    conditional: defaultConditional,
-    validations: validations.requiredValidation
-};
-
-export const home_region: WidgetConfig.InputStringType = {
-    ...defaultInputBase.inputStringBase,
-    path: 'home.region',
-    twoColumns: false,
-    containsHtml: true,
-    label: (t: TFunction) => t('home:home.region'),
-    conditional: defaultConditional,
-    validations: validations.requiredValidation
-};
-
-export const home_country: WidgetConfig.InputStringType = {
-    ...defaultInputBase.inputStringBase,
-    path: 'home.country',
-    twoColumns: false,
-    containsHtml: true,
-    defaultValue: 'Canada',
-    label: (t: TFunction) => t('home:home.country'),
-    conditional: customConditionals.hiddenWithCanadaAsDefaultValueCustomConditional,
-    validations: validations.requiredValidation
-};
-
-export const home_postalCode: WidgetConfig.InputStringType = {
-    ...defaultInputBase.inputStringBase,
-    path: 'home.postalCode',
-    twoColumns: false,
-    containsHtml: true,
-    inputFilter: formatters.canadianPostalCodeFormatter,
-    label: (t: TFunction) => t('home:home.postalCode'),
-    conditional: defaultConditional,
-    validations: validations.postalCodeValidation
-};
-
-export const home_geography = customWidgets.home_geography;
 
 export const home_save: WidgetConfig.ButtonWidgetConfig = {
     ...defaultInputBase.buttonNextBase,

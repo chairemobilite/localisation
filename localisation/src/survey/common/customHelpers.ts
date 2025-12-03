@@ -24,3 +24,22 @@ export const getCurrentCarId = ({
     // 2. Otherwise, use the active person id from the interview response
     return interview.response._activePersonId ?? null;
 };
+
+export const getCurrentAddressId = ({
+    interview,
+    path
+}: {
+    interview: UserInterviewAttributes;
+    path?: string;
+}): string | null => {
+    // 1. Try to extract personId from path if it matches addresses.information.{personId}.
+    // Note that despite being addresses/houses, internally this is hard coded to personId
+    if (path) {
+        const match = path.match(/addresses\.information\.([^.]+)\./);
+        if (match) {
+            return match[1];
+        }
+    }
+    // 2. Otherwise, use the active person id from the interview response
+    return interview.response._activePersonId ?? null;
+};

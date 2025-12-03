@@ -30,19 +30,18 @@ module.exports = {
         byField: false
     },
     separateAdminLoginPage: true,
-    mapDefaultZoom: 10,
-    mapDefaultCenter: {
-        lat: 46.81289,
-        lon: -71.21461
+    mapDefaultZoom: 8,
+    mapDefaultCenter: { //Centered on Montreal
+        lat: 45.4987514031582,
+        lon: -73.57516374646
     },
-    mapMaxGeocodingResultsBounds: [
-      {
-        lat: 47.033374,
-        lng: -70.8030445
-      },
-      {
-        lat: 46.518331,
-        lng: -71.671425
+    mapMaxGeocodingResultsBounds: [{ //Bounding box for all of Canada
+        lat: 83.23324,
+        lng: -52.6480987209
+    }, 
+    {
+        lat: 41.6751050889,
+        lng: -140.99778
     }],
     detectLanguage: false,
     detectLanguageFromUrl: true,

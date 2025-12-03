@@ -4,6 +4,12 @@
 
 import { SectionConfig } from 'evolution-common/lib/services/questionnaire/types';
 
-export const widgetsNames: SectionConfig['widgets'] = ['householdMembers', 'household_save'];
+export const widgetsNames: SectionConfig['widgets'] = [
+    // 'householdMembers',
+    // 'household_save'
+];
 
-export const householdMembersWidgetsNames: SectionConfig['widgets'] = ['personAge', 'personDrivingLicenseOwnership'];
+export const householdMembersWidgetsNames: SectionConfig['widgets'] = [
+    // 'personAge',
+    // 'personDrivingLicenseOwnership'
+];

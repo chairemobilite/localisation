@@ -9,7 +9,7 @@ import { customPreload } from './customPreload';
 
 export const currentSectionName: string = 'home';
 const previousSectionName: SectionConfig['previousSection'] = null;
-const nextSectionName: SectionConfig['nextSection'] = 'household';
+const nextSectionName: SectionConfig['nextSection'] = 'addresses';
 
 // Config for the section
 export const sectionConfig: SectionConfig = {

@@ -6,32 +6,6 @@ import { checkConditionals } from 'evolution-common/lib/services/widgets/conditi
 import { type WidgetConditional } from 'evolution-common/lib/services/questionnaire/types';
 import * as odSurveyHelpers from 'evolution-common/lib/services/odSurvey/helpers';
 
-export const hasHouseholdBicycleConditional: WidgetConditional = (interview) => {
-    return checkConditionals({
-        interview,
-        conditionals: [
-            {
-                path: 'household.bicycleNumber',
-                comparisonOperator: '>=',
-                value: 1
-            }
-        ]
-    });
-};
-
-export const hasHouseholdSizeBeenAnswered: WidgetConditional = (interview) => {
-    return checkConditionals({
-        interview,
-        conditionals: [
-            {
-                path: 'household.size',
-                comparisonOperator: '!==',
-                value: 'null'
-            }
-        ]
-    });
-};
-
 export const ifAge16OrMoreConditional: WidgetConditional = (interview, path) => {
     const currentPersonId = odSurveyHelpers.getCurrentPersonId({ interview, path }); // Get the current person id
     return checkConditionals({
@@ -41,32 +15,6 @@ export const ifAge16OrMoreConditional: WidgetConditional = (interview, path) => 
                 path: `household.persons.${currentPersonId}.age`,
                 comparisonOperator: '>=',
                 value: 16
-            }
-        ]
-    });
-};
-
-export const ifOwnershipTypeIsRent: WidgetConditional = (interview) => {
-    return checkConditionals({
-        interview,
-        conditionals: [
-            {
-                path: 'home.ownership',
-                comparisonOperator: '===',
-                value: 'rent'
-            }
-        ]
-    });
-};
-
-export const ifOwnershipTypeIsOwn: WidgetConditional = (interview) => {
-    return checkConditionals({
-        interview,
-        conditionals: [
-            {
-                path: 'home.ownership',
-                comparisonOperator: '===',
-                value: 'own'
             }
         ]
     });

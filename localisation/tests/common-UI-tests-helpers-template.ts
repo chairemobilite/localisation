@@ -49,40 +49,74 @@ export const fillHomeSectionTests = ({ context, householdSize }: CommonTestParam
 
     // Test radionumber widget household_size
 
-    // Test number widget home_income
-    testHelpers.inputStringTest({ context, path: 'household.income', value: '?' });
+    // Test select widget household_income with choices householdIncomeChoices
+    /* @link file://./../src/survey/common/choices.tsx */
 
     // Test radionumber widget household_carNumber
-
-    // Test radio widget home_ownership with choices householdOwnershipChoices
-    /* @link file://./../src/survey/common/choices.tsx */
-    testHelpers.inputRadioTest({ context, path: 'home.ownership', value: '?' });
-
-    // Test string widget home_address
-    testHelpers.inputStringTest({ context, path: 'home.address', value: '?' });
-
-    // Test string widget home_city
-    testHelpers.inputStringTest({ context, path: 'home.city', value: '?' });
-
-    // Test string widget home_region
-    testHelpers.inputStringTest({ context, path: 'home.region', value: '?' });
-
-    // Test string widget home_country with conditional hiddenWithCanadaAsDefaultValueCustomConditional
-    /* @link file://./../src/survey/common/conditionals.tsx */
-    testHelpers.inputVisibleTest({ context, path: 'home.country', isVisible: true });
-    testHelpers.inputStringTest({ context, path: 'home.country', value: '?' });
-
-    // Test string widget home_postalCode
-    testHelpers.inputStringTest({ context, path: 'home.postalCode', value: '?' });
-
-    // Test custom widget home_geography
-    // Implement custom test
 
     // Test nextbutton widget home_save
     testHelpers.inputNextButtonTest({ context, text: '?', nextPageUrl: '?' });
 
     // Verify the home navigation is completed
     testHelpers.verifyNavBarButtonStatus({ context, buttonText: 'home', buttonStatus: 'completed', isDisabled: false });
+};
+
+/********** Tests Addresses section **********/
+export const fillAddressesSectionTests = ({ context, householdSize }: CommonTestParametersModify) => {
+    // Verify the addresses navigation is active
+    testHelpers.verifyNavBarButtonStatus({ context, buttonText: 'addresses', buttonStatus: 'active', isDisabled: false });
+
+    // Progress bar test for addresses section
+    testHelpers.sectionProgressBarTest({ context, sectionName: 'addresses', completionPercentage: 0 });
+
+    // Test custom widget addressesInfo
+    // Implement custom test
+
+    // Test string widget addressName
+    testHelpers.inputStringTest({ context, path: '?.name', value: '?' });
+
+    // Test custom widget addressGeography
+    // Implement custom test
+
+    // Test radio widget addressOwnership with choices householdOwnershipChoices
+    /* @link file://./../src/survey/common/choices.tsx */
+    testHelpers.inputRadioTest({ context, path: '?.ownership', value: '?' });
+
+    // Test number widget addressRent with conditional ifOwnershipTypeIsRentCustomConditional
+    /* @link file://./../src/survey/common/conditionals.tsx */
+    testHelpers.inputVisibleTest({ context, path: '?.rent', isVisible: true });
+    testHelpers.inputStringTest({ context, path: '?.rent', value: '?' });
+
+    // Test radio widget addressAreUtilitiesIncluded with conditional ifOwnershipTypeIsRentCustomConditional with choices yesNo
+    /* @link file://./../src/survey/common/conditionals.tsx */
+    /* @link file://./../src/survey/common/choices.tsx */
+    testHelpers.inputVisibleTest({ context, path: '?.areUtilitiesIncluded', isVisible: true });
+    testHelpers.inputRadioTest({ context, path: '?.areUtilitiesIncluded', value: '?' });
+
+    // Test number widget addressMortgage with conditional ifOwnershipTypeIsBuyCustomConditional
+    /* @link file://./../src/survey/common/conditionals.tsx */
+    testHelpers.inputVisibleTest({ context, path: '?.mortgage', isVisible: true });
+    testHelpers.inputStringTest({ context, path: '?.mortgage', value: '?' });
+
+    // Test custom widget addressInterestRate with conditional ifOwnershipTypeIsBuyCustomConditional
+    /* @link file://./../src/survey/common/conditionals.tsx */
+    testHelpers.inputVisibleTest({ context, path: '?.interestRate', isVisible: true });
+    // Implement custom test
+
+    // Test select widget addressAmortizationPeriod with conditional ifOwnershipTypeIsBuyCustomConditional with choices amortizationYearsCustomChoices
+    /* @link file://./../src/survey/common/conditionals.tsx */
+    /* @link file://./../src/survey/common/choices.tsx */
+    testHelpers.inputVisibleTest({ context, path: '?.amortizationPeriod', isVisible: true });
+
+    // Test number widget addressTaxes with conditional ifOwnershipTypeIsBuyCustomConditional
+    /* @link file://./../src/survey/common/conditionals.tsx */
+    testHelpers.inputVisibleTest({ context, path: '?.taxes', isVisible: true });
+    testHelpers.inputStringTest({ context, path: '?.taxes', value: '?' });
+
+    // Test number widget addressUtilities with conditional askForUtilitiesCustomConditional
+    /* @link file://./../src/survey/common/conditionals.tsx */
+    testHelpers.inputVisibleTest({ context, path: '?.utilities', isVisible: true });
+    testHelpers.inputStringTest({ context, path: '?.utilities', value: '?' });
 };
 
 /********** Tests Household section **********/
@@ -94,22 +128,18 @@ export const fillHouseholdSectionTests = ({ context, householdSize }: CommonTest
     testHelpers.sectionProgressBarTest({ context, sectionName: 'household', completionPercentage: 0 });
 
     // Test custom widget householdMembers
-    // Implement custom test
+    // Widget not active
 
     // Test number widget personAge
-    testHelpers.inputStringTest({ context, path: 'household.persons.${personId[0]}.age', value: '?' });
+    // Widget not active
 
     // Test radio widget personDrivingLicenseOwnership with conditional ifAge16OrMoreConditional with choices yesNoDontKnow
     /* @link file://./../src/survey/common/conditionals.tsx */
     /* @link file://./../src/survey/common/choices.tsx */
-    testHelpers.inputVisibleTest({ context, path: 'household.persons.${personId[0]}.drivingLicenseOwnership', isVisible: true });
-    testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[0]}.drivingLicenseOwnership', value: '?' });
+    // Widget not active
 
     // Test nextbutton widget household_save
-    testHelpers.inputNextButtonTest({ context, text: '?', nextPageUrl: '?' });
-
-    // Verify the household navigation is completed
-    testHelpers.verifyNavBarButtonStatus({ context, buttonText: 'household', buttonStatus: 'completed', isDisabled: false });
+    // Widget not active
 };
 
 /********** Tests Cars section **********/
@@ -121,13 +151,13 @@ export const fillCarsSectionTests = ({ context, householdSize }: CommonTestParam
     testHelpers.sectionProgressBarTest({ context, sectionName: 'cars', completionPercentage: 0 });
 
     // Test custom widget carInformation
-    // Implement custom test
+    // Widget not active
 
     // Test radio widget carCategory with choices carCategoryChoices
     /* @link file://./../src/survey/common/choices.tsx */
-    testHelpers.inputRadioTest({ context, path: '?.category', value: '?' });
+    // Widget not active
 
     // Test radio widget carEngineType with choices carEngineChoices
     /* @link file://./../src/survey/common/choices.tsx */
-    testHelpers.inputRadioTest({ context, path: '?.engineType', value: '?' });
+    // Widget not active
 };
