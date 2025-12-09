@@ -60,9 +60,6 @@ export const customPreload: SectionConfig['preload'] = function (
             startUpdateInterview({ sectionShortname: currentSectionName, valuesByPath: responsesContent }, callback);
         }
     } else {
-        //TODO: If there are 0 cars, skip to the next section (once it is added)
-        responsesContent['response._activeSection'] = 'home';
-        responsesContent['response.household._carInfoCount'] = undefined;
         startUpdateInterview({ sectionShortname: currentSectionName, valuesByPath: responsesContent }, callback);
     }
     return null;

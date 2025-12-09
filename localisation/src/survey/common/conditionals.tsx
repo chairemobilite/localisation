@@ -19,3 +19,16 @@ export const ifAge16OrMoreConditional: WidgetConditional = (interview, path) => 
         ]
     });
 };
+
+export const if2OrMoreCarsConditional: WidgetConditional = (interview) => {
+    return checkConditionals({
+        interview,
+        conditionals: [
+            {
+                path: 'household.carNumber',
+                comparisonOperator: '>=',
+                value: 2
+            }
+        ]
+    });
+};

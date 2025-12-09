@@ -12,16 +12,6 @@ import { countCars } from './customHelpers';
 export default function (interview, sectionShortname) {
     moment.locale(i18n.language); // seems we need this because it is not set correctly globally
 
-    // If home is not in the territory, make sure to redirect to completed section
-    if (sectionShortname !== 'home' && sectionShortname !== 'completed') {
-        const homeInTerritory = getResponse(interview, 'home._homeIsInTerritory', undefined);
-        if (homeInTerritory === false) {
-            return {
-                'response._activeSection': 'completed'
-            };
-        }
-    }
-
     // Prepare the responses object with the household persons count
     const responses = {
         ['response.household._personsCount']: countPersons({ interview }),

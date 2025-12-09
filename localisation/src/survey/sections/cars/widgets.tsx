@@ -8,9 +8,20 @@ import { defaultConditional } from 'evolution-common/lib/services/widgets/condit
 import * as WidgetConfig from 'evolution-common/lib/services/questionnaire/types';
 import * as validations from 'evolution-common/lib/services/widgets/validations/validations';
 import * as choices from '../../common/choices';
+import * as conditionals from '../../common/conditionals';
 import * as customWidgets from './customWidgets';
 
 export const carInformation = customWidgets.carInformation;
+
+export const carNickname: WidgetConfig.InputStringType = {
+    ...defaultInputBase.inputStringBase,
+    path: 'nickname',
+    twoColumns: false,
+    containsHtml: true,
+    label: (t: TFunction) => t('cars:nickname'),
+    conditional: conditionals.if2OrMoreCarsConditional,
+    validations: validations.requiredValidation
+};
 
 export const carCategory: WidgetConfig.InputRadioType = {
     ...defaultInputBase.inputRadioBase,
@@ -32,4 +43,10 @@ export const carEngineType: WidgetConfig.InputRadioType = {
     choices: choices.carEngineChoices,
     conditional: defaultConditional,
     validations: validations.requiredValidation
+};
+
+export const cars_save: WidgetConfig.ButtonWidgetConfig = {
+    ...defaultInputBase.buttonNextBase,
+    path: 'cars.save',
+    label: (t: TFunction) => t('cars:cars.save')
 };

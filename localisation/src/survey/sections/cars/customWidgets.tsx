@@ -1,10 +1,8 @@
 import { TFunction } from 'i18next';
-import { getResponse } from 'evolution-common/lib/utils/helpers';
 import { GroupConfig } from 'evolution-common/lib/services/questionnaire/types';
 import { carInformationWidgetsNames } from './widgetsNames';
-import { countCars } from '../../common/customHelpers';
 
-// This custom widget groups information widgets for individual cars. It is similar to the custom widgets in household, grouping information on individual persons.
+// This custom widget groups information widgets for individual cars.
 export const carInformation: GroupConfig = {
     type: 'group',
     path: 'cars.information',
@@ -21,13 +19,10 @@ export const carInformation: GroupConfig = {
         }
     },
     showGroupedObjectDeleteButton: function (interview, _path) {
-        const carInfoCount = countCars({ interview });
-        const householdCarNumber = getResponse(interview, 'household.carNumber', null);
-        const householdCarNumberNum = householdCarNumber ? Number(householdCarNumber) : undefined;
-        return householdCarNumberNum ? carInfoCount > householdCarNumberNum : false;
+        return false;
     },
     showGroupedObjectAddButton: function (_interview, _path) {
-        return true;
+        return false;
     },
     groupedObjectAddButtonLabel: (t: TFunction) => t('cars:addGroupedObject'),
     groupedObjectDeleteButtonLabel: (t: TFunction) => t('cars:deleteThisGroupedObject'),

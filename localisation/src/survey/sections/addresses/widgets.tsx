@@ -101,3 +101,9 @@ export const addressUtilities: WidgetConfig.InputStringType = {
     conditional: customConditionals.askForUtilitiesCustomConditional,
     validations: validations.requiredValidation
 };
+
+export const addresses_save: WidgetConfig.ButtonWidgetConfig = {
+    ...defaultInputBase.buttonNextBase,
+    path: 'addresses.save',
+    label: (t: TFunction) => t('addresses:addresses.save')
+};

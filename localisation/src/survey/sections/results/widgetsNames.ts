@@ -4,6 +4,4 @@
 
 import { SectionConfig } from 'evolution-common/lib/services/questionnaire/types';
 
-export const widgetsNames: SectionConfig['widgets'] = ['carInformation', 'cars_save'];
-
-export const carInformationWidgetsNames: SectionConfig['widgets'] = ['carNickname', 'carCategory', 'carEngineType'];
+export const widgetsNames: SectionConfig['widgets'] = ['results_intro'];

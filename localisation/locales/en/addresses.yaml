@@ -18,3 +18,4 @@ interestRate: <strong>Mortgage interest rate</strong>, in %
 amortizationPeriod: <strong>Amortization period of the mortgage</strong>
 taxes: <strong>Annual cost of municipal and school taxes</strong>
 utilities: <strong>Monthly cost of utilities</strong> (electricity, gas, ...)
+addresses.save: Save and continue

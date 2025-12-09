@@ -3,7 +3,7 @@ excel_file_path: ../../../localisation/references/questionnaireLocalisation.xlsx
 
 enabled_scripts:
     generate_excel: false
-    generate_section_configs: true
+    generate_section_configs: false
     generate_sections: true
     generate_widgets_configs: true
     generate_widgets: true
