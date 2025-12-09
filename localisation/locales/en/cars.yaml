@@ -2,7 +2,13 @@
 # The Evolution Generator is used to automate the creation of consistent, reliable code.
 # Any changes made to this file will be overwritten.
 
+nickname: >-
+    <strong>Model or nickname</strong> that will allow you to identify this car for
+    the remainder of the interview<br /><span class="_pale _oblique">Can be the brand
+    of the car, its role (ex: 'Primary car', 'Mom’s car'), or any other designation
+    that will allow you to identify it.</span>
 category: <strong>Category of the car</strong><br />
 engineType: <strong>Engine type</strong><br />
+cars.save: Save and continue
 addGroupedObject: Add a missing car
 deleteThisGroupedObject: Delete this car

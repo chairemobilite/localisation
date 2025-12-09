@@ -61,6 +61,64 @@ export const fillHomeSectionTests = ({ context, householdSize }: CommonTestParam
     testHelpers.verifyNavBarButtonStatus({ context, buttonText: 'home', buttonStatus: 'completed', isDisabled: false });
 };
 
+/********** Tests Household section **********/
+export const fillHouseholdSectionTests = ({ context, householdSize }: CommonTestParametersModify) => {
+    // Verify the household navigation is active
+    testHelpers.verifyNavBarButtonStatus({ context, buttonText: 'household', buttonStatus: 'active', isDisabled: false });
+
+    // Progress bar test for household section
+    testHelpers.sectionProgressBarTest({ context, sectionName: 'household', completionPercentage: 0 });
+
+    // Test custom widget householdMembers
+    // Implement custom test
+
+    // Test number widget personAge
+    testHelpers.inputStringTest({ context, path: 'household.persons.${personId[0]}.age', value: '?' });
+
+    // Test radio widget personDrivingLicenseOwnership with conditional ifAge16OrMoreConditional with choices yesNoDontKnow
+    /* @link file://./../src/survey/common/conditionals.tsx */
+    /* @link file://./../src/survey/common/choices.tsx */
+    testHelpers.inputVisibleTest({ context, path: 'household.persons.${personId[0]}.drivingLicenseOwnership', isVisible: true });
+    testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[0]}.drivingLicenseOwnership', value: '?' });
+
+    // Test nextbutton widget household_save
+    testHelpers.inputNextButtonTest({ context, text: '?', nextPageUrl: '?' });
+
+    // Verify the household navigation is completed
+    testHelpers.verifyNavBarButtonStatus({ context, buttonText: 'household', buttonStatus: 'completed', isDisabled: false });
+};
+
+/********** Tests Cars section **********/
+export const fillCarsSectionTests = ({ context, householdSize }: CommonTestParametersModify) => {
+    // Verify the cars navigation is active
+    testHelpers.verifyNavBarButtonStatus({ context, buttonText: 'cars', buttonStatus: 'active', isDisabled: false });
+
+    // Progress bar test for cars section
+    testHelpers.sectionProgressBarTest({ context, sectionName: 'cars', completionPercentage: 0 });
+
+    // Test custom widget carInformation
+    // Implement custom test
+
+    // Test string widget carNickname with conditional if2OrMoreCarsConditional
+    /* @link file://./../src/survey/common/conditionals.tsx */
+    testHelpers.inputVisibleTest({ context, path: '?.nickname', isVisible: true });
+    testHelpers.inputStringTest({ context, path: '?.nickname', value: '?' });
+
+    // Test radio widget carCategory with choices carCategoryChoices
+    /* @link file://./../src/survey/common/choices.tsx */
+    testHelpers.inputRadioTest({ context, path: '?.category', value: '?' });
+
+    // Test radio widget carEngineType with choices carEngineChoices
+    /* @link file://./../src/survey/common/choices.tsx */
+    testHelpers.inputRadioTest({ context, path: '?.engineType', value: '?' });
+
+    // Test nextbutton widget cars_save
+    testHelpers.inputNextButtonTest({ context, text: '?', nextPageUrl: '?' });
+
+    // Verify the cars navigation is completed
+    testHelpers.verifyNavBarButtonStatus({ context, buttonText: 'cars', buttonStatus: 'completed', isDisabled: false });
+};
+
 /********** Tests Addresses section **********/
 export const fillAddressesSectionTests = ({ context, householdSize }: CommonTestParametersModify) => {
     // Verify the addresses navigation is active
@@ -117,47 +175,48 @@ export const fillAddressesSectionTests = ({ context, householdSize }: CommonTest
     /* @link file://./../src/survey/common/conditionals.tsx */
     testHelpers.inputVisibleTest({ context, path: '?.utilities', isVisible: true });
     testHelpers.inputStringTest({ context, path: '?.utilities', value: '?' });
+
+    // Test nextbutton widget addresses_save
+    testHelpers.inputNextButtonTest({ context, text: '?', nextPageUrl: '?' });
+
+    // Verify the addresses navigation is completed
+    testHelpers.verifyNavBarButtonStatus({ context, buttonText: 'addresses', buttonStatus: 'completed', isDisabled: false });
 };
 
-/********** Tests Household section **********/
-export const fillHouseholdSectionTests = ({ context, householdSize }: CommonTestParametersModify) => {
-    // Verify the household navigation is active
-    testHelpers.verifyNavBarButtonStatus({ context, buttonText: 'household', buttonStatus: 'active', isDisabled: false });
+/********** Tests Destinations section **********/
+export const fillDestinationsSectionTests = ({ context, householdSize }: CommonTestParametersModify) => {
+    // Verify the destinations navigation is active
+    testHelpers.verifyNavBarButtonStatus({ context, buttonText: 'destinations', buttonStatus: 'active', isDisabled: false });
 
-    // Progress bar test for household section
-    testHelpers.sectionProgressBarTest({ context, sectionName: 'household', completionPercentage: 0 });
+    // Progress bar test for destinations section
+    testHelpers.sectionProgressBarTest({ context, sectionName: 'destinations', completionPercentage: 0 });
 
-    // Test custom widget householdMembers
-    // Widget not active
+    // Test custom widget frequentVisitedPlaces
+    // Implement custom test
 
-    // Test number widget personAge
-    // Widget not active
+    // Test string widget visitedPlaceName
+    testHelpers.inputStringTest({ context, path: '?.name', value: '?' });
 
-    // Test radio widget personDrivingLicenseOwnership with conditional ifAge16OrMoreConditional with choices yesNoDontKnow
-    /* @link file://./../src/survey/common/conditionals.tsx */
-    /* @link file://./../src/survey/common/choices.tsx */
-    // Widget not active
+    // Test custom widget visitedPlaceGeography
+    // Implement custom test
 
-    // Test nextbutton widget household_save
-    // Widget not active
+    // Test radionumber widget visitedPlaceFrequency
+
+    // Test nextbutton widget destinations_save
+    testHelpers.inputNextButtonTest({ context, text: '?', nextPageUrl: '?' });
+
+    // Verify the destinations navigation is completed
+    testHelpers.verifyNavBarButtonStatus({ context, buttonText: 'destinations', buttonStatus: 'completed', isDisabled: false });
 };
 
-/********** Tests Cars section **********/
-export const fillCarsSectionTests = ({ context, householdSize }: CommonTestParametersModify) => {
-    // Verify the cars navigation is active
-    testHelpers.verifyNavBarButtonStatus({ context, buttonText: 'cars', buttonStatus: 'active', isDisabled: false });
+/********** Tests Results section **********/
+export const fillResultsSectionTests = ({ context, householdSize }: CommonTestParametersModify) => {
+    // Verify the results navigation is active
+    testHelpers.verifyNavBarButtonStatus({ context, buttonText: 'results', buttonStatus: 'active', isDisabled: false });
 
-    // Progress bar test for cars section
-    testHelpers.sectionProgressBarTest({ context, sectionName: 'cars', completionPercentage: 0 });
+    // Progress bar test for results section
+    testHelpers.sectionProgressBarTest({ context, sectionName: 'results', completionPercentage: 0 });
 
-    // Test custom widget carInformation
-    // Widget not active
-
-    // Test radio widget carCategory with choices carCategoryChoices
-    /* @link file://./../src/survey/common/choices.tsx */
-    // Widget not active
-
-    // Test radio widget carEngineType with choices carEngineChoices
-    /* @link file://./../src/survey/common/choices.tsx */
-    // Widget not active
+    // Test infotext widget results_intro
+    testHelpers.waitTextVisible({ context, text: '?' });
 };

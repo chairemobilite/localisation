@@ -3,15 +3,24 @@
 // Any changes made to this file will be overwritten.
 
 import * as homeWidgets from './sections/home/widgets';
-import * as addressesWidgets from './sections/addresses/widgets';
 import * as householdWidgets from './sections/household/widgets';
 import * as carsWidgets from './sections/cars/widgets';
+import * as addressesWidgets from './sections/addresses/widgets';
+import * as destinationsWidgets from './sections/destinations/widgets';
+import * as resultsWidgets from './sections/results/widgets';
 
 // Define all the widgets
 const widgets: { [key: string]: any } = {};
 
 // Define all the sections widgets
-const sectionsWidgets = [homeWidgets, addressesWidgets, householdWidgets, carsWidgets];
+const sectionsWidgets = [
+    homeWidgets,
+    householdWidgets,
+    carsWidgets,
+    addressesWidgets,
+    destinationsWidgets,
+    resultsWidgets
+];
 
 // Loop all sections and add their widgets to the widgets object
 sectionsWidgets.forEach((section) => {

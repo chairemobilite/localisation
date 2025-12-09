@@ -4,15 +4,19 @@
 
 import { getAndValidateSurveySections, SurveySectionsConfig } from 'evolution-common/lib/services/questionnaire/types';
 import homeConfigs from './sections/home/sectionConfigs';
-import addressesConfigs from './sections/addresses/sectionConfigs';
 import householdConfigs from './sections/household/sectionConfigs';
 import carsConfigs from './sections/cars/sectionConfigs';
+import addressesConfigs from './sections/addresses/sectionConfigs';
+import destinationsConfigs from './sections/destinations/sectionConfigs';
+import resultsConfigs from './sections/results/sectionConfigs';
 
 // Export all the sections configs
 const sectionsConfigs: SurveySectionsConfig = {
     home: homeConfigs,
-    addresses: addressesConfigs,
     household: householdConfigs,
-    cars: carsConfigs
+    cars: carsConfigs,
+    addresses: addressesConfigs,
+    destinations: destinationsConfigs,
+    results: resultsConfigs
 };
 export default getAndValidateSurveySections(sectionsConfigs);

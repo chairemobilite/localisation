@@ -19,3 +19,4 @@ amortizationPeriod: <strong>Période d'amortissement du prêt hypothécaire</str
 taxes: <strong>Montant annuel des taxes municipales et scolaires</strong>
 utilities: >-
     <strong>Montant mensuel des services publics</strong> (électricité, gaz, ...)
+addresses.save: Enregistrer et continuer

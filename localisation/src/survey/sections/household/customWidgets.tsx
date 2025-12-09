@@ -4,6 +4,7 @@ import { GroupConfig } from 'evolution-common/lib/services/questionnaire/types';
 import { countPersons } from 'evolution-common/lib/services/odSurvey/helpers';
 import { householdMembersWidgetsNames } from './widgetsNames';
 
+// Groups information on the members of the household
 export const householdMembers: GroupConfig = {
     type: 'group',
     path: 'household.persons',
