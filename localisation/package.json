@@ -15,7 +15,7 @@
     "build:admin:prod": "cross-env NODE_OPTIONS=\"--trace-deprecation --max_old_space_size=1024 --openssl-legacy-provider\" webpack --config webpack.admin.config.js --progress --color --node-env production --mode production",
     "clean": "rimraf lib/",
     "cleanModules": "rimraf node_modules/",
-    "copy-files": "copyfiles -u 1 src/survey/*.json src/survey/config/*.json src/survey/*.geojson src/survey/geojson/*.geojson src/styles/*.scss ./lib/",
+    "copy-files": "copyfiles -u 1 src/survey/*.json src/survey/config/*.json src/survey/*.geojson src/survey/geojson/*.geojson src/styles/*.scss ./lib/ && copyfiles -u 1 src/assets/icons/**/* src/assets/icons/**/**/* src/assets/images/**/* src/assets/images/**/**/* src/assets/documents/**/* src/assets/documents/**/**/* ./lib/ ",
     "compile": "tsc && yarn copy-files",
     "compile:dev": "yarn copy-files && tsc -w",
     "start": "yarn node lib/server.js --max-old-space-size=4096",
