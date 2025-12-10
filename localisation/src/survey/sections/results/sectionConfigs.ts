@@ -22,6 +22,7 @@ export const sectionConfig: SectionConfig = {
             en: 'Results'
         }
     },
+    template: 'results',
     widgets: widgetsNames,
     // Do some actions before the section is loaded
     preload: customPreload,

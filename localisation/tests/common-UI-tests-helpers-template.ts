@@ -217,6 +217,9 @@ export const fillResultsSectionTests = ({ context, householdSize }: CommonTestPa
     // Progress bar test for results section
     testHelpers.sectionProgressBarTest({ context, sectionName: 'results', completionPercentage: 0 });
 
-    // Test infotext widget results_intro
+    // Test infotext widget resultsIntro
     testHelpers.waitTextVisible({ context, text: '?' });
+
+    // Test custom widget comparisonMap
+    // Implement custom test
 };

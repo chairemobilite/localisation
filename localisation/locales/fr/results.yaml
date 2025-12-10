@@ -2,4 +2,5 @@
 # The Evolution Generator is used to automate the creation of consistent, reliable code.
 # Any changes made to this file will be overwritten.
 
-results.intro: Voici les résultats
+resultsIntro: Voici les résultats
+comparisonMap: Comparaison d'accessibilité

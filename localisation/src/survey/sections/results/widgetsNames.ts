@@ -4,4 +4,4 @@
 
 import { SectionConfig } from 'evolution-common/lib/services/questionnaire/types';
 
-export const widgetsNames: SectionConfig['widgets'] = ['results_intro'];
+export const widgetsNames: SectionConfig['widgets'] = ['resultsIntro', 'comparisonMap'];

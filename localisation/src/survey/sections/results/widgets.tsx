@@ -7,11 +7,14 @@ import * as defaultInputBase from 'evolution-frontend/lib/components/inputs/defa
 import { defaultConditional } from 'evolution-common/lib/services/widgets/conditionals/defaultConditional';
 import * as WidgetConfig from 'evolution-common/lib/services/questionnaire/types';
 import * as validations from 'evolution-common/lib/services/widgets/validations/validations';
+import * as customWidgets from './customWidgets';
 
-export const results_intro: WidgetConfig.TextWidgetConfig = {
+export const resultsIntro: WidgetConfig.TextWidgetConfig = {
     ...defaultInputBase.infoTextBase,
-    path: 'results.intro',
+    path: 'resultsIntro',
     containsHtml: true,
-    text: (t: TFunction) => t('results:results.intro'),
+    text: (t: TFunction) => t('results:resultsIntro'),
     conditional: defaultConditional
 };
+
+export const comparisonMap = customWidgets.comparisonMap;
