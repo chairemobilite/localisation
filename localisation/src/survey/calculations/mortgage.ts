@@ -12,7 +12,13 @@ function effectiveSemiAnnualMonthlyRate(nominalAnnualRate: number): number {
     return Math.pow(1 + nominalAnnualRate / 2, 1 / 6) - 1;
 }
 
-// Monthly payment
+/**
+ * Calculate the monthly payment for a mortgage
+ * @param principal The principal amount of the mortgage
+ * @param annualRate The annual interest rate (as a decimal, so 5% = 0.05)
+ * @param amortizationMonths The amortization period in months
+ * @returns The monthly payment amount
+ */
 export function mortgageMonthlyPayment(principal: number, annualRate: number, amortizationMonths: number): number {
     if (principal < 0 || annualRate < 0 || amortizationMonths <= 0) {
         throw new Error(

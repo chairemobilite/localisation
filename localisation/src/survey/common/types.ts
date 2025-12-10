@@ -19,7 +19,7 @@ export type Address = {
     // Yearly interest rate as a percentage
     interestRate?: number;
     // Amortization period in years
-    amortizationPeriod?: number;
+    amortizationPeriod?: string;
     // Yearly property taxes
     taxes?: number;
     // Monthly utilities cost
@@ -32,4 +32,11 @@ export type Destination = {
     name?: string;
     geography?: GeoJSON.Feature<GeoJSON.Point>;
     frequency?: string;
+};
+
+export type CalculationResults = {
+    /** Monthly cost for housing. Can be null if there is missing information */
+    housingCostMonthly: number | null;
+    /** Percentage of income spent on housing. Can be null if there is missing information */
+    housingCostPercentageOfIncome: number | null;
 };

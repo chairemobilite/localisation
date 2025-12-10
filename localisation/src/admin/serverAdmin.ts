@@ -8,15 +8,15 @@ import path from 'path';
 
 import setupServer from 'evolution-backend/lib/apps/admin';
 import { setProjectConfig } from 'evolution-backend/lib/config/projectConfig';
+import serverUpdateCallbacks from '../survey/server/serverFieldUpdate';
 import { registerTranslationDir, addTranslationNamespace } from 'chaire-lib-backend/lib/config/i18next';
 
-// TODO Add server update callbacks, if any
 // TODO Add server validations, if any
 // TODO Add validation list filter if necessary
 
 const configureServer = () => {
     setProjectConfig({
-        serverUpdateCallbacks: [],
+        serverUpdateCallbacks,
         serverValidations: {}
     });
 };
