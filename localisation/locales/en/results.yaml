@@ -4,3 +4,6 @@
 
 resultsIntro: Here are the results
 comparisonMap: Accessibility comparison
+monthlyCost.housingCostMonthly: Total Housing Monthly Cost<br />$<strong>{{housingCostMonthly}}</strong>
+addressGroupName: Option B
+addressGroupName_one: Option A

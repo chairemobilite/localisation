@@ -222,4 +222,10 @@ export const fillResultsSectionTests = ({ context, householdSize }: CommonTestPa
 
     // Test custom widget comparisonMap
     // Implement custom test
+
+    // Test custom widget resultsByAddress
+    // Implement custom test
+
+    // Test custom widget monthlyCost
+    // Implement custom test
 };

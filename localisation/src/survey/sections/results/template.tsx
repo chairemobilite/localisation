@@ -50,6 +50,11 @@ export const LocalisationResultsSection: React.FC<SectionProps> = (props: Sectio
         <section className={`survey-section survey-section-shortname-${props.shortname}`}>
             <div className="survey-section__content">
                 {widgetsComponentsByShortname['resultsIntro']}
+                <div className="survey-visited-places-list">
+                    <div className={'survey-visited-places-map'}>
+                        {widgetsComponentsByShortname['resultsByAddress']}
+                    </div>
+                </div>
                 <div className="survey-visited-places-list-and-map-container">
                     <div className={'survey-visited-places-map'}>{widgetsComponentsByShortname['comparisonMap']}</div>
                 </div>
