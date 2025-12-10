@@ -1,5 +1,6 @@
 import { UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { getResponse } from 'evolution-common/lib/utils/helpers';
+import { Address, Destination } from './types';
 
 export const countCars = ({ interview }: { interview: UserInterviewAttributes }): number => {
     const carIds = getResponse(interview, 'cars', {});
@@ -42,4 +43,30 @@ export const getCurrentAddressId = ({
     }
     // 2. Otherwise, use the active person id from the interview response
     return interview.response._activePersonId ?? null;
+};
+
+/**
+ * Get the addresses array for an interview, or an empty array if there are no
+ * addresses for this interview.
+ *
+ * @param {UserInterviewAttributes} interview The interview for which to get the addresses
+ * @returns {Address[]} The array of addresses sorted by sequence, or an empty array if none exist.
+ */
+export const getAddressesArray = function (interview: UserInterviewAttributes): Address[] {
+    const addresses = getResponse(interview, 'addresses', {});
+    return Object.values(addresses).sort((addressA, addressB) => addressA._sequence - addressB._sequence);
+};
+
+/**
+ * Get the destinations array for an interview, or an empty array if there are no
+ * destinations for this interview.
+ *
+ * @param {UserInterviewAttributes} interview The interview for which to get the destinations
+ * @returns {Destination[]} The array of destinations sorted by sequence, or an empty array if none exist.
+ */
+export const getDestinationsArray = function (interview: UserInterviewAttributes): Destination[] {
+    const destinations = getResponse(interview, 'destinations', {});
+    return Object.values(destinations).sort(
+        (destinationA, destinationB) => destinationA._sequence - destinationB._sequence
+    );
 };
