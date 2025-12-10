@@ -4,3 +4,7 @@
 
 resultsIntro: Voici les résultats
 comparisonMap: Comparaison d'accessibilité
+monthlyCost.housingCostMonthly: >-
+    Coût mensuel total du logement<br /><strong>{{housingCostMonthly}}</strong> $
+addressGroupName: Option B
+addressGroupName_one: Option A

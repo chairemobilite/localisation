@@ -18,3 +18,7 @@ export const resultsIntro: WidgetConfig.TextWidgetConfig = {
 };
 
 export const comparisonMap = customWidgets.comparisonMap;
+
+export const resultsByAddress = customWidgets.resultsByAddress;
+
+export const monthlyCost = customWidgets.monthlyCost;

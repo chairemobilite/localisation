@@ -1,8 +1,17 @@
-import { InfoMapWidgetConfig, UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { center as turfCenter } from '@turf/turf';
 import { TFunction } from 'i18next';
+
+import {
+    GroupConfig,
+    InfoMapWidgetConfig,
+    TextWidgetConfig,
+    UserInterviewAttributes
+} from 'evolution-common/lib/services/questionnaire/types';
 import { getActivityMarkerIcon } from 'evolution-common/lib/services/questionnaire/sections/visitedPlaces/activityIconMapping';
+import * as defaultInputBase from 'evolution-frontend/lib/components/inputs/defaultInputBase';
 import { getAddressesArray, getDestinationsArray } from '../../common/customHelpers';
+import { getResponse } from 'evolution-common/lib/utils/helpers';
+import { resultsByAddressWidgetsNames } from './widgetsNames';
 
 // Info map widget showing all addresses and visited places and possibly other data
 // Custom because it is an info map and cannot be described in the generator
@@ -75,5 +84,36 @@ export const comparisonMap: InfoMapWidgetConfig = {
                 features: geographies
             }
         };
+    }
+};
+
+// Groups information to display the results by address
+export const resultsByAddress: GroupConfig = {
+    type: 'group',
+    path: 'addresses',
+    title: {
+        fr: 'Adresses',
+        en: 'Addresses'
+    },
+    name: (t: TFunction, object: unknown, sequence: number | null, interview: UserInterviewAttributes) => {
+        return t('results:addressGroupName', { count: sequence });
+    },
+    showGroupedObjectDeleteButton: false,
+    showGroupedObjectAddButton: false,
+    widgets: resultsByAddressWidgetsNames
+};
+
+// Custom text widget because the label has placeholders. Also, since the value comes from server, the conditional is on the path itself, so it needs to be custom
+export const monthlyCost: TextWidgetConfig = {
+    ...defaultInputBase.infoTextBase,
+    path: 'monthlyCost.housingCostMonthly',
+    containsHtml: true,
+    text: (t: TFunction, interview: UserInterviewAttributes, path) => {
+        const monthlyCost = getResponse(interview, path as string, null) as number;
+        return t('results:monthlyCost.housingCostMonthly', { housingCostMonthly: monthlyCost?.toFixed(2) });
+    },
+    conditional: (interview: UserInterviewAttributes, path: string) => {
+        const monthlyCost = getResponse(interview, path as string, null);
+        return monthlyCost !== null;
     }
 };
