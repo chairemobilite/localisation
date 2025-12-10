@@ -33,7 +33,7 @@ export default function (interview, sectionShortname) {
     // Check if numbers of cars are in sync
     if (sectionShortname !== 'home' && sectionShortname !== 'household' && sectionShortname !== 'cars') {
         const householdCarNumber = getResponse(interview, 'household.carNumber', undefined);
-        const carInformation = getResponse(interview, 'cars.information', undefined);
+        const carInformation = getResponse(interview, 'cars', undefined);
         if (!_isBlank(householdCarNumber) && !_isBlank(carInformation)) {
             const carCount = responses['response.household._carInfoCount'];
             if (carCount !== householdCarNumber) {

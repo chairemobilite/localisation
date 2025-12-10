@@ -10,7 +10,7 @@ export const ifEngineTypeIsGasCustomConditional: WidgetConditional = (interview,
         interview,
         conditionals: [
             {
-                path: `cars.information.${currentCarId}.category`,
+                path: `cars.${currentCarId}.category`,
                 comparisonOperator: '!==',
                 value: 'luxuryPickup'
             }
@@ -24,19 +24,19 @@ export const ifEngineTypeIsHybridCustomConditional: WidgetConditional = (intervi
         interview,
         conditionals: [
             {
-                path: `cars.information.${currentCarId}.category`,
+                path: `cars.${currentCarId}.category`,
                 comparisonOperator: '!==',
                 value: 'luxuryPickup'
             },
             {
                 logicalOperator: '&&',
-                path: `cars.information.${currentCarId}.category`,
+                path: `cars.${currentCarId}.category`,
                 comparisonOperator: '!==',
                 value: 'luxuryCargoVan'
             },
             {
                 logicalOperator: '&&',
-                path: `cars.information.${currentCarId}.category`,
+                path: `cars.${currentCarId}.category`,
                 comparisonOperator: '!==',
                 value: 'cargoVan'
             }
@@ -50,25 +50,25 @@ export const ifEngineTypeIsPluginHybridCustomConditional: WidgetConditional = (i
         interview,
         conditionals: [
             {
-                path: `cars.information.${currentCarId}.category`,
+                path: `cars.${currentCarId}.category`,
                 comparisonOperator: '!==',
                 value: 'luxuryPickup'
             },
             {
                 logicalOperator: '&&',
-                path: `cars.information.${currentCarId}.category`,
+                path: `cars.${currentCarId}.category`,
                 comparisonOperator: '!==',
                 value: 'pickup'
             },
             {
                 logicalOperator: '&&',
-                path: `cars.information.${currentCarId}.category`,
+                path: `cars.${currentCarId}.category`,
                 comparisonOperator: '!==',
                 value: 'luxuryCargoVan'
             },
             {
                 logicalOperator: '&&',
-                path: `cars.information.${currentCarId}.category`,
+                path: `cars.${currentCarId}.category`,
                 comparisonOperator: '!==',
                 value: 'cargoVan'
             }
@@ -82,19 +82,19 @@ export const ifEngineTypeIsElectricCustomConditional: WidgetConditional = (inter
         interview,
         conditionals: [
             {
-                path: `cars.information.${currentCarId}.category`,
+                path: `cars.${currentCarId}.category`,
                 comparisonOperator: '!==',
                 value: 'luxuryCargoVan'
             },
             {
                 logicalOperator: '&&',
-                path: `cars.information.${currentCarId}.category`,
+                path: `cars.${currentCarId}.category`,
                 comparisonOperator: '!==',
                 value: 'cargoVan'
             },
             {
                 logicalOperator: '&&',
-                path: `cars.information.${currentCarId}.category`,
+                path: `cars.${currentCarId}.category`,
                 comparisonOperator: '!==',
                 value: 'minivan'
             }
@@ -119,7 +119,7 @@ export const ifOwnershipTypeIsRentCustomConditional: WidgetConditional = (interv
         interview,
         conditionals: [
             {
-                path: `addresses.information.${currentAddressId}.ownership`,
+                path: `addresses.${currentAddressId}.ownership`,
                 comparisonOperator: '===',
                 value: 'rent'
             }
@@ -133,7 +133,7 @@ export const ifOwnershipTypeIsBuyCustomConditional: WidgetConditional = (intervi
         interview,
         conditionals: [
             {
-                path: `addresses.information.${currentAddressId}.ownership`,
+                path: `addresses.${currentAddressId}.ownership`,
                 comparisonOperator: '===',
                 value: 'buy'
             }
@@ -147,13 +147,13 @@ export const askForUtilitiesCustomConditional: WidgetConditional = (interview, p
         interview,
         conditionals: [
             {
-                path: `addresses.information.${currentAddressId}.areUtilitiesIncluded`,
+                path: `addresses.${currentAddressId}.areUtilitiesIncluded`,
                 comparisonOperator: '===',
                 value: 'no'
             },
             {
                 logicalOperator: '||',
-                path: `addresses.information.${currentAddressId}.ownership`,
+                path: `addresses.${currentAddressId}.ownership`,
                 comparisonOperator: '===',
                 value: 'buy'
             }

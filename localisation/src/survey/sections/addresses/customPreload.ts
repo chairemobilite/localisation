@@ -12,7 +12,7 @@ export const customPreload: SectionConfig['preload'] = function (
 ) {
     const responsesContent = customPreloadBase(interview, currentSectionName);
 
-    const groupedObjects = getResponse(interview, 'addresses.information');
+    const groupedObjects = getResponse(interview, 'addresses');
     const groupedObjectIds = groupedObjects ? Object.keys(groupedObjects) : [];
 
     const emptyGroupedObjects = groupedObjectIds.filter((groupedObjectId) => {
@@ -22,24 +22,15 @@ export const customPreload: SectionConfig['preload'] = function (
 
     if (groupedObjectIds.length < ADDRESS_NUMBER) {
         // auto create objects according to number of addresses:
-        startAddGroupedObjects(
-            ADDRESS_NUMBER - groupedObjectIds.length,
-            -1,
-            'addresses.information',
-            null,
-            (_interview) => {
-                startUpdateInterview(
-                    { sectionShortname: currentSectionName, valuesByPath: responsesContent },
-                    callback
-                );
-            }
-        );
+        startAddGroupedObjects(ADDRESS_NUMBER - groupedObjectIds.length, -1, 'addresses', null, (_interview) => {
+            startUpdateInterview({ sectionShortname: currentSectionName, valuesByPath: responsesContent }, callback);
+        });
     } else if (groupedObjectIds.length > ADDRESS_NUMBER) {
         const pathsToDelete = [];
         // auto remove empty objects according to number of addresses:
         for (let i = 0; i < groupedObjectIds.length; i++) {
             if (emptyGroupedObjects[i]) {
-                pathsToDelete.push(`addresses.information.${emptyGroupedObjects[i]}`);
+                pathsToDelete.push(`addresses.${emptyGroupedObjects[i]}`);
             }
         }
         if (pathsToDelete.length > 0) {

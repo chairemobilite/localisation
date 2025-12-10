@@ -10,7 +10,7 @@ import { getGeographyCustomValidation } from '../../common/customValidations';
 // Groups information widgets for individual destinations.
 export const frequentVisitedPlaces: GroupConfig = {
     type: 'group',
-    path: 'destinations.information',
+    path: 'destinations',
     title: {
         fr: 'Destinations fréquentes',
         en: 'Frequent destinations'

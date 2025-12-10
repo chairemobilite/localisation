@@ -10,7 +10,7 @@ export const customPreload: SectionConfig['preload'] = function (
 ) {
     const responsesContent = customPreloadBase(interview, currentSectionName);
 
-    const groupedObjects = getResponse(interview, 'cars.information');
+    const groupedObjects = getResponse(interview, 'cars');
     const groupedObjectIds = groupedObjects ? Object.keys(groupedObjects) : [];
     const carNumber = getResponse(interview, 'household.carNumber', 0) as number;
     const carNumberIsValid = !isNaN(Number(carNumber)) && carNumber >= 0 && carNumber <= 13;
@@ -24,7 +24,7 @@ export const customPreload: SectionConfig['preload'] = function (
         responsesContent['response.household._carInfoCount'] = groupedObjectIds.length;
         if (groupedObjectIds.length < carNumber) {
             // auto create objects according to number of cars:
-            startAddGroupedObjects(carNumber - groupedObjectIds.length, -1, 'cars.information', null, (_interview) => {
+            startAddGroupedObjects(carNumber - groupedObjectIds.length, -1, 'cars', null, (_interview) => {
                 responsesContent['response.household._carInfoCount'] = carNumber;
                 startUpdateInterview(
                     { sectionShortname: currentSectionName, valuesByPath: responsesContent },
@@ -36,7 +36,7 @@ export const customPreload: SectionConfig['preload'] = function (
             // auto remove empty objects according to number of cars:
             for (let i = 0; i < groupedObjectIds.length; i++) {
                 if (emptyGroupedObjects[i]) {
-                    pathsToDelete.push(`cars.information.${emptyGroupedObjects[i]}`);
+                    pathsToDelete.push(`cars.${emptyGroupedObjects[i]}`);
                 }
             }
             if (pathsToDelete.length > 0) {

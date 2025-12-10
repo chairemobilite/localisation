@@ -5,7 +5,7 @@ import { carInformationWidgetsNames } from './widgetsNames';
 // This custom widget groups information widgets for individual cars.
 export const carInformation: GroupConfig = {
     type: 'group',
-    path: 'cars.information',
+    path: 'cars',
     title: {
         fr: 'Information sur les voitures',
         en: 'Information on the cars'

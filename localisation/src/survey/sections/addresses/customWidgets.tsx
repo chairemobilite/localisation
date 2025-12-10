@@ -13,7 +13,7 @@ import * as customValidations from '../../common/customValidations';
 // We need a custom widget to group and duplicate the widgets for the info on the addresses we want to compare, such as the living costs and location
 export const addressesInfo: GroupConfig = {
     type: 'group',
-    path: 'addresses.information',
+    path: 'addresses',
     title: {
         fr: 'Information sur les adresses potentielles',
         en: 'Information on the potential addresses'
