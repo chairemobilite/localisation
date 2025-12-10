@@ -127,7 +127,7 @@ module.exports = (env) => {
             new CleanWebpackPlugin({
                 dry: !isProduction,
                 verbose: true,
-                cleanAfterEveryBuildPatterns: ['**/*', '!images/**', '!documents/**', '!*.html']
+                cleanAfterEveryBuildPatterns: ['**/*', '!images/**', '!icons/**', '!documents/**', '!*.html']
             }),
             new HtmlWebpackPlugin({
                 filename: path.join(`index-survey-${config.projectShortname}.html`),
