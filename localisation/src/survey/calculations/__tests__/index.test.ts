@@ -4,12 +4,13 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-
+import _cloneDeep from 'lodash/cloneDeep';
+import config from 'chaire-lib-common/lib/config/shared/project.config';
 import { calculateAccessibilityAndRouting, calculateMonthlyCost } from '../index';
-import { Address } from '../../common/types';
+import { Address, Destination, RoutingByModeDistanceAndTime } from '../../common/types';
 import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { mortgageMonthlyPayment } from '../mortgage';
-import { getAccessibilityMapFromAddress } from '../routingAndAccessibility';
+import { getAccessibilityMapFromAddress, getRoutingFromAddressToDestination } from '../routingAndAccessibility';
 
 jest.mock('../mortgage', () => ({
         mortgageMonthlyPayment: jest.fn()
@@ -17,10 +18,14 @@ jest.mock('../mortgage', () => ({
 const mockMortgageMonthlyPayment = mortgageMonthlyPayment as jest.MockedFunction<typeof mortgageMonthlyPayment>;
 // Mock the getAccessibilityMapFromAddress function
 jest.mock('../routingAndAccessibility', () => ({
-    getAccessibilityMapFromAddress: jest.fn()
+    getAccessibilityMapFromAddress: jest.fn(),
+    getRoutingFromAddressToDestination: jest.fn()
 }));
 const mockGetAccessibilityMapFromAddress = getAccessibilityMapFromAddress as jest.MockedFunction<
     typeof getAccessibilityMapFromAddress
+>;
+const mockGetRoutingFromAddressToDestination = getRoutingFromAddressToDestination as jest.MockedFunction<
+    typeof getRoutingFromAddressToDestination
 >;
 
 describe('calculateMonthlyCost', () => {
@@ -344,28 +349,119 @@ describe('calculateAccessibilityAndRouting', () => {
         ]
     };
 
+    const mockDestination1: Destination = {
+        _sequence: 1,
+        _uuid: 'destination-1',
+        name: 'Work',
+        geography: {
+            type: 'Feature',
+            geometry: {
+                type: 'Point',
+                coordinates: [-73.6, 45.6]
+            },
+            properties: {}
+        }
+    };
+
+    const mockDestination2: Destination = {
+        _sequence: 2,
+        _uuid: 'destination-2',
+        name: 'School',
+        geography: {
+            type: 'Feature',
+            geometry: {
+                type: 'Point',
+                coordinates: [-73.55, 45.55]
+            },
+            properties: {}
+        }
+    };
+
+    const mockInterviewDestinations = {
+        'destination-1': mockDestination1,
+        'destination-2': mockDestination2
+    }
+
+    const mockRoutingResult1: RoutingByModeDistanceAndTime = {
+        _uuid: 'destination-1',
+        _sequence: 1,
+        resultsByMode: {
+            walking: { _uuid: 'walking', _sequence: 0, distanceMeters: 1000, travelTimeSeconds: 720 },
+            cycling: { _uuid: 'cycling', _sequence: 1, distanceMeters: 1200, travelTimeSeconds: 240 },
+            driving: { _uuid: 'driving', _sequence: 2, distanceMeters: 1500, travelTimeSeconds: 180 },
+            transit: { _uuid: 'transit', _sequence: 3, distanceMeters: 1300, travelTimeSeconds: 600 }
+        }
+    };
+
+    const mockRoutingResult2: RoutingByModeDistanceAndTime = {
+        _uuid: 'destination-2',
+        _sequence: 2,
+        resultsByMode: {
+            walking: { _uuid: 'walking', _sequence: 0, distanceMeters: 500, travelTimeSeconds: 360 },
+            cycling: { _uuid: 'cycling', _sequence: 1, distanceMeters: 600, travelTimeSeconds: 120 },
+            driving: { _uuid: 'driving', _sequence: 2, distanceMeters: 800, travelTimeSeconds: 90 },
+            transit: { _uuid: 'transit', _sequence: 3, distanceMeters: 700, travelTimeSeconds: 300 }
+        }
+    };
+
+    let testInterview: InterviewAttributes;
+
     beforeEach(() => {
         jest.clearAllMocks();
+        // Set up default mock return values
+        mockGetAccessibilityMapFromAddress.mockResolvedValue(mockAccessibilityMap);
+        testInterview = _cloneDeep(mockInterview);
+        config.trRoutingScenarios = {
+            SE: 'testScenario'
+        } as any;
     });
 
-    describe('successful accessibility calculation', () => {
-        it('should return accessibility map for valid address', async () => {
+    describe('successful accessibility and routing calculation', () => {
+        it('should return accessibility map and routing results for valid address with destinations', async () => {
             const address: Address = {
                 _sequence: 1,
                 _uuid: 'address-1',
                 geography: mockGeography
             };
 
-            mockGetAccessibilityMapFromAddress.mockResolvedValueOnce(mockAccessibilityMap);
+            // Set the destinations in the interview response with 2 destinations
+            testInterview.response.destinations = mockInterviewDestinations;
+            mockGetRoutingFromAddressToDestination
+                .mockResolvedValueOnce(mockRoutingResult1)
+                .mockResolvedValueOnce(mockRoutingResult2);
 
-            const result = await calculateAccessibilityAndRouting(address, mockInterview);
+            const result = await calculateAccessibilityAndRouting(address, testInterview);
 
             expect(result.accessibilityMap).toEqual(mockAccessibilityMap);
+            expect(result.routingTimeDistances).toEqual({
+                'destination-1': mockRoutingResult1,
+                'destination-2': mockRoutingResult2
+            });
             expect(mockGetAccessibilityMapFromAddress).toHaveBeenCalledWith(address);
-            expect(mockGetAccessibilityMapFromAddress).toHaveBeenCalledTimes(1);
+            expect(mockGetRoutingFromAddressToDestination).toHaveBeenCalledTimes(2);
+            expect(mockGetRoutingFromAddressToDestination).toHaveBeenCalledWith(address, mockDestination1);
+            expect(mockGetRoutingFromAddressToDestination).toHaveBeenCalledWith(address, mockDestination2);
         });
 
-        it('should handle multiple features in accessibility map', async () => {
+        it('should return accessibility map with no routing when there are no destinations', async () => {
+            const address: Address = {
+                _sequence: 1,
+                _uuid: 'address-1',
+                geography: mockGeography
+            };
+
+            // Set the destinations in the interview response with no destination
+            testInterview.response.destinations = {};
+
+            const result = await calculateAccessibilityAndRouting(address, testInterview);
+
+            expect(result.accessibilityMap).toEqual(mockAccessibilityMap);
+            expect(result.routingTimeDistances).toEqual({});
+            expect(mockGetAccessibilityMapFromAddress).toHaveBeenCalledWith(address);
+            expect(mockGetRoutingFromAddressToDestination).not.toHaveBeenCalled();
+        });
+
+        it('should handle multiple features in accessibility map with destinations', async () => {
             const address: Address = {
                 _sequence: 1,
                 _uuid: 'address-1',
@@ -397,17 +493,48 @@ describe('calculateAccessibilityAndRouting', () => {
                 ]
             };
 
+            // Set the destinations in the interview response with 1 destination
+            testInterview.response.destinations = {
+                'destination-1': mockDestination1
+            };
             mockGetAccessibilityMapFromAddress.mockResolvedValueOnce(multiFeatureMap);
+            mockGetRoutingFromAddressToDestination.mockResolvedValueOnce(mockRoutingResult1);
 
-            const result = await calculateAccessibilityAndRouting(address, mockInterview);
+            const result = await calculateAccessibilityAndRouting(address, testInterview);
 
             expect(result.accessibilityMap).toEqual(multiFeatureMap);
             expect(result.accessibilityMap?.features).toHaveLength(2);
+            expect(result.routingTimeDistances).toEqual({
+                'destination-1': mockRoutingResult1
+            });
+        });
+
+        it('should handle single destination routing', async () => {
+            const address: Address = {
+                _sequence: 1,
+                _uuid: 'address-1',
+                geography: mockGeography
+            };
+
+            // Set the destinations in the interview response with 1 destination
+            testInterview.response.destinations = {
+                'destination-1': mockDestination1
+            };
+            mockGetRoutingFromAddressToDestination.mockResolvedValueOnce(mockRoutingResult1);
+
+            const result = await calculateAccessibilityAndRouting(address, testInterview);
+
+            expect(result.accessibilityMap).toEqual(mockAccessibilityMap);
+            expect(result.routingTimeDistances).toEqual({
+                'destination-1': mockRoutingResult1
+            });
+            expect(mockGetRoutingFromAddressToDestination).toHaveBeenCalledTimes(1);
+            expect(mockGetRoutingFromAddressToDestination).toHaveBeenCalledWith(address, mockDestination1);
         });
     });
 
     describe('error handling', () => {
-        it('should return null accessibility map when getAccessibilityMapFromAddress returns null', async () => {
+        it('should return null accessibility map and empty routing when getAccessibilityMapFromAddress returns null', async () => {
             const address: Address = {
                 _sequence: 1,
                 _uuid: 'address-1'
@@ -416,9 +543,10 @@ describe('calculateAccessibilityAndRouting', () => {
 
             mockGetAccessibilityMapFromAddress.mockResolvedValueOnce(null);
 
-            const result = await calculateAccessibilityAndRouting(address, mockInterview);
+            const result = await calculateAccessibilityAndRouting(address, testInterview);
 
             expect(result.accessibilityMap).toBeNull();
+            expect(result.routingTimeDistances).toEqual({});
             expect(mockGetAccessibilityMapFromAddress).toHaveBeenCalledWith(address);
         });
 
@@ -431,12 +559,35 @@ describe('calculateAccessibilityAndRouting', () => {
 
             mockGetAccessibilityMapFromAddress.mockRejectedValueOnce(new Error('Service error'));
 
-            await expect(calculateAccessibilityAndRouting(address, mockInterview)).rejects.toThrow('Service error');
+            await expect(calculateAccessibilityAndRouting(address, testInterview)).rejects.toThrow('Service error');
+        });
+
+        it('should handle partial routing failures', async () => {
+            const address: Address = {
+                _sequence: 1,
+                _uuid: 'address-1',
+                geography: mockGeography
+            };
+
+            // Set the destinations in the interview response with 2 destinations
+            testInterview.response.destinations = mockInterviewDestinations;
+            mockGetRoutingFromAddressToDestination
+                .mockResolvedValueOnce(mockRoutingResult1)
+                .mockRejectedValueOnce(new Error('Routing failed for destination 2'));
+
+            const result = await calculateAccessibilityAndRouting(address, testInterview);
+
+            expect(mockGetRoutingFromAddressToDestination).toHaveBeenCalledTimes(2);
+            expect(result.accessibilityMap).toEqual(mockAccessibilityMap);
+            expect(result.routingTimeDistances).toEqual({
+                'destination-1': mockRoutingResult1,
+                'destination-2': null
+            });
         });
     });
 
     describe('different address types', () => {
-        it('should calculate accessibility for rent address', async () => {
+        it('should calculate accessibility and routing for rent address', async () => {
             const address: Address = {
                 _sequence: 1,
                 _uuid: 'address-1',
@@ -446,9 +597,13 @@ describe('calculateAccessibilityAndRouting', () => {
                 geography: mockGeography
             };
 
-            mockGetAccessibilityMapFromAddress.mockResolvedValueOnce(mockAccessibilityMap);
+            // Set the destinations in the interview response with 1 destination
+            testInterview.response.destinations = {
+                'destination-1': mockDestination1
+            };
+            mockGetRoutingFromAddressToDestination.mockResolvedValueOnce(mockRoutingResult1);
 
-            const result = await calculateAccessibilityAndRouting(address, mockInterview);
+            const result = await calculateAccessibilityAndRouting(address, testInterview);
 
             expect(result.accessibilityMap).toEqual(mockAccessibilityMap);
         });
@@ -466,9 +621,36 @@ describe('calculateAccessibilityAndRouting', () => {
 
             mockGetAccessibilityMapFromAddress.mockResolvedValueOnce(mockAccessibilityMap);
 
-            const result = await calculateAccessibilityAndRouting(address, mockInterview);
+            const result = await calculateAccessibilityAndRouting(address, testInterview);
 
             expect(result.accessibilityMap).toEqual(mockAccessibilityMap);
+            // No destination
+            expect(result.routingTimeDistances).toEqual({});
+        });
+
+        it('should calculate accessibility and routing for buy address', async () => {
+            const address: Address = {
+                _sequence: 2,
+                _uuid: 'address-2',
+                ownership: 'buy',
+                mortgage: 300000,
+                interestRate: 5,
+                amortizationPeriod: '25',
+                geography: mockGeography
+            };
+
+            // Set the destinations in the interview response with 1 destination
+            testInterview.response.destinations = {
+                'destination-2': mockDestination2
+            };
+            mockGetRoutingFromAddressToDestination.mockResolvedValueOnce(mockRoutingResult2);
+
+            const result = await calculateAccessibilityAndRouting(address, testInterview);
+
+            expect(result.accessibilityMap).toEqual(mockAccessibilityMap);
+            expect(result.routingTimeDistances).toEqual({
+                'destination-2': mockRoutingResult2
+            });
         });
 
         it('should calculate accessibility for address without ownership info', async () => {
@@ -478,11 +660,13 @@ describe('calculateAccessibilityAndRouting', () => {
                 geography: mockGeography
             };
 
-            mockGetAccessibilityMapFromAddress.mockResolvedValueOnce(mockAccessibilityMap);
+            // Set the destinations in the interview response with no destination
+            testInterview.response.destinations = {};
 
-            const result = await calculateAccessibilityAndRouting(address, mockInterview);
+            const result = await calculateAccessibilityAndRouting(address, testInterview);
 
             expect(result.accessibilityMap).toEqual(mockAccessibilityMap);
+            expect(result.routingTimeDistances).toEqual({});
         });
     });
 
@@ -499,38 +683,102 @@ describe('calculateAccessibilityAndRouting', () => {
                 features: []
             };
 
+            // Set the destinations in the interview response with no destination
+            testInterview.response.destinations = {};
             mockGetAccessibilityMapFromAddress.mockResolvedValueOnce(emptyMap);
 
-            const result = await calculateAccessibilityAndRouting(address, mockInterview);
+            const result = await calculateAccessibilityAndRouting(address, testInterview);
 
             expect(result.accessibilityMap).toEqual(emptyMap);
             expect(result.accessibilityMap?.features).toHaveLength(0);
+            expect(result.routingTimeDistances).toEqual({});
         });
     });
 
     describe('function behavior', () => {
-        it('should await the accessibility map promise', async () => {
+        it('should execute accessibility and routing promises in parallel', async () => {
             const address: Address = {
                 _sequence: 1,
                 _uuid: 'address-1',
                 geography: mockGeography
             };
 
-            let promiseResolved = false;
+            let accessibilityResolved = false;
+            let routingResolved = false;
+
             mockGetAccessibilityMapFromAddress.mockImplementation(
                 () =>
                     new Promise((resolve) => {
                         setTimeout(() => {
-                            promiseResolved = true;
+                            accessibilityResolved = true;
                             resolve(mockAccessibilityMap);
                         }, 10);
                     })
             );
 
-            const result = await calculateAccessibilityAndRouting(address, mockInterview);
+            // Set the destinations in the interview response with 1 destination
+            testInterview.response.destinations = {
+                'destination-1': mockDestination1
+            };
+            mockGetRoutingFromAddressToDestination.mockImplementation(
+                () =>
+                    new Promise((resolve) => {
+                        setTimeout(() => {
+                            routingResolved = true;
+                            resolve(mockRoutingResult1);
+                        }, 10);
+                    })
+            );
 
-            expect(promiseResolved).toBe(true);
+            const result = await calculateAccessibilityAndRouting(address, testInterview);
+
+            expect(accessibilityResolved).toBe(true);
+            expect(routingResolved).toBe(true);
             expect(result.accessibilityMap).toEqual(mockAccessibilityMap);
+            expect(result.routingTimeDistances).toEqual({
+                'destination-1': mockRoutingResult1
+            });
+        });
+
+        it('should handle multiple routing promises with Promise.all', async () => {
+            const address: Address = {
+                _sequence: 1,
+                _uuid: 'address-1',
+                geography: mockGeography
+            };
+
+            // Set the destinations in the interview response with no destination
+            testInterview.response.destinations = mockInterviewDestinations;
+
+            let routing1Resolved = false;
+            let routing2Resolved = false;
+
+            mockGetRoutingFromAddressToDestination
+                .mockImplementationOnce(() =>
+                    new Promise((resolve) => {
+                        setTimeout(() => {
+                            routing1Resolved = true;
+                            resolve(mockRoutingResult1);
+                        }, 10);
+                    })
+                )
+                .mockImplementationOnce(() =>
+                    new Promise((resolve) => {
+                        setTimeout(() => {
+                            routing2Resolved = true;
+                            resolve(mockRoutingResult2);
+                        }, 10);
+                    })
+                );
+
+            const result = await calculateAccessibilityAndRouting(address, testInterview);
+
+            expect(routing1Resolved).toBe(true);
+            expect(routing2Resolved).toBe(true);
+            expect(result.routingTimeDistances).toEqual({
+                'destination-1': mockRoutingResult1,
+                'destination-2': mockRoutingResult2
+            });
         });
     });
 });

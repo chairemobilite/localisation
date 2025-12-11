@@ -26,6 +26,28 @@ export type Address = {
     utilities?: number;
     monthlyCost?: CalculationResults;
     accessibilityMap?: GeoJSON.FeatureCollection<GeoJSON.MultiPolygon> | null;
+    routingTimeDistances?: {
+        [destinationUuid: string]: RoutingByModeDistanceAndTime | null;
+    } | null;
+};
+
+export type TimeAndDistance = {
+    _uuid: string; // Should be the mode as expected by group widgets
+    _sequence: number;
+    distanceMeters: number;
+    travelTimeSeconds: number;
+};
+
+export type RoutingByModeDistanceAndTime = {
+    // Fields required for all objects in groups
+    _uuid: string;
+    _sequence: number;
+    resultsByMode: {
+        walking: TimeAndDistance | null;
+        cycling: TimeAndDistance | null;
+        driving: TimeAndDistance | null;
+        transit: TimeAndDistance | null;
+    };
 };
 
 export type Destination = {

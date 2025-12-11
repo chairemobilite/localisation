@@ -58,6 +58,21 @@ export const getAddressesArray = function (interview: UserInterviewAttributes): 
 };
 
 /**
+ * Get the frequent destinations for an interview. It will return an empty
+ * object if no destinations are defined.
+ *
+ * @param {UserInterviewAttributes} interview The interview for which to get the
+ * destinations
+ * @returns {{ [destinationUuid: string]: Destination }} An object with
+ * destination UUIDs as keys and Destination objects as values.
+ */
+export const getFrequentDestinations = function (interview: UserInterviewAttributes): {
+    [destinationUuid: string]: Destination;
+} {
+    return getResponse(interview, 'destinations', {}) as { [destinationUuid: string]: Destination };
+};
+
+/**
  * Get the destinations array for an interview, or an empty array if there are no
  * destinations for this interview.
  *
@@ -65,7 +80,7 @@ export const getAddressesArray = function (interview: UserInterviewAttributes): 
  * @returns {Destination[]} The array of destinations sorted by sequence, or an empty array if none exist.
  */
 export const getDestinationsArray = function (interview: UserInterviewAttributes): Destination[] {
-    const destinations = getResponse(interview, 'destinations', {});
+    const destinations = getFrequentDestinations(interview);
     return Object.values(destinations).sort(
         (destinationA, destinationB) => destinationA._sequence - destinationB._sequence
     );

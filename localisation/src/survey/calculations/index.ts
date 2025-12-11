@@ -1,8 +1,10 @@
 import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
-import { Address } from '../common/types';
+import config from 'chaire-lib-common/lib/config/shared/project.config';
+import { Address, RoutingByModeDistanceAndTime } from '../common/types';
 import { mortgageMonthlyPayment } from './mortgage';
 import { getResponse } from 'evolution-common/lib/utils/helpers';
-import { getAccessibilityMapFromAddress } from './routingAndAccessibility';
+import { getAccessibilityMapFromAddress, getRoutingFromAddressToDestination } from './routingAndAccessibility';
+import { getDestinationsArray } from '../common/customHelpers';
 
 const calculateMonthlyHousingCost = (address: Address): number | null => {
     switch (address.ownership) {
@@ -98,14 +100,47 @@ export const calculateMonthlyCost = (
 export const calculateAccessibilityAndRouting = async (
     address: Address,
     interview: InterviewAttributes
-): Promise<{ accessibilityMap: GeoJSON.FeatureCollection<GeoJSON.MultiPolygon> | null }> => {
+): Promise<{
+    accessibilityMap: GeoJSON.FeatureCollection<GeoJSON.MultiPolygon> | null;
+    routingTimeDistances: { [destinationUuid: string]: RoutingByModeDistanceAndTime | null } | null;
+}> => {
+    // Make sure there is a scenario defined, otherwise, do a quick return
+    const scenario = config.trRoutingScenarios?.SE;
+    if (scenario === undefined) {
+        console.error('No transit scenario defined in config for routing and accessibility calculation');
+        return {
+            accessibilityMap: null,
+            routingTimeDistances: null
+        };
+    }
+
+    // Calculate the accessibility map for the address
     const accessibilityMapPromise = getAccessibilityMapFromAddress(address);
 
-    // TODO Add routing calculations here to each destination in the interview
+    // Calculate routing to each destination in the interview
+    const destinations = getDestinationsArray(interview);
+    const routingTimeDistances: { [destinationUuid: string]: RoutingByModeDistanceAndTime | null } = {};
+    const routingPromises: Promise<void>[] = [];
+    for (let i = 0; i < destinations.length; i++) {
+        const destination = destinations[i];
+        routingPromises.push(
+            getRoutingFromAddressToDestination(address, destination)
+                .then((result) => {
+                    routingTimeDistances[destination._uuid] = result;
+                })
+                .catch((error) => {
+                    console.error('Error getting routing from address to destination', error);
+                    routingTimeDistances[destination._uuid] = null;
+                })
+        );
+    }
 
     const accessibilityMap = await accessibilityMapPromise;
 
+    await Promise.all(routingPromises);
+
     return {
-        accessibilityMap
+        accessibilityMap,
+        routingTimeDistances
     };
 };

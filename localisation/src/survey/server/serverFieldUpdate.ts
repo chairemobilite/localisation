@@ -26,6 +26,8 @@ export default [
                             .then((accessibilityAndRouting) => {
                                 updatedValues[`addresses.${address._uuid}.accessibilityMap`] =
                                     accessibilityAndRouting.accessibilityMap;
+                                updatedValues[`addresses.${address._uuid}.routingTimeDistances`] =
+                                    accessibilityAndRouting.routingTimeDistances;
                             })
                             .catch((error) => {
                                 console.error(
@@ -34,8 +36,9 @@ export default [
                                     error
                                 );
                                 updatedValues[`addresses.${address._uuid}.accessibilityMap`] = null;
+                                updatedValues[`addresses.${address._uuid}.routingTimeDistances`] = null;
                             })
-                    );
+                    );  
                 }
                 await Promise.all(calculationPromises);
                 return updatedValues;
