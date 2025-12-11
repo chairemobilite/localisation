@@ -13,3 +13,11 @@
         text-overflow: ellipsis;
     }
 }
+
+// Make the map fill the entire container when it's the only child (no list)
+.survey-visited-places-list-and-map-container {
+    .survey-visited-places-map {
+        width: 100%;
+    }
+}
+

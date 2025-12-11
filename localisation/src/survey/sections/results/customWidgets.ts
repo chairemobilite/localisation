@@ -42,6 +42,7 @@ export const comparisonMap: InfoMapWidgetConfig = {
         const pointGeographies = [];
         const polygonGeographies: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon>[] = [];
         const addresses = getAddressesArray(interview);
+        let addressIndex = 0; // Track index of addresses with valid geography
         for (let i = 0; i < addresses.length; i++) {
             const address = addresses[i];
             if (!address.geography || address.geography.geometry?.type !== 'Point') {
@@ -52,8 +53,17 @@ export const comparisonMap: InfoMapWidgetConfig = {
                 ...address.geography,
                 properties: { ...(address.geography.properties || {}) }
             };
+            // Use red icon for first visible address, green for second visible address, default for others
+            let iconUrl: string;
+            if (addressIndex === 0) {
+                iconUrl = '/dist/icons/activities/home/home-marker_round_red.svg';
+            } else if (addressIndex === 1) {
+                iconUrl = '/dist/icons/activities/home/home-marker_round_green.svg';
+            } else {
+                iconUrl = getActivityMarkerIcon('home');
+            }
             addressGeography.properties!.icon = {
-                url: getActivityMarkerIcon('home'),
+                url: iconUrl,
                 size: [40, 40]
             };
             addressGeography.properties!.highlighted = false;
@@ -66,15 +76,17 @@ export const comparisonMap: InfoMapWidgetConfig = {
                     ...feature,
                     properties: {
                         ...(feature.properties || {}),
-                        strokeColor: colorPalette[i % colorPalette.length],
-                        fillColor: colorPalette[i % colorPalette.length]
+                        strokeColor: colorPalette[addressIndex % colorPalette.length],
+                        fillColor: colorPalette[addressIndex % colorPalette.length]
                     }
                 }));
                 polygonGeographies.push(...accessibilityMapPolygons);
             }
+            addressIndex++;
         }
 
         const visitedPlaces = getDestinationsArray(interview);
+        let visitedPlaceIndex = 0; // Track index of visited places with valid geography
         for (let i = 0; i < visitedPlaces.length; i++) {
             const place = visitedPlaces[i];
             if (!place.geography || place.geography.geometry?.type !== 'Point') {
@@ -85,16 +97,26 @@ export const comparisonMap: InfoMapWidgetConfig = {
                 ...place.geography,
                 properties: { ...(place.geography.properties || {}) }
             };
+            // Use orange icon with arrow for first visible visited place, purple for second, default for others
+            let iconUrl: string;
+            if (visitedPlaceIndex === 0) {
+                iconUrl = '/dist/icons/activities/other/question_mark-marker_round_orange.svg';
+            } else if (visitedPlaceIndex === 1) {
+                iconUrl = '/dist/icons/activities/other/question_mark-marker_round_purple.svg';
+            } else {
+                iconUrl = getActivityMarkerIcon(null);
+            }
             placeGeography.properties!.icon = {
-                url: getActivityMarkerIcon(null),
+                url: iconUrl,
                 size: [40, 40]
             };
             placeGeography.properties!.highlighted = false;
             placeGeography.properties!.label = place.name;
             placeGeography.properties!.sequence = place._sequence;
             pointGeographies.push(placeGeography);
+            visitedPlaceIndex++;
         }
-        // Return as a FeatureCollection
+
         return {
             points: {
                 type: 'FeatureCollection',
