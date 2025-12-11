@@ -7,5 +7,16 @@ resultsIntro: >-
     the two potential addresses:</strong>
 comparisonMap: Accessibility comparison
 monthlyCost.housingCostMonthly: Total Housing Monthly Cost<br />$<strong>{{housingCostMonthly}}</strong>
+routingTimeDistances: Routing calculation to frequent destinations
+resultsByMode: By transportation mode
+travelTimeSeconds: 'Duration: {{minutes}} minutes'
+distanceMeters: 'Distance: {{distance}} km'
 addressGroupName: Option B
 addressGroupName_one: Option A
+DestinationGroupName: Destination {{sequence}}
+FrequentDestinationTitle: Frequent Destinations
+RoutingResultsByMode: Results by transportation mode
+modeNames.walking: Walking
+modeNames.cycling: Cycling
+modeNames.driving: Driving
+modeNames.transit: Transit

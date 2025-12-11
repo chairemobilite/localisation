@@ -8,5 +8,16 @@ resultsIntro: >-
 comparisonMap: Comparaison d'accessibilité
 monthlyCost.housingCostMonthly: >-
     Coût mensuel total du logement<br /><strong>{{housingCostMonthly}}</strong> $
+routingTimeDistances: Calcul de chemin vers les destinations fréquentes
+resultsByMode: Par mode de déplacement
+travelTimeSeconds: 'Durée: {{minutes}} minutes'
+distanceMeters: 'Distance: {{distance}} km'
 addressGroupName: Option B
 addressGroupName_one: Option A
+DestinationGroupName: Destination {{sequence}}
+FrequentDestinationTitle: Destinations fréquentes
+RoutingResultsByMode: Résultats par mode de transport
+modeNames.walking: Marche
+modeNames.cycling: Vélo
+modeNames.driving: Voiture
+modeNames.transit: Transport collectif

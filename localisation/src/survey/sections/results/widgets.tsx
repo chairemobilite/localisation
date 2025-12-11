@@ -22,3 +22,11 @@ export const comparisonMap = customWidgets.comparisonMap;
 export const resultsByAddress = customWidgets.resultsByAddress;
 
 export const monthlyCost = customWidgets.monthlyCost;
+
+export const destinationsRouting = customWidgets.destinationsRouting;
+
+export const tripMode = customWidgets.tripMode;
+
+export const tripTime = customWidgets.tripTime;
+
+export const tripDistance = customWidgets.tripDistance;
