@@ -2,6 +2,10 @@
 # The Evolution Generator is used to automate the creation of consistent, reliable code.
 # Any changes made to this file will be overwritten.
 
+addressesIntro: >-
+    Veuillez entrer de l’information sur <strong>deux lieux</strong> que vous voulez
+    comparer.<br /><span class="_pale _oblique">L’adresse exacte n’est pas nécessaire,
+    vous pouvez mettre un lieu approximatif sur la rue ou le quartier désiré.</span>
 name: Nom ou adresse de la maison
 geography: >-
     Veuillez positionner la maison sur la carte<br /><span class="_pale _oblique">Naviguez,

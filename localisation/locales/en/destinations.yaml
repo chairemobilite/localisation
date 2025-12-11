@@ -2,6 +2,11 @@
 # The Evolution Generator is used to automate the creation of consistent, reliable code.
 # Any changes made to this file will be overwritten.
 
+visitedPlacesIntro: >-
+    Please enter <strong>two locations</strong> that you frequently and regularly
+    travel to from your home.<br /><span class="_pale _oblique">These should be places
+    that you’ll be visiting from both of the locations entered in the previous section
+    (work, school, ...).</span>
 name: Name or address of the destination
 geography: >-
     Please locate the destination on the map<br /><span class="_pale _oblique">Pan,

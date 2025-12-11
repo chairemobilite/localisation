@@ -2,7 +2,9 @@
 # The Evolution Generator is used to automate the creation of consistent, reliable code.
 # Any changes made to this file will be overwritten.
 
-resultsIntro: Here are the results
+resultsIntro: >-
+    <strong>Here are the results, comparing the accessibility and living costs of
+    the two potential addresses:</strong>
 comparisonMap: Accessibility comparison
 monthlyCost.housingCostMonthly: Total Housing Monthly Cost<br />$<strong>{{housingCostMonthly}}</strong>
 addressGroupName: Option B

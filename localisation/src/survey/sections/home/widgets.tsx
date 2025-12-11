@@ -9,6 +9,14 @@ import * as WidgetConfig from 'evolution-common/lib/services/questionnaire/types
 import * as validations from 'evolution-common/lib/services/widgets/validations/validations';
 import * as choices from '../../common/choices';
 
+export const homeIntro: WidgetConfig.TextWidgetConfig = {
+    ...defaultInputBase.infoTextBase,
+    path: 'homeIntro',
+    containsHtml: true,
+    text: (t: TFunction) => t('home:homeIntro'),
+    conditional: defaultConditional
+};
+
 export const household_size: WidgetConfig.InputRadioNumberType = {
     ...defaultInputBase.inputRadioNumberBase,
     path: 'household.size',

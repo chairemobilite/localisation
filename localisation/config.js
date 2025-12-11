@@ -10,7 +10,7 @@ module.exports = {
     selfResponseMinimumAge: 14,
     singlePersonInterview: false,
     allowChangeSectionWithoutValidation: true,
-    introductionTwoParagraph: true,
+    introductionTwoParagraph: false,
     includePartTimeStudentOccupation: true,
     includeWorkerAndStudentOccupation: true,
     acceptUnknownDidTrips: false,

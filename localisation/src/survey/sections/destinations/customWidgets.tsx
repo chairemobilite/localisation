@@ -51,7 +51,7 @@ export const visitedPlaceGeography: InputMapFindPlaceType = {
         return (config as any).mapMaxGeocodingResultsBounds;
     },
     invalidGeocodingResultTypes: defaultInvalidGeocodingResultTypes,
-    label: (t: TFunction, _interview) => t('destination:geography'),
+    label: (t: TFunction, _interview) => t('destinations:geography'),
     icon: {
         url: getActivityMarkerIcon('home'),
         size: [70, 70]

@@ -12,6 +12,14 @@ import * as choices from '../../common/choices';
 import * as conditionals from '../../common/conditionals';
 import * as customWidgets from './customWidgets';
 
+export const householdIntro: WidgetConfig.TextWidgetConfig = {
+    ...defaultInputBase.infoTextBase,
+    path: 'householdIntro',
+    containsHtml: true,
+    text: (t: TFunction) => t('household:householdIntro'),
+    conditional: defaultConditional
+};
+
 export const householdMembers = customWidgets.householdMembers;
 
 export const personAge: WidgetConfig.InputStringType = {

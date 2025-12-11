@@ -9,6 +9,14 @@ import * as WidgetConfig from 'evolution-common/lib/services/questionnaire/types
 import * as validations from 'evolution-common/lib/services/widgets/validations/validations';
 import * as customWidgets from './customWidgets';
 
+export const visitedPlacesIntro: WidgetConfig.TextWidgetConfig = {
+    ...defaultInputBase.infoTextBase,
+    path: 'visitedPlacesIntro',
+    containsHtml: true,
+    text: (t: TFunction) => t('destinations:visitedPlacesIntro'),
+    conditional: defaultConditional
+};
+
 export const frequentVisitedPlaces = customWidgets.frequentVisitedPlaces;
 
 export const visitedPlaceName: WidgetConfig.InputStringType = {

@@ -2,6 +2,9 @@
 # The Evolution Generator is used to automate the creation of consistent, reliable code.
 # Any changes made to this file will be overwritten.
 
+householdIntro: >-
+    Veuillez entrer de l’information sur <strong>les membres individuels</strong>
+    du domicile.
 age: <strong>Âge</strong> (en années)
 age_one: Votre <strong>âge</strong> (en années)
 drivingLicenseOwnership: >-

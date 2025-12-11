@@ -47,6 +47,9 @@ export const fillHomeSectionTests = ({ context, householdSize }: CommonTestParam
     // Progress bar test for home section
     testHelpers.sectionProgressBarTest({ context, sectionName: 'home', completionPercentage: 0 });
 
+    // Test infotext widget homeIntro
+    testHelpers.waitTextVisible({ context, text: '?' });
+
     // Test radionumber widget household_size
 
     // Test select widget household_income with choices householdIncomeChoices
@@ -68,6 +71,9 @@ export const fillHouseholdSectionTests = ({ context, householdSize }: CommonTest
 
     // Progress bar test for household section
     testHelpers.sectionProgressBarTest({ context, sectionName: 'household', completionPercentage: 0 });
+
+    // Test infotext widget householdIntro
+    testHelpers.waitTextVisible({ context, text: '?' });
 
     // Test custom widget householdMembers
     // Implement custom test
@@ -95,6 +101,9 @@ export const fillCarsSectionTests = ({ context, householdSize }: CommonTestParam
 
     // Progress bar test for cars section
     testHelpers.sectionProgressBarTest({ context, sectionName: 'cars', completionPercentage: 0 });
+
+    // Test infotext widget carsIntro
+    testHelpers.waitTextVisible({ context, text: '?' });
 
     // Test custom widget carInformation
     // Implement custom test
@@ -126,6 +135,9 @@ export const fillAddressesSectionTests = ({ context, householdSize }: CommonTest
 
     // Progress bar test for addresses section
     testHelpers.sectionProgressBarTest({ context, sectionName: 'addresses', completionPercentage: 0 });
+
+    // Test infotext widget addressesIntro
+    testHelpers.waitTextVisible({ context, text: '?' });
 
     // Test custom widget addressesInfo
     // Implement custom test
@@ -190,6 +202,9 @@ export const fillDestinationsSectionTests = ({ context, householdSize }: CommonT
 
     // Progress bar test for destinations section
     testHelpers.sectionProgressBarTest({ context, sectionName: 'destinations', completionPercentage: 0 });
+
+    // Test infotext widget visitedPlacesIntro
+    testHelpers.waitTextVisible({ context, text: '?' });
 
     // Test custom widget frequentVisitedPlaces
     // Implement custom test
