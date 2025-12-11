@@ -2,6 +2,9 @@
 # The Evolution Generator is used to automate the creation of consistent, reliable code.
 # Any changes made to this file will be overwritten.
 
+homeIntro: >-
+    Please enter information on <strong>the household</strong> that you <strong>currently
+    live in</strong>.
 household.size: >-
     <strong>Persons living in your home</strong><br /><span class="_pale _oblique">Including
     yourself and children.</span>

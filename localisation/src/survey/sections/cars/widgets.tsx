@@ -11,6 +11,14 @@ import * as choices from '../../common/choices';
 import * as conditionals from '../../common/conditionals';
 import * as customWidgets from './customWidgets';
 
+export const carsIntro: WidgetConfig.TextWidgetConfig = {
+    ...defaultInputBase.infoTextBase,
+    path: 'carsIntro',
+    containsHtml: true,
+    text: (t: TFunction) => t('cars:carsIntro'),
+    conditional: defaultConditional
+};
+
 export const carInformation = customWidgets.carInformation;
 
 export const carNickname: WidgetConfig.InputStringType = {

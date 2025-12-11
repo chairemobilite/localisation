@@ -13,6 +13,14 @@ import * as customWidgets from './customWidgets';
 import * as customChoices from './customChoices';
 import * as customValidations from '../../common/customValidations';
 
+export const addressesIntro: WidgetConfig.TextWidgetConfig = {
+    ...defaultInputBase.infoTextBase,
+    path: 'addressesIntro',
+    containsHtml: true,
+    text: (t: TFunction) => t('addresses:addressesIntro'),
+    conditional: defaultConditional
+};
+
 export const addressesInfo = customWidgets.addressesInfo;
 
 export const addressName: WidgetConfig.InputStringType = {

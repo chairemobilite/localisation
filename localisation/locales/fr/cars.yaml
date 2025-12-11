@@ -2,6 +2,9 @@
 # The Evolution Generator is used to automate the creation of consistent, reliable code.
 # Any changes made to this file will be overwritten.
 
+carsIntro: >-
+    Veuillez entrer de l’information sur <strong>les voitures</strong> à la disposition
+    du domicile.
 nickname: >-
     <strong>Modèle ou surnom</strong> pour identifier cette voiture pour la suite
     de l'entrevue<br /><span class="_pale _oblique">Peut être la marque de la voiture,
