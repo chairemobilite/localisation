@@ -13,6 +13,9 @@ import { getAddressesArray, getDestinationsArray } from '../../common/customHelp
 import { getResponse } from 'evolution-common/lib/utils/helpers';
 import { resultsByAddressWidgetsNames } from './widgetsNames';
 
+// Colors taken from a qualitative color scheme from ColorBrewer https://colorbrewer2.org/#type=qualitative&scheme=Accent&n=5
+const colorPalette = ['#7fc97f', '#beaed4', '#fdc086', '#ffff99', '#386cb0'];
+
 // Info map widget showing all addresses and visited places and possibly other data
 // Custom because it is an info map and cannot be described in the generator
 export const comparisonMap: InfoMapWidgetConfig = {
@@ -36,7 +39,8 @@ export const comparisonMap: InfoMapWidgetConfig = {
     title: (t: TFunction, interview: UserInterviewAttributes) => t('results:comparisonMap'),
     linestringColor: '#0000ff',
     geojsons: (interview) => {
-        const geographies = [];
+        const pointGeographies = [];
+        const polygonGeographies: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon>[] = [];
         const addresses = getAddressesArray(interview);
         for (let i = 0; i < addresses.length; i++) {
             const address = addresses[i];
@@ -55,7 +59,19 @@ export const comparisonMap: InfoMapWidgetConfig = {
             addressGeography.properties!.highlighted = false;
             addressGeography.properties!.label = address.name;
             addressGeography.properties!.sequence = address._sequence;
-            geographies.push(addressGeography);
+            pointGeographies.push(addressGeography);
+
+            if (address.accessibilityMap) {
+                const accessibilityMapPolygons = address.accessibilityMap.features.map((feature) => ({
+                    ...feature,
+                    properties: {
+                        ...(feature.properties || {}),
+                        strokeColor: colorPalette[i % colorPalette.length],
+                        fillColor: colorPalette[i % colorPalette.length]
+                    }
+                }));
+                polygonGeographies.push(...accessibilityMapPolygons);
+            }
         }
 
         const visitedPlaces = getDestinationsArray(interview);
@@ -76,12 +92,17 @@ export const comparisonMap: InfoMapWidgetConfig = {
             placeGeography.properties!.highlighted = false;
             placeGeography.properties!.label = place.name;
             placeGeography.properties!.sequence = place._sequence;
-            geographies.push(placeGeography);
+            pointGeographies.push(placeGeography);
         }
+        // Return as a FeatureCollection
         return {
             points: {
                 type: 'FeatureCollection',
-                features: geographies
+                features: pointGeographies
+            },
+            polygons: {
+                type: 'FeatureCollection',
+                features: polygonGeographies
             }
         };
     }

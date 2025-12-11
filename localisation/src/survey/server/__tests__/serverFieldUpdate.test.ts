@@ -8,9 +8,55 @@
 import serverFieldUpdate from '../serverFieldUpdate';
 import { UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { Address } from '../../common/types';
+import * as calculations from '../../calculations';
+
+// Mock the calculations module
+jest.mock('../../calculations', () => ({
+    calculateMonthlyCost: jest.fn(),
+    calculateAccessibilityAndRouting: jest.fn()
+}));
+
+const mockCalculateMonthlyCost = calculations.calculateMonthlyCost as jest.MockedFunction<
+    typeof calculations.calculateMonthlyCost
+>;
+const mockCalculateAccessibilityAndRouting = calculations.calculateAccessibilityAndRouting as jest.MockedFunction<
+    typeof calculations.calculateAccessibilityAndRouting
+>;
 
 describe('serverFieldUpdate - _sections._actions callback', () => {
     const sectionsActionsCallback = serverFieldUpdate.find(callback => callback.field === '_sections._actions')!;
+
+    const mockAccessibilityMap: GeoJSON.FeatureCollection<GeoJSON.MultiPolygon> = {
+        type: 'FeatureCollection',
+        features: [
+            {
+                type: 'Feature',
+                geometry: {
+                    type: 'MultiPolygon',
+                    coordinates: [
+                        [
+                            [
+                                [-73.51, 45.51],
+                                [-73.49, 45.51],
+                                [-73.49, 45.49],
+                                [-73.51, 45.49],
+                                [-73.51, 45.51]
+                            ]
+                        ]
+                    ]
+                },
+                properties: {}
+            }
+        ]
+    };
+
+    beforeEach(() => {
+        jest.clearAllMocks();
+        // Set up default mock return values
+        mockCalculateAccessibilityAndRouting.mockResolvedValue({
+            accessibilityMap: mockAccessibilityMap
+        });
+    });
 
     const createMockInterview = (addresses: { [uuid: string]: Address } = {}): UserInterviewAttributes => ({
         id: 1,
@@ -32,7 +78,7 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
     });
 
     describe('callback execution - results section', () => {
-        it('should calculate monthly cost for single rent address when navigating to results section', async () => {
+        it('should calculate monthly cost and accessibility map for single rent address when navigating to results section', async () => {
             const address: Address = {
                 _sequence: 1,
                 _uuid: 'address-1',
@@ -40,6 +86,11 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
                 rent: 1200,
                 areUtilitiesIncluded: true
             };
+
+            mockCalculateMonthlyCost.mockReturnValue({
+                housingCostMonthly: 1200,
+                housingCostPercentageOfIncome: null
+            });
 
             const interview = createMockInterview({ 'address-1': address });
             const value = [{ section: 'results' }];
@@ -51,9 +102,13 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
                 housingCostMonthly: 1200,
                 housingCostPercentageOfIncome: null
             });
+            expect('addresses.address-1.accessibilityMap' in result).toBe(true);
+            expect(result['addresses.address-1.accessibilityMap']).toEqual(mockAccessibilityMap);
+            expect(mockCalculateMonthlyCost).toHaveBeenCalledWith(address, interview);
+            expect(mockCalculateAccessibilityAndRouting).toHaveBeenCalledWith(address, interview);
         });
 
-        it('should calculate monthly cost for single mortgage address when navigating to results section', async () => {
+        it('should calculate monthly cost and accessibility map for single mortgage address when navigating to results section', async () => {
             const address: Address = {
                 _sequence: 1,
                 _uuid: 'address-1',
@@ -65,6 +120,11 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
                 utilities: 200
             };
 
+            mockCalculateMonthlyCost.mockReturnValue({
+                housingCostMonthly: 2244.81,
+                housingCostPercentageOfIncome: null
+            });
+
             const interview = createMockInterview({ 'address-1': address });
             const value = [{ section: 'results' }];
 
@@ -74,9 +134,11 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
             expect(result['addresses.address-1.monthlyCost'].housingCostMonthly).toBeGreaterThan(2200);
             expect(result['addresses.address-1.monthlyCost'].housingCostMonthly).toBeLessThan(2300);
             expect(result['addresses.address-1.monthlyCost'].housingCostPercentageOfIncome).toBeNull();
+            expect('addresses.address-1.accessibilityMap' in result).toBe(true);
+            expect(result['addresses.address-1.accessibilityMap']).toEqual(mockAccessibilityMap);
         });
 
-        it('should calculate monthly cost for multiple addresses when navigating to results section', async () => {
+        it('should calculate monthly cost and accessibility maps for multiple addresses when navigating to results section', async () => {
             const address1: Address = {
                 _sequence: 1,
                 _uuid: 'address-1',
@@ -94,6 +156,16 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
                 utilities: 150
             };
 
+            mockCalculateMonthlyCost
+                .mockReturnValueOnce({
+                    housingCostMonthly: 1200,
+                    housingCostPercentageOfIncome: null
+                })
+                .mockReturnValueOnce({
+                    housingCostMonthly: 1650,
+                    housingCostPercentageOfIncome: null
+                });
+
             const interview = createMockInterview({
                 'address-1': address1,
                 'address-2': address2
@@ -104,9 +176,16 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
 
             expect('addresses.address-1.monthlyCost' in result).toBe(true);
             expect('addresses.address-2.monthlyCost' in result).toBe(true);
+            expect('addresses.address-1.accessibilityMap' in result).toBe(true);
+            expect('addresses.address-2.accessibilityMap' in result).toBe(true);
 
             expect(result['addresses.address-1.monthlyCost'].housingCostMonthly).toBe(1200);
             expect(result['addresses.address-2.monthlyCost'].housingCostMonthly).toBe(1650);
+            expect(result['addresses.address-1.accessibilityMap']).toEqual(mockAccessibilityMap);
+            expect(result['addresses.address-2.accessibilityMap']).toEqual(mockAccessibilityMap);
+            
+            expect(mockCalculateMonthlyCost).toHaveBeenCalledTimes(2);
+            expect(mockCalculateAccessibilityAndRouting).toHaveBeenCalledTimes(2);
         });
 
         it('should handle addresses with incomplete data gracefully', async () => {
@@ -125,6 +204,20 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
                 // Missing rent data
             };
 
+            mockCalculateMonthlyCost
+                .mockReturnValueOnce({
+                    housingCostMonthly: 1200,
+                    housingCostPercentageOfIncome: null
+                })
+                .mockReturnValueOnce({
+                    housingCostMonthly: null,
+                    housingCostPercentageOfIncome: null
+                });
+
+            mockCalculateAccessibilityAndRouting.mockResolvedValue({
+                accessibilityMap: null
+            });
+
             const interview = createMockInterview({
                 'address-1': address1,
                 'address-2': address2
@@ -135,6 +228,8 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
 
             expect(result['addresses.address-1.monthlyCost'].housingCostMonthly).toBe(1200);
             expect(result['addresses.address-2.monthlyCost'].housingCostMonthly).toBeNull();
+            expect('addresses.address-1.accessibilityMap' in result).toBe(true);
+            expect('addresses.address-2.accessibilityMap' in result).toBe(true);
         });
 
         it('should return empty object when no addresses exist', async () => {
@@ -208,6 +303,11 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
                 areUtilitiesIncluded: true
             };
 
+            mockCalculateMonthlyCost.mockReturnValue({
+                housingCostMonthly: 1200,
+                housingCostPercentageOfIncome: null
+            });
+
             const interview = createMockInterview({ 'address-1': address });
             const value = [{ section: 'profile' }, { section: 'addresses' }, { section: 'results' }];
 
@@ -215,6 +315,7 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
 
             expect('addresses.address-1.monthlyCost' in result).toBe(true);
             expect(result['addresses.address-1.monthlyCost'].housingCostMonthly).toBe(1200);
+            expect('addresses.address-1.accessibilityMap' in result).toBe(true);
         });
 
         it('should not calculate if last element is not results section', async () => {
@@ -274,6 +375,16 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
                 amortizationPeriod: 'invalid' as any
             };
 
+            mockCalculateMonthlyCost
+                .mockReturnValueOnce({
+                    housingCostMonthly: 1200,
+                    housingCostPercentageOfIncome: null
+                })
+                .mockReturnValueOnce({
+                    housingCostMonthly: null,
+                    housingCostPercentageOfIncome: null
+                });
+
             const interview = createMockInterview({
                 'address-1': address1,
                 'address-2': address2
@@ -307,6 +418,16 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
                 areUtilitiesIncluded: true
             };
 
+            mockCalculateMonthlyCost
+                .mockReturnValueOnce({
+                    housingCostMonthly: 1200,
+                    housingCostPercentageOfIncome: null
+                })
+                .mockReturnValueOnce({
+                    housingCostMonthly: 1100,
+                    housingCostPercentageOfIncome: null
+                });
+
             // Add them out of order
             const interview = createMockInterview({
                 'address-2': address2,
@@ -319,6 +440,103 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
             // All addresses should be calculated regardless of order
             expect('addresses.address-1.monthlyCost' in result).toBe(true);
             expect('addresses.address-2.monthlyCost' in result).toBe(true);
+            expect('addresses.address-1.accessibilityMap' in result).toBe(true);
+            expect('addresses.address-2.accessibilityMap' in result).toBe(true);
+        });
+    });
+
+    describe('accessibility map handling', () => {
+        it('should include accessibility map even when it returns null', async () => {
+            const address: Address = {
+                _sequence: 1,
+                _uuid: 'address-1',
+                ownership: 'rent',
+                rent: 1200,
+                areUtilitiesIncluded: true
+            };
+
+            mockCalculateMonthlyCost.mockReturnValue({
+                housingCostMonthly: 1200,
+                housingCostPercentageOfIncome: null
+            });
+
+            mockCalculateAccessibilityAndRouting.mockResolvedValue({
+                accessibilityMap: null
+            });
+
+            const interview = createMockInterview({ 'address-1': address });
+            const value = [{ section: 'results' }];
+
+            const result = await sectionsActionsCallback.callback(interview, value) as any;
+
+            expect('addresses.address-1.accessibilityMap' in result).toBe(true);
+            expect(result['addresses.address-1.accessibilityMap']).toBeNull();
+        });
+
+        it('should handle accessibility map calculation errors and still return the monthly costs', async () => {
+            const address: Address = {
+                _sequence: 1,
+                _uuid: 'address-1',
+                ownership: 'rent',
+                rent: 1200,
+                areUtilitiesIncluded: true
+            };
+
+            mockCalculateMonthlyCost.mockReturnValue({
+                housingCostMonthly: 1200,
+                housingCostPercentageOfIncome: null
+            });
+
+            mockCalculateAccessibilityAndRouting.mockRejectedValue(new Error('Accessibility service error'));
+
+            const interview = createMockInterview({ 'address-1': address });
+            const value = [{ section: 'results' }];
+
+            const result = await sectionsActionsCallback.callback(interview, value) as any;
+
+            // Should return a partial object with null accessibility map but monthly cost results
+            expect('addresses.address-1.accessibilityMap' in result).toBe(true);
+            expect(result['addresses.address-1.accessibilityMap']).toBeNull();
+            expect('addresses.address-1.monthlyCost' in result).toBe(true);
+            expect(result['addresses.address-1.monthlyCost']).toEqual({
+                housingCostMonthly: 1200,
+                housingCostPercentageOfIncome: null
+            });
+        });
+
+        it('should call calculateAccessibilityAndRouting for each address', async () => {
+            const address1: Address = {
+                _sequence: 1,
+                _uuid: 'address-1',
+                ownership: 'rent',
+                rent: 1200,
+                areUtilitiesIncluded: true
+            };
+
+            const address2: Address = {
+                _sequence: 2,
+                _uuid: 'address-2',
+                ownership: 'rent',
+                rent: 1500,
+                areUtilitiesIncluded: true
+            };
+
+            mockCalculateMonthlyCost.mockReturnValue({
+                housingCostMonthly: 1200,
+                housingCostPercentageOfIncome: null
+            });
+
+            const interview = createMockInterview({
+                'address-1': address1,
+                'address-2': address2
+            });
+            const value = [{ section: 'results' }];
+
+            await sectionsActionsCallback.callback(interview, value);
+
+            expect(mockCalculateAccessibilityAndRouting).toHaveBeenCalledTimes(2);
+            expect(mockCalculateAccessibilityAndRouting).toHaveBeenCalledWith(address1, interview);
+            expect(mockCalculateAccessibilityAndRouting).toHaveBeenCalledWith(address2, interview);
         });
     });
 });

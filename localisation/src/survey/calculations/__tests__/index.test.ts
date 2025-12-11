@@ -5,15 +5,23 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { calculateMonthlyCost } from '../index';
+import { calculateAccessibilityAndRouting, calculateMonthlyCost } from '../index';
 import { Address } from '../../common/types';
 import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { mortgageMonthlyPayment } from '../mortgage';
+import { getAccessibilityMapFromAddress } from '../routingAndAccessibility';
 
 jest.mock('../mortgage', () => ({
         mortgageMonthlyPayment: jest.fn()
 }));
 const mockMortgageMonthlyPayment = mortgageMonthlyPayment as jest.MockedFunction<typeof mortgageMonthlyPayment>;
+// Mock the getAccessibilityMapFromAddress function
+jest.mock('../routingAndAccessibility', () => ({
+    getAccessibilityMapFromAddress: jest.fn()
+}));
+const mockGetAccessibilityMapFromAddress = getAccessibilityMapFromAddress as jest.MockedFunction<
+    typeof getAccessibilityMapFromAddress
+>;
 
 describe('calculateMonthlyCost', () => {
     const mockInterview: InterviewAttributes = {
@@ -288,5 +296,241 @@ describe('calculateMonthlyCost', () => {
         it.todo('should return null when income is missing');
 
         it.todo('should return correct percentage of income for housing cost');
+    });
+});
+
+describe('calculateAccessibilityAndRouting', () => {
+
+    const mockInterview: InterviewAttributes = {
+        id: 1,
+        uuid: 'test-uuid',
+        participant_id: 1,
+        is_completed: false,
+        response: {},
+        validations: {},
+        is_valid: true
+    };
+
+    const mockGeography: GeoJSON.Feature<GeoJSON.Point> = {
+        type: 'Feature',
+        geometry: {
+            type: 'Point',
+            coordinates: [-73.5, 45.5]
+        },
+        properties: {}
+    };
+
+    const mockAccessibilityMap: GeoJSON.FeatureCollection<GeoJSON.MultiPolygon> = {
+        type: 'FeatureCollection',
+        features: [
+            {
+                type: 'Feature',
+                geometry: {
+                    type: 'MultiPolygon',
+                    coordinates: [
+                        [
+                            [
+                                [-73.51, 45.51],
+                                [-73.49, 45.51],
+                                [-73.49, 45.49],
+                                [-73.51, 45.49],
+                                [-73.51, 45.51]
+                            ]
+                        ]
+                    ]
+                },
+                properties: {}
+            }
+        ]
+    };
+
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
+
+    describe('successful accessibility calculation', () => {
+        it('should return accessibility map for valid address', async () => {
+            const address: Address = {
+                _sequence: 1,
+                _uuid: 'address-1',
+                geography: mockGeography
+            };
+
+            mockGetAccessibilityMapFromAddress.mockResolvedValueOnce(mockAccessibilityMap);
+
+            const result = await calculateAccessibilityAndRouting(address, mockInterview);
+
+            expect(result.accessibilityMap).toEqual(mockAccessibilityMap);
+            expect(mockGetAccessibilityMapFromAddress).toHaveBeenCalledWith(address);
+            expect(mockGetAccessibilityMapFromAddress).toHaveBeenCalledTimes(1);
+        });
+
+        it('should handle multiple features in accessibility map', async () => {
+            const address: Address = {
+                _sequence: 1,
+                _uuid: 'address-1',
+                geography: mockGeography
+            };
+
+            const multiFeatureMap: GeoJSON.FeatureCollection<GeoJSON.MultiPolygon> = {
+                type: 'FeatureCollection',
+                features: [
+                    mockAccessibilityMap.features[0],
+                    {
+                        type: 'Feature',
+                        geometry: {
+                            type: 'MultiPolygon',
+                            coordinates: [
+                                [
+                                    [
+                                        [-73.52, 45.52],
+                                        [-73.48, 45.52],
+                                        [-73.48, 45.48],
+                                        [-73.52, 45.48],
+                                        [-73.52, 45.52]
+                                    ]
+                                ]
+                            ]
+                        },
+                        properties: {}
+                    }
+                ]
+            };
+
+            mockGetAccessibilityMapFromAddress.mockResolvedValueOnce(multiFeatureMap);
+
+            const result = await calculateAccessibilityAndRouting(address, mockInterview);
+
+            expect(result.accessibilityMap).toEqual(multiFeatureMap);
+            expect(result.accessibilityMap?.features).toHaveLength(2);
+        });
+    });
+
+    describe('error handling', () => {
+        it('should return null accessibility map when getAccessibilityMapFromAddress returns null', async () => {
+            const address: Address = {
+                _sequence: 1,
+                _uuid: 'address-1'
+                // No geography
+            };
+
+            mockGetAccessibilityMapFromAddress.mockResolvedValueOnce(null);
+
+            const result = await calculateAccessibilityAndRouting(address, mockInterview);
+
+            expect(result.accessibilityMap).toBeNull();
+            expect(mockGetAccessibilityMapFromAddress).toHaveBeenCalledWith(address);
+        });
+
+        it('should handle promise rejection from getAccessibilityMapFromAddress', async () => {
+            const address: Address = {
+                _sequence: 1,
+                _uuid: 'address-1',
+                geography: mockGeography
+            };
+
+            mockGetAccessibilityMapFromAddress.mockRejectedValueOnce(new Error('Service error'));
+
+            await expect(calculateAccessibilityAndRouting(address, mockInterview)).rejects.toThrow('Service error');
+        });
+    });
+
+    describe('different address types', () => {
+        it('should calculate accessibility for rent address', async () => {
+            const address: Address = {
+                _sequence: 1,
+                _uuid: 'address-1',
+                ownership: 'rent',
+                rent: 1200,
+                areUtilitiesIncluded: true,
+                geography: mockGeography
+            };
+
+            mockGetAccessibilityMapFromAddress.mockResolvedValueOnce(mockAccessibilityMap);
+
+            const result = await calculateAccessibilityAndRouting(address, mockInterview);
+
+            expect(result.accessibilityMap).toEqual(mockAccessibilityMap);
+        });
+
+        it('should calculate accessibility for owned address', async () => {
+            const address: Address = {
+                _sequence: 1,
+                _uuid: 'address-1',
+                ownership: 'buy',
+                mortgage: 300000,
+                interestRate: 5,
+                amortizationPeriod: '25',
+                geography: mockGeography
+            };
+
+            mockGetAccessibilityMapFromAddress.mockResolvedValueOnce(mockAccessibilityMap);
+
+            const result = await calculateAccessibilityAndRouting(address, mockInterview);
+
+            expect(result.accessibilityMap).toEqual(mockAccessibilityMap);
+        });
+
+        it('should calculate accessibility for address without ownership info', async () => {
+            const address: Address = {
+                _sequence: 1,
+                _uuid: 'address-1',
+                geography: mockGeography
+            };
+
+            mockGetAccessibilityMapFromAddress.mockResolvedValueOnce(mockAccessibilityMap);
+
+            const result = await calculateAccessibilityAndRouting(address, mockInterview);
+
+            expect(result.accessibilityMap).toEqual(mockAccessibilityMap);
+        });
+    });
+
+    describe('empty results', () => {
+        it('should handle empty feature collection', async () => {
+            const address: Address = {
+                _sequence: 1,
+                _uuid: 'address-1',
+                geography: mockGeography
+            };
+
+            const emptyMap: GeoJSON.FeatureCollection<GeoJSON.MultiPolygon> = {
+                type: 'FeatureCollection',
+                features: []
+            };
+
+            mockGetAccessibilityMapFromAddress.mockResolvedValueOnce(emptyMap);
+
+            const result = await calculateAccessibilityAndRouting(address, mockInterview);
+
+            expect(result.accessibilityMap).toEqual(emptyMap);
+            expect(result.accessibilityMap?.features).toHaveLength(0);
+        });
+    });
+
+    describe('function behavior', () => {
+        it('should await the accessibility map promise', async () => {
+            const address: Address = {
+                _sequence: 1,
+                _uuid: 'address-1',
+                geography: mockGeography
+            };
+
+            let promiseResolved = false;
+            mockGetAccessibilityMapFromAddress.mockImplementation(
+                () =>
+                    new Promise((resolve) => {
+                        setTimeout(() => {
+                            promiseResolved = true;
+                            resolve(mockAccessibilityMap);
+                        }, 10);
+                    })
+            );
+
+            const result = await calculateAccessibilityAndRouting(address, mockInterview);
+
+            expect(promiseResolved).toBe(true);
+            expect(result.accessibilityMap).toEqual(mockAccessibilityMap);
+        });
     });
 });

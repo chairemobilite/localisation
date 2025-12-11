@@ -1,6 +1,6 @@
 import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { getAddressesArray } from '../common/customHelpers';
-import { calculateMonthlyCost } from '../calculations';
+import { calculateAccessibilityAndRouting, calculateMonthlyCost } from '../calculations';
 
 export default [
     {
@@ -16,11 +16,28 @@ export default [
                 const updatedValues = {};
                 // Calculate the monthly cost for each address
                 const addresses = getAddressesArray(interview);
+                const calculationPromises: Promise<void>[] = [];
                 for (let i = 0; i < addresses.length; i++) {
                     const address = addresses[i];
                     const calculationResults = calculateMonthlyCost(address, interview);
                     updatedValues[`addresses.${address._uuid}.monthlyCost`] = calculationResults;
+                    calculationPromises.push(
+                        calculateAccessibilityAndRouting(address, interview)
+                            .then((accessibilityAndRouting) => {
+                                updatedValues[`addresses.${address._uuid}.accessibilityMap`] =
+                                    accessibilityAndRouting.accessibilityMap;
+                            })
+                            .catch((error) => {
+                                console.error(
+                                    'error calculating accessibility and routing for address',
+                                    address._uuid,
+                                    error
+                                );
+                                updatedValues[`addresses.${address._uuid}.accessibilityMap`] = null;
+                            })
+                    );
                 }
+                await Promise.all(calculationPromises);
                 return updatedValues;
             } catch (error) {
                 console.error('error calculating monthly cost', error);

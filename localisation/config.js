@@ -43,6 +43,10 @@ module.exports = {
         lat: 41.6751050889,
         lng: -140.99778
     }],
+    trRoutingScenarios: {
+        SE: '6fff51a9-b6d9-464e-bf2b-eeae574ac75e'
+    },
+    
     detectLanguage: false,
     detectLanguageFromUrl: true,
     languages: ['fr', 'en'],

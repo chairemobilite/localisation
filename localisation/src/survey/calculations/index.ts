@@ -2,6 +2,7 @@ import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire
 import { Address } from '../common/types';
 import { mortgageMonthlyPayment } from './mortgage';
 import { getResponse } from 'evolution-common/lib/utils/helpers';
+import { getAccessibilityMapFromAddress } from './routingAndAccessibility';
 
 const calculateMonthlyHousingCost = (address: Address): number | null => {
     switch (address.ownership) {
@@ -85,5 +86,26 @@ export const calculateMonthlyCost = (
     return {
         housingCostMonthly: housingCost,
         housingCostPercentageOfIncome: housingCostPercentage
+    };
+};
+
+/**
+ * Calculate accessibility map from address and routing to destinations
+ * @param address The address from which to calculate accessibility and routing
+ * @param interview The complete interview object
+ * @returns The accessibility map and routing information
+ */
+export const calculateAccessibilityAndRouting = async (
+    address: Address,
+    interview: InterviewAttributes
+): Promise<{ accessibilityMap: GeoJSON.FeatureCollection<GeoJSON.MultiPolygon> | null }> => {
+    const accessibilityMapPromise = getAccessibilityMapFromAddress(address);
+
+    // TODO Add routing calculations here to each destination in the interview
+
+    const accessibilityMap = await accessibilityMapPromise;
+
+    return {
+        accessibilityMap
     };
 };

@@ -24,6 +24,8 @@ export type Address = {
     taxes?: number;
     // Monthly utilities cost
     utilities?: number;
+    monthlyCost?: CalculationResults;
+    accessibilityMap?: GeoJSON.FeatureCollection<GeoJSON.MultiPolygon> | null;
 };
 
 export type Destination = {
