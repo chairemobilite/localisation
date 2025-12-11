@@ -38,7 +38,7 @@ export default [
                                 updatedValues[`addresses.${address._uuid}.accessibilityMap`] = null;
                                 updatedValues[`addresses.${address._uuid}.routingTimeDistances`] = null;
                             })
-                    );  
+                    );
                 }
                 await Promise.all(calculationPromises);
                 return updatedValues;
