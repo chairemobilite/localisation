@@ -13,7 +13,7 @@ geography: >-
     zoom and click on map. Once a pin icon has been dropped, you will be able to drag
     the icon to specify a more precise location. You can also search for a place using
     its name or address with the button below.</span>
-frequency: How many times per week do you visit this place?
+frequencyWeekly: How many times per week do you visit this place?
 destinations.save: Save and continue
 addGroupedObject: Add a missing destination
 deleteThisGroupedObject: Delete this destination

@@ -33,10 +33,10 @@ export const visitedPlaceGeography = customWidgets.visitedPlaceGeography;
 
 export const visitedPlaceFrequency: WidgetConfig.InputRadioNumberType = {
     ...defaultInputBase.inputRadioNumberBase,
-    path: 'frequency',
+    path: 'frequencyWeekly',
     twoColumns: false,
     containsHtml: true,
-    label: (t: TFunction) => t('destinations:frequency'),
+    label: (t: TFunction) => t('destinations:frequencyWeekly'),
     valueRange: {
         min: 1,
         max: 7

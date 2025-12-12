@@ -13,13 +13,13 @@ geography: >-
     icon to specify a more precise location. You can also search for a place using
     its name or address with the button below.</span>
 ownership: Do you plan to <strong>buy or rent</strong> this home?
-rent: <strong>Monthly cost of rent</strong>
+rentMonthly: <strong>Monthly cost of rent</strong>
 areUtilitiesIncluded: >-
     <strong>Is the cost of utilities</strong> (electricity, gas, ...) <strong>included
     in the rent?</strong>
 mortgage: <strong>Mortgage amount</strong>
 interestRate: <strong>Mortgage interest rate</strong>, in %
-amortizationPeriod: <strong>Amortization period of the mortgage</strong>
-taxes: <strong>Annual cost of municipal and school taxes</strong>
-utilities: <strong>Monthly cost of utilities</strong> (electricity, gas, ...)
+amortizationPeriodInYears: <strong>Amortization period of the mortgage</strong>
+taxesYearly: <strong>Annual cost of municipal and school taxes</strong>
+utilitiesMonthly: <strong>Monthly cost of utilities</strong> (electricity, gas, ...)
 addresses.save: Save and continue

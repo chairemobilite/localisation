@@ -11,7 +11,7 @@ export type Address = {
     // FIXME Make sure the type of the following are correct, number vs string
     ownership?: 'rent' | 'buy';
     // Monthly  rent amount
-    rent?: number;
+    rentMonthly?: number;
     // Whether utilities are included in the rent
     areUtilitiesIncluded?: boolean;
     // Total amount to pay
@@ -19,11 +19,11 @@ export type Address = {
     // Yearly interest rate as a percentage
     interestRate?: number;
     // Amortization period in years
-    amortizationPeriod?: string;
+    amortizationPeriodInYears?: string;
     // Yearly property taxes
-    taxes?: number;
+    taxesYearly?: number;
     // Monthly utilities cost
-    utilities?: number;
+    utilitiesMonthly?: number;
     monthlyCost?: CalculationResults;
     accessibilityMap?: GeoJSON.FeatureCollection<GeoJSON.MultiPolygon> | null;
     routingTimeDistances?: {
@@ -55,7 +55,7 @@ export type Destination = {
     _uuid: string;
     name?: string;
     geography?: GeoJSON.Feature<GeoJSON.Point>;
-    frequency?: string;
+    frequencyWeekly?: string;
 };
 
 // FIXME These enums should be for the backend only, the frontend categories

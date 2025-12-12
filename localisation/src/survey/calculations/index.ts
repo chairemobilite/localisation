@@ -12,8 +12,8 @@ const calculateMonthlyHousingCost = (address: Address): number | null => {
     case 'rent': {
         // Rent + utilities if not included
         if (
-            typeof address.rent !== 'number' ||
-                (address.areUtilitiesIncluded === false && typeof address.utilities !== 'number')
+            typeof address.rentMonthly !== 'number' ||
+                (address.areUtilitiesIncluded === false && typeof address.utilitiesMonthly !== 'number')
         ) {
             console.error(
                 'Incomplete rent or utilities information for address when calculating monthly housing cost'
@@ -21,20 +21,20 @@ const calculateMonthlyHousingCost = (address: Address): number | null => {
             return null;
         }
         if (address.areUtilitiesIncluded === false) {
-            return address.rent! + address.utilities!;
+            return address.rentMonthly! + address.utilitiesMonthly!;
         }
-        return address.rent;
+        return address.rentMonthly;
     }
     case 'buy': {
         if (
             typeof address.mortgage !== 'number' ||
                 typeof address.interestRate !== 'number' ||
-                typeof address.amortizationPeriod !== 'string'
+                typeof address.amortizationPeriodInYears !== 'string'
         ) {
             console.error('Incomplete mortgage information for address when calculating monthly housing cost');
             return null;
         }
-        const amortizationPeriodYears = parseInt(address.amortizationPeriod, 10);
+        const amortizationPeriodYears = parseInt(address.amortizationPeriodInYears, 10);
         if (isNaN(amortizationPeriodYears)) {
             console.error('Invalid amortization period for address when calculating monthly housing cost');
             return null;
@@ -48,8 +48,8 @@ const calculateMonthlyHousingCost = (address: Address): number | null => {
                         address.interestRate / 100, // Convert percentage to decimal
                         amortizationPeriodYears * 12 // Convert years to months
                     );
-        const taxesMonthly = typeof address.taxes === 'number' ? address.taxes / 12 : 0;
-        const utilitiesMonthly = typeof address.utilities === 'number' ? address.utilities : 0;
+        const taxesMonthly = typeof address.taxesYearly === 'number' ? address.taxesYearly / 12 : 0;
+        const utilitiesMonthly = typeof address.utilitiesMonthly === 'number' ? address.utilitiesMonthly : 0;
         return monthlyMortgagePayment + taxesMonthly + utilitiesMonthly;
     }
     default: {

@@ -23,5 +23,5 @@ modeNames.walking: Walking
 modeNames.cycling: Cycling
 modeNames.driving: Driving
 modeNames.transit: Transit
-monthlyCost.carCostMonthlyNull: Monthly cost of car possession (according to CAA
-    data)<br />-
+monthlyCost.carCostMonthlyNull: Monthly cost of car possession (according to CAA data)<br
+    />-

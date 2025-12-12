@@ -48,10 +48,10 @@ export const addressOwnership: WidgetConfig.InputRadioType = {
 
 export const addressRent: WidgetConfig.InputStringType = {
     ...defaultInputBase.inputNumberBase,
-    path: 'rent',
+    path: 'rentMonthly',
     twoColumns: false,
     containsHtml: true,
-    label: (t: TFunction) => t('addresses:rent'),
+    label: (t: TFunction) => t('addresses:rentMonthly'),
     conditional: customConditionals.ifOwnershipTypeIsRentCustomConditional,
     validations: validations.requiredValidation
 };
@@ -81,10 +81,10 @@ export const addressInterestRate = customWidgets.addressInterestRate;
 
 export const addressAmortizationPeriod: WidgetConfig.InputSelectType = {
     ...defaultInputBase.inputSelectBase,
-    path: 'amortizationPeriod',
+    path: 'amortizationPeriodInYears',
     twoColumns: false,
     containsHtml: true,
-    label: (t: TFunction) => t('addresses:amortizationPeriod'),
+    label: (t: TFunction) => t('addresses:amortizationPeriodInYears'),
     choices: customChoices.amortizationYearsCustomChoices,
     conditional: customConditionals.ifOwnershipTypeIsBuyCustomConditional,
     validations: validations.requiredValidation
@@ -92,20 +92,20 @@ export const addressAmortizationPeriod: WidgetConfig.InputSelectType = {
 
 export const addressTaxes: WidgetConfig.InputStringType = {
     ...defaultInputBase.inputNumberBase,
-    path: 'taxes',
+    path: 'taxesYearly',
     twoColumns: false,
     containsHtml: true,
-    label: (t: TFunction) => t('addresses:taxes'),
+    label: (t: TFunction) => t('addresses:taxesYearly'),
     conditional: customConditionals.ifOwnershipTypeIsBuyCustomConditional,
     validations: validations.requiredValidation
 };
 
 export const addressUtilities: WidgetConfig.InputStringType = {
     ...defaultInputBase.inputNumberBase,
-    path: 'utilities',
+    path: 'utilitiesMonthly',
     twoColumns: false,
     containsHtml: true,
-    label: (t: TFunction) => t('addresses:utilities'),
+    label: (t: TFunction) => t('addresses:utilitiesMonthly'),
     conditional: customConditionals.askForUtilitiesCustomConditional,
     validations: validations.requiredValidation
 };

@@ -53,7 +53,7 @@ describe('calculateMonthlyCost', () => {
                 _sequence: 1,
                 _uuid: 'address-1',
                 ownership: 'rent',
-                rent: 1200,
+                rentMonthly: 1200,
                 areUtilitiesIncluded: true
             };
 
@@ -67,9 +67,9 @@ describe('calculateMonthlyCost', () => {
                 _sequence: 1,
                 _uuid: 'address-1',
                 ownership: 'rent',
-                rent: 1200,
+                rentMonthly: 1200,
                 areUtilitiesIncluded: false,
-                utilities: 150
+                utilitiesMonthly: 150
             };
 
             const result = calculateMonthlyCost(address, mockInterview);
@@ -95,7 +95,7 @@ describe('calculateMonthlyCost', () => {
                 _sequence: 1,
                 _uuid: 'address-1',
                 ownership: 'rent',
-                rent: 1200,
+                rentMonthly: 1200,
                 areUtilitiesIncluded: false
             };
 
@@ -113,9 +113,9 @@ describe('calculateMonthlyCost', () => {
                 ownership: 'buy',
                 mortgage: 300000,
                 interestRate: 5,
-                amortizationPeriod: '25',
-                taxes: 3600,
-                utilities: 200
+                amortizationPeriodInYears: '25',
+                taxesYearly: 3600,
+                utilitiesMonthly: 200
             };
             mockMortgageMonthlyPayment.mockReturnValueOnce(1000); // Mocked mortgage payment
 
@@ -136,8 +136,8 @@ describe('calculateMonthlyCost', () => {
                 ownership: 'buy',
                 mortgage: 300000,
                 interestRate: 5,
-                amortizationPeriod: '25',
-                utilities: 200
+                amortizationPeriodInYears: '25',
+                utilitiesMonthly: 200
             };
 
             mockMortgageMonthlyPayment.mockReturnValueOnce(1000); // Mocked mortgage payment
@@ -156,8 +156,8 @@ describe('calculateMonthlyCost', () => {
                 ownership: 'buy',
                 mortgage: 300000,
                 interestRate: 5,
-                amortizationPeriod: '25',
-                taxes: 3600
+                amortizationPeriodInYears: '25',
+                taxesYearly: 3600
             };
 
             mockMortgageMonthlyPayment.mockReturnValueOnce(1000); // Mocked mortgage payment
@@ -176,9 +176,9 @@ describe('calculateMonthlyCost', () => {
                 ownership: 'buy',
                 mortgage: 0,
                 interestRate: 5,
-                amortizationPeriod: '25',
-                taxes: 3600,
-                utilities: 200
+                amortizationPeriodInYears: '25',
+                taxesYearly: 3600,
+                utilitiesMonthly: 200
             };
 
             const result = calculateMonthlyCost(address, mockInterview);
@@ -197,7 +197,7 @@ describe('calculateMonthlyCost', () => {
                 _uuid: 'address-1',
                 ownership: 'buy',
                 interestRate: 5,
-                amortizationPeriod: '25'
+                amortizationPeriodInYears: '25'
             };
 
             const result = calculateMonthlyCost(address, mockInterview);
@@ -212,7 +212,7 @@ describe('calculateMonthlyCost', () => {
                 _uuid: 'address-1',
                 ownership: 'buy',
                 mortgage: 300000,
-                amortizationPeriod: '25'
+                amortizationPeriodInYears: '25'
             };
 
             const result = calculateMonthlyCost(address, mockInterview);
@@ -243,7 +243,7 @@ describe('calculateMonthlyCost', () => {
                 ownership: 'buy',
                 mortgage: 300000,
                 interestRate: 5,
-                amortizationPeriod: 'invalid' as any
+                amortizationPeriodInYears: 'invalid' as any
             };
 
             const result = calculateMonthlyCost(address, mockInterview);
@@ -284,7 +284,7 @@ describe('calculateMonthlyCost', () => {
                 ownership: 'buy',
                 mortgage: 300000,
                 interestRate: 0,
-                amortizationPeriod: '25'
+                amortizationPeriodInYears: '25'
             };
 
             mockMortgageMonthlyPayment.mockReturnValueOnce(1000); // Mocked mortgage payment
@@ -309,7 +309,7 @@ describe('calculateMonthlyCost', () => {
                 _sequence: 1,
                 _uuid: 'address-1',
                 ownership: 'rent',
-                rent: 1200,
+                rentMonthly: 1200,
                 areUtilitiesIncluded: true
             };
 
@@ -328,7 +328,7 @@ describe('calculateMonthlyCost', () => {
                 _sequence: 1,
                 _uuid: 'address-1',
                 ownership: 'rent',
-                rent: 1200,
+                rentMonthly: 1200,
                 areUtilitiesIncluded: true
             };
 
@@ -347,7 +347,7 @@ describe('calculateMonthlyCost', () => {
                 _sequence: 1,
                 _uuid: 'address-1',
                 ownership: 'rent',
-                rent: 1200,
+                rentMonthly: 1200,
                 areUtilitiesIncluded: true
             };
 
@@ -376,7 +376,7 @@ describe('calculateMonthlyCost', () => {
                 _sequence: 1,
                 _uuid: 'address-1',
                 ownership: 'rent',
-                rent: 1500,
+                rentMonthly: 1500,
                 areUtilitiesIncluded: true
             };
 
@@ -418,7 +418,7 @@ describe('calculateMonthlyCost', () => {
                 _sequence: 1,
                 _uuid: 'address-1',
                 ownership: 'rent',
-                rent: 1200,
+                rentMonthly: 1200,
                 areUtilitiesIncluded: true
             };
 
@@ -444,7 +444,7 @@ describe('calculateMonthlyCost', () => {
                 _sequence: 1,
                 _uuid: 'address-1',
                 ownership: 'rent',
-                rent: 1200,
+                rentMonthly: 1200,
                 areUtilitiesIncluded: true
             };
 
@@ -470,7 +470,7 @@ describe('calculateMonthlyCost', () => {
                 _sequence: 1,
                 _uuid: 'address-1',
                 ownership: 'rent',
-                rent: 1200,
+                rentMonthly: 1200,
                 areUtilitiesIncluded: true
             };
 
@@ -496,7 +496,7 @@ describe('calculateMonthlyCost', () => {
                 _sequence: 1,
                 _uuid: 'address-1',
                 ownership: 'rent',
-                rent: 1200,
+                rentMonthly: 1200,
                 areUtilitiesIncluded: true
             };
 
@@ -522,7 +522,7 @@ describe('calculateMonthlyCost', () => {
                 _sequence: 1,
                 _uuid: 'address-1',
                 ownership: 'rent',
-                rent: 1200,
+                rentMonthly: 1200,
                 areUtilitiesIncluded: true
             };
 
@@ -548,7 +548,7 @@ describe('calculateMonthlyCost', () => {
                 _sequence: 1,
                 _uuid: 'address-1',
                 ownership: 'rent',
-                rent: 1200,
+                rentMonthly: 1200,
                 areUtilitiesIncluded: true
             };
 
@@ -586,7 +586,7 @@ describe('calculateMonthlyCost', () => {
                 _sequence: 1,
                 _uuid: 'address-1',
                 ownership: 'rent',
-                rent: 1200,
+                rentMonthly: 1200,
                 areUtilitiesIncluded: true
             };
 
@@ -900,7 +900,7 @@ describe('calculateAccessibilityAndRouting', () => {
                 _sequence: 1,
                 _uuid: 'address-1',
                 ownership: 'rent',
-                rent: 1200,
+                rentMonthly: 1200,
                 areUtilitiesIncluded: true,
                 geography: mockGeography
             };
@@ -923,7 +923,7 @@ describe('calculateAccessibilityAndRouting', () => {
                 ownership: 'buy',
                 mortgage: 300000,
                 interestRate: 5,
-                amortizationPeriod: '25',
+                amortizationPeriodInYears: '25',
                 geography: mockGeography
             };
 
@@ -943,7 +943,7 @@ describe('calculateAccessibilityAndRouting', () => {
                 ownership: 'buy',
                 mortgage: 300000,
                 interestRate: 5,
-                amortizationPeriod: '25',
+                amortizationPeriodInYears: '25',
                 geography: mockGeography
             };
 
