@@ -53,7 +53,7 @@ export const visitedPlaceGeography: InputMapFindPlaceType = {
     invalidGeocodingResultTypes: defaultInvalidGeocodingResultTypes,
     label: (t: TFunction, _interview) => t('destinations:geography'),
     icon: {
-        url: getActivityMarkerIcon('home'),
+        url: '/dist/icons/activities/other/down_arrow-marker_round_grey.svg',
         size: [70, 70]
     },
     placesIcon: {

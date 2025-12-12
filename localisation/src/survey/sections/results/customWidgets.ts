@@ -101,9 +101,9 @@ export const comparisonMap: InfoMapWidgetConfig = {
             // Use orange icon with arrow for first visible visited place, purple for second, default for others
             let iconUrl: string;
             if (visitedPlaceIndex === 0) {
-                iconUrl = '/dist/icons/activities/other/question_mark-marker_round_orange.svg';
+                iconUrl = '/dist/icons/activities/other/down_arrow-marker_round_orange.svg';
             } else if (visitedPlaceIndex === 1) {
-                iconUrl = '/dist/icons/activities/other/question_mark-marker_round_purple.svg';
+                iconUrl = '/dist/icons/activities/other/down_arrow-marker_round_purple.svg';
             } else {
                 iconUrl = getActivityMarkerIcon(null);
             }
