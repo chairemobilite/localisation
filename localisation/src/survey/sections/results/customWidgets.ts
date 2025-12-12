@@ -57,9 +57,9 @@ export const comparisonMap: InfoMapWidgetConfig = {
             // Use red icon for first visible address, green for second visible address, default for others
             let iconUrl: string;
             if (addressIndex === 0) {
-                iconUrl = '/dist/icons/activities/home/home-marker_round_red.svg';
-            } else if (addressIndex === 1) {
                 iconUrl = '/dist/icons/activities/home/home-marker_round_green.svg';
+            } else if (addressIndex === 1) {
+                iconUrl = '/dist/icons/activities/home/home-marker_round_red.svg';
             } else {
                 iconUrl = getActivityMarkerIcon('home');
             }
