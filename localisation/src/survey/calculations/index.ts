@@ -1,10 +1,11 @@
 import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
-import { Address, RoutingByModeDistanceAndTime } from '../common/types';
+import { Address, CalculationResults, RoutingByModeDistanceAndTime } from '../common/types';
 import { mortgageMonthlyPayment } from './mortgage';
 import { getResponse } from 'evolution-common/lib/utils/helpers';
 import { getAccessibilityMapFromAddress, getRoutingFromAddressToDestination } from './routingAndAccessibility';
-import { getDestinationsArray } from '../common/customHelpers';
+import { getDestinationsArray, getVehiclesArray } from '../common/customHelpers';
+import { carCostAverageCaa } from './carcost';
 
 const calculateMonthlyHousingCost = (address: Address): number | null => {
     switch (address.ownership) {
@@ -67,27 +68,53 @@ const calculatePercentageIncomeForHousing = (
     return null;
 };
 
+// Calculate the monthly car cost for the interview. Will return null if there is missing information or any unknown category/engine
+const calculateMonthlyCarCost = (_address: Address, interview: InterviewAttributes): number | null => {
+    // FIXME Should we differentiate between no cars or missing information on car number?
+    const vehicles = getVehiclesArray(interview);
+    try {
+        let totalCarCostAnnual = 0;
+        for (let i = 0; i < vehicles.length; i++) {
+            const vehicle = vehicles[i];
+            if (!vehicle.category || !vehicle.engineType) {
+                throw new Error(
+                    'Incomplete vehicle information when calculating car cost for vehicle ' + vehicle._sequence
+                );
+            }
+            // Simple cost model based on category and engine type
+            // FIXME This will throw an error if category or engine type are not found, See if we want to catch and act on that information. Now it just fails and return null
+            totalCarCostAnnual += carCostAverageCaa(vehicle.category, vehicle.engineType);
+        }
+        return totalCarCostAnnual / 12; // Return monthly cost
+    } catch (error) {
+        console.error('Error calculating monthly car cost', error instanceof Error ? error.message : error);
+        return null;
+    }
+};
+
 /**
  * Calculate the monthly cost associated with an address
  * @param address The address for which to calculate the costs
  * @param interview The complete interview object
  * @returns
  */
-export const calculateMonthlyCost = (
-    address: Address,
-    interview: InterviewAttributes
-): { housingCostMonthly: number | null; housingCostPercentageOfIncome: number | null } => {
+export const calculateMonthlyCost = (address: Address, interview: InterviewAttributes): CalculationResults => {
     // Calculate the housing cost
     const housingCost = calculateMonthlyHousingCost(address);
     const housingCostPercentage =
         housingCost !== null ? calculatePercentageIncomeForHousing(housingCost, interview) : null;
 
-    // TODO Add the cost of car ownership associated with this address
+    // Calculate the cost of car ownership associated with this address (for now it does not depend on the address, but leave it here for future extensions)
+    const carCostMonthly = calculateMonthlyCarCost(address, interview);
+
+    const totalMonthlyCost = housingCost !== null && carCostMonthly !== null ? housingCost + carCostMonthly : null;
 
     // TODO Add cost of transportation options associated with this address
     return {
         housingCostMonthly: housingCost,
-        housingCostPercentageOfIncome: housingCostPercentage
+        housingCostPercentageOfIncome: housingCostPercentage,
+        carCostMonthly: carCostMonthly,
+        totalCostMonthly: totalMonthlyCost
     };
 };
 

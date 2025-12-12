@@ -1,6 +1,6 @@
 import { UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { getResponse } from 'evolution-common/lib/utils/helpers';
-import { Address, Destination } from './types';
+import { Address, Destination, Vehicle } from './types';
 
 export const countCars = ({ interview }: { interview: UserInterviewAttributes }): number => {
     const carIds = getResponse(interview, 'cars', {});
@@ -84,4 +84,21 @@ export const getDestinationsArray = function (interview: UserInterviewAttributes
     return Object.values(destinations).sort(
         (destinationA, destinationB) => destinationA._sequence - destinationB._sequence
     );
+};
+
+/**
+ * Get the vehicles array for an interview, or an empty array if there are no
+ * vehicles for this interview.
+ * @param {UserInterviewAttributes} interview The interview for which to get the
+ * vehicles
+ * @returns The array of vehicles sorted by sequence, or an empty array if none
+ * exist.
+ */
+export const getVehiclesArray = function (interview: UserInterviewAttributes): Vehicle[] {
+    // FIXME Rename the cars path to vehicles
+    const vehicles = getResponse(interview, 'cars', {});
+    // Make sure to filter out any invalid vehicle entries
+    return Object.values(vehicles)
+        .filter((v): v is Vehicle => v && typeof v === 'object' && typeof (v as any)._sequence === 'number')
+        .sort((vehicleA, vehicleB) => vehicleA._sequence - vehicleB._sequence);
 };

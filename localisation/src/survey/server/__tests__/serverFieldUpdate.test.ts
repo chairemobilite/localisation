@@ -152,7 +152,9 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
 
             mockCalculateMonthlyCost.mockReturnValue({
                 housingCostMonthly: 1200,
-                housingCostPercentageOfIncome: null
+                housingCostPercentageOfIncome: null,
+                carCostMonthly: 350,
+                totalCostMonthly: 1550
             });
 
             const interview = createMockInterview({ 'address-1': address });
@@ -163,7 +165,9 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
             expect('addresses.address-1.monthlyCost' in result).toBe(true);
             expect(result['addresses.address-1.monthlyCost']).toEqual({
                 housingCostMonthly: 1200,
-                housingCostPercentageOfIncome: null
+                housingCostPercentageOfIncome: null,
+                carCostMonthly: 350,
+                totalCostMonthly: 1550
             });
             expect('addresses.address-1.accessibilityMap' in result).toBe(true);
             expect(result['addresses.address-1.accessibilityMap']).toEqual(mockAccessibilityMap);
@@ -185,7 +189,9 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
 
             mockCalculateMonthlyCost.mockReturnValue({
                 housingCostMonthly: 2244.81,
-                housingCostPercentageOfIncome: null
+                housingCostPercentageOfIncome: null,
+                carCostMonthly: 450,
+                totalCostMonthly: 2694.81
             });
 
             const interview = createMockInterview({ 'address-1': address });
@@ -197,6 +203,7 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
             expect(result['addresses.address-1.monthlyCost'].housingCostMonthly).toBeGreaterThan(2200);
             expect(result['addresses.address-1.monthlyCost'].housingCostMonthly).toBeLessThan(2300);
             expect(result['addresses.address-1.monthlyCost'].housingCostPercentageOfIncome).toBeNull();
+            expect(result['addresses.address-1.monthlyCost'].carCostMonthly).toBe(450);
             expect('addresses.address-1.accessibilityMap' in result).toBe(true);
             expect(result['addresses.address-1.accessibilityMap']).toEqual(mockAccessibilityMap);
             expect(result['addresses.address-1.routingTimeDistances']).toEqual(mockRoutingTimeDistances);
@@ -223,11 +230,15 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
             mockCalculateMonthlyCost
                 .mockReturnValueOnce({
                     housingCostMonthly: 1200,
-                    housingCostPercentageOfIncome: null
+                    housingCostPercentageOfIncome: null,
+                    carCostMonthly: 300,
+                    totalCostMonthly: 1500
                 })
                 .mockReturnValueOnce({
                     housingCostMonthly: 1650,
-                    housingCostPercentageOfIncome: null
+                    housingCostPercentageOfIncome: null,
+                    carCostMonthly: 400,
+                    totalCostMonthly: 2050
                 });
 
             const interview = createMockInterview({
@@ -244,7 +255,9 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
             expect('addresses.address-2.accessibilityMap' in result).toBe(true);
 
             expect(result['addresses.address-1.monthlyCost'].housingCostMonthly).toBe(1200);
+            expect(result['addresses.address-1.monthlyCost'].carCostMonthly).toBe(300);
             expect(result['addresses.address-2.monthlyCost'].housingCostMonthly).toBe(1650);
+            expect(result['addresses.address-2.monthlyCost'].carCostMonthly).toBe(400);
             expect(result['addresses.address-1.accessibilityMap']).toEqual(mockAccessibilityMap);
             expect(result['addresses.address-2.accessibilityMap']).toEqual(mockAccessibilityMap);
             expect(result['addresses.address-1.routingTimeDistances']).toEqual(mockRoutingTimeDistances);
@@ -273,11 +286,15 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
             mockCalculateMonthlyCost
                 .mockReturnValueOnce({
                     housingCostMonthly: 1200,
-                    housingCostPercentageOfIncome: null
+                    housingCostPercentageOfIncome: null,
+                    carCostMonthly: 310,
+                    totalCostMonthly: 1510
                 })
                 .mockReturnValueOnce({
                     housingCostMonthly: null,
-                    housingCostPercentageOfIncome: null
+                    housingCostPercentageOfIncome: null,
+                    carCostMonthly: null,
+                    totalCostMonthly: null
                 });
 
             mockCalculateAccessibilityAndRouting.mockResolvedValue({
@@ -294,7 +311,9 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
             const result = await sectionsActionsCallback.callback(interview, value) as any;
 
             expect(result['addresses.address-1.monthlyCost'].housingCostMonthly).toBe(1200);
+            expect(result['addresses.address-1.monthlyCost'].carCostMonthly).toBe(310);
             expect(result['addresses.address-2.monthlyCost'].housingCostMonthly).toBeNull();
+            expect(result['addresses.address-2.monthlyCost'].carCostMonthly).toBeNull();
             expect('addresses.address-1.accessibilityMap' in result).toBe(true);
             expect('addresses.address-2.accessibilityMap' in result).toBe(true);
             expect('addresses.address-1.routingTimeDistances' in result).toBe(true);
@@ -374,7 +393,9 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
 
             mockCalculateMonthlyCost.mockReturnValue({
                 housingCostMonthly: 1200,
-                housingCostPercentageOfIncome: null
+                housingCostPercentageOfIncome: null,
+                carCostMonthly: 250,
+                totalCostMonthly: 1450
             });
 
             const interview = createMockInterview({ 'address-1': address });
@@ -384,6 +405,7 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
 
             expect('addresses.address-1.monthlyCost' in result).toBe(true);
             expect(result['addresses.address-1.monthlyCost'].housingCostMonthly).toBe(1200);
+            expect(result['addresses.address-1.monthlyCost'].carCostMonthly).toBe(250);
             expect('addresses.address-1.accessibilityMap' in result).toBe(true);
         });
 
@@ -447,11 +469,15 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
             mockCalculateMonthlyCost
                 .mockReturnValueOnce({
                     housingCostMonthly: 1200,
-                    housingCostPercentageOfIncome: null
+                    housingCostPercentageOfIncome: null,
+                    carCostMonthly: 330,
+                    totalCostMonthly: 1530
                 })
                 .mockReturnValueOnce({
                     housingCostMonthly: null,
-                    housingCostPercentageOfIncome: null
+                    housingCostPercentageOfIncome: null,
+                    carCostMonthly: null,
+                    totalCostMonthly: null
                 });
 
             const interview = createMockInterview({
@@ -464,8 +490,10 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
 
             // Should still process valid address
             expect(result['addresses.address-1.monthlyCost'].housingCostMonthly).toBe(1200);
+            expect(result['addresses.address-1.monthlyCost'].carCostMonthly).toBe(330);
             // Invalid address should have null
             expect(result['addresses.address-2.monthlyCost'].housingCostMonthly).toBeNull();
+            expect(result['addresses.address-2.monthlyCost'].carCostMonthly).toBeNull();
         });
     });
 
@@ -490,11 +518,15 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
             mockCalculateMonthlyCost
                 .mockReturnValueOnce({
                     housingCostMonthly: 1200,
-                    housingCostPercentageOfIncome: null
+                    housingCostPercentageOfIncome: null,
+                    carCostMonthly: 290,
+                    totalCostMonthly: 1490
                 })
                 .mockReturnValueOnce({
                     housingCostMonthly: 1100,
-                    housingCostPercentageOfIncome: null
+                    housingCostPercentageOfIncome: null,
+                    carCostMonthly: 270,
+                    totalCostMonthly: 1370
                 });
 
             // Add them out of order
@@ -509,6 +541,12 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
             // All addresses should be calculated regardless of order
             expect('addresses.address-1.monthlyCost' in result).toBe(true);
             expect('addresses.address-2.monthlyCost' in result).toBe(true);
+            expect(result['addresses.address-1.monthlyCost'].housingCostMonthly).toBe(1200);
+            expect(result['addresses.address-1.monthlyCost'].carCostMonthly).toBe(290);
+            expect(result['addresses.address-1.monthlyCost'].totalCostMonthly).toBe(1490);
+            expect(result['addresses.address-2.monthlyCost'].housingCostMonthly).toBe(1100);
+            expect(result['addresses.address-2.monthlyCost'].carCostMonthly).toBe(270);
+            expect(result['addresses.address-2.monthlyCost'].totalCostMonthly).toBe(1370);
             expect('addresses.address-1.accessibilityMap' in result).toBe(true);
             expect('addresses.address-2.accessibilityMap' in result).toBe(true);
             expect('addresses.address-1.routingTimeDistances' in result).toBe(true);
@@ -528,7 +566,9 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
 
             mockCalculateMonthlyCost.mockReturnValue({
                 housingCostMonthly: 1200,
-                housingCostPercentageOfIncome: null
+                housingCostPercentageOfIncome: null,
+                carCostMonthly: null,
+                totalCostMonthly: null
             });
 
             mockCalculateAccessibilityAndRouting.mockResolvedValue({
@@ -558,7 +598,9 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
 
             mockCalculateMonthlyCost.mockReturnValue({
                 housingCostMonthly: 1200,
-                housingCostPercentageOfIncome: null
+                housingCostPercentageOfIncome: null,
+                carCostMonthly: 320,
+                totalCostMonthly: 1520
             });
 
             mockCalculateAccessibilityAndRouting.mockRejectedValue(new Error('Accessibility service error'));
@@ -576,7 +618,9 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
             expect('addresses.address-1.monthlyCost' in result).toBe(true);
             expect(result['addresses.address-1.monthlyCost']).toEqual({
                 housingCostMonthly: 1200,
-                housingCostPercentageOfIncome: null
+                housingCostPercentageOfIncome: null,
+                carCostMonthly: 320,
+                totalCostMonthly: 1520
             });
         });
 
@@ -599,7 +643,9 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
 
             mockCalculateMonthlyCost.mockReturnValue({
                 housingCostMonthly: 1200,
-                housingCostPercentageOfIncome: null
+                housingCostPercentageOfIncome: null,
+                carCostMonthly: 280,
+                totalCostMonthly: 1480
             });
 
             const interview = createMockInterview({
