@@ -154,8 +154,8 @@ export const fillAddressesSectionTests = ({ context, householdSize }: CommonTest
 
     // Test number widget addressRent with conditional ifOwnershipTypeIsRentCustomConditional
     /* @link file://./../src/survey/common/conditionals.tsx */
-    testHelpers.inputVisibleTest({ context, path: '?.rent', isVisible: true });
-    testHelpers.inputStringTest({ context, path: '?.rent', value: '?' });
+    testHelpers.inputVisibleTest({ context, path: '?.rentMonthly', isVisible: true });
+    testHelpers.inputStringTest({ context, path: '?.rentMonthly', value: '?' });
 
     // Test radio widget addressAreUtilitiesIncluded with conditional ifOwnershipTypeIsRentCustomConditional with choices yesNo
     /* @link file://./../src/survey/common/conditionals.tsx */
@@ -176,17 +176,17 @@ export const fillAddressesSectionTests = ({ context, householdSize }: CommonTest
     // Test select widget addressAmortizationPeriod with conditional ifOwnershipTypeIsBuyCustomConditional with choices amortizationYearsCustomChoices
     /* @link file://./../src/survey/common/conditionals.tsx */
     /* @link file://./../src/survey/common/choices.tsx */
-    testHelpers.inputVisibleTest({ context, path: '?.amortizationPeriod', isVisible: true });
+    testHelpers.inputVisibleTest({ context, path: '?.amortizationPeriodInYears', isVisible: true });
 
     // Test number widget addressTaxes with conditional ifOwnershipTypeIsBuyCustomConditional
     /* @link file://./../src/survey/common/conditionals.tsx */
-    testHelpers.inputVisibleTest({ context, path: '?.taxes', isVisible: true });
-    testHelpers.inputStringTest({ context, path: '?.taxes', value: '?' });
+    testHelpers.inputVisibleTest({ context, path: '?.taxesYearly', isVisible: true });
+    testHelpers.inputStringTest({ context, path: '?.taxesYearly', value: '?' });
 
     // Test number widget addressUtilities with conditional askForUtilitiesCustomConditional
     /* @link file://./../src/survey/common/conditionals.tsx */
-    testHelpers.inputVisibleTest({ context, path: '?.utilities', isVisible: true });
-    testHelpers.inputStringTest({ context, path: '?.utilities', value: '?' });
+    testHelpers.inputVisibleTest({ context, path: '?.utilitiesMonthly', isVisible: true });
+    testHelpers.inputStringTest({ context, path: '?.utilitiesMonthly', value: '?' });
 
     // Test nextbutton widget addresses_save
     testHelpers.inputNextButtonTest({ context, text: '?', nextPageUrl: '?' });

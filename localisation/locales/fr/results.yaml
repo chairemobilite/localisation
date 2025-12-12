@@ -9,8 +9,8 @@ comparisonMap: Comparaison d'accessibilité
 monthlyCost.housingCostMonthly: >-
     Coût mensuel total du logement<br /><strong>{{housingCostMonthly}}</strong> $
 monthlyCost.carCostMonthly: >-
-    Coût mensuel de la possession de véhicules (selon les données de la CAA)<br
-    /><strong>{{carCostMonthly}}</strong> $
+    Coût mensuel de la possession de véhicules (selon les données de la CAA)<br /><strong>{{carCostMonthly}}</strong>
+    $
 monthlyCost.totalCostMonthly: Coût mensuel total<br /><strong>{{monthlyCost}}</strong>
     $
 routingTimeDistances: Calcul de chemin vers les destinations fréquentes
@@ -27,5 +27,4 @@ modeNames.cycling: Vélo
 modeNames.driving: Voiture
 modeNames.transit: Transport collectif
 monthlyCost.carCostMonthlyNull: >-
-    Coût mensuel de la possession de véhicules (selon les données de la CAA)<br
-    />-
+    Coût mensuel de la possession de véhicules (selon les données de la CAA)<br />-

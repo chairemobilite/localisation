@@ -13,14 +13,14 @@ geography: >-
     pourrez déplacer le point pour davantage de précision. Vous pouvez également chercher
     le lieu en utilisant le nom ou l'adresse avec le bouton ci-dessous.</span>
 ownership: Comptez-vous <strong>acheter ou louer</strong> cette maison?
-rent: <strong>Prix du loyer par mois</strong>
+rentMonthly: <strong>Prix du loyer par mois</strong>
 areUtilitiesIncluded: >-
     <strong>Le prix des services publics</strong> (électricité, gaz, ...) <strong>est-il
     inclus dans le loyer?</strong>
 mortgage: <strong>Montant du prêt hypothécaire</strong>
 interestRate: <strong>Taux d'intérêt du prêt hypothécaire</strong>, en %
-amortizationPeriod: <strong>Période d'amortissement du prêt hypothécaire</strong>
-taxes: <strong>Montant annuel des taxes municipales et scolaires</strong>
-utilities: >-
+amortizationPeriodInYears: <strong>Période d'amortissement du prêt hypothécaire</strong>
+taxesYearly: <strong>Montant annuel des taxes municipales et scolaires</strong>
+utilitiesMonthly: >-
     <strong>Montant mensuel des services publics</strong> (électricité, gaz, ...)
 addresses.save: Enregistrer et continuer

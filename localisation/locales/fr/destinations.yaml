@@ -13,7 +13,7 @@ geography: >-
     zoomez, et cliquez sur la carte pour localiser le lieu. Une fois localisé, vous
     pourrez déplacer le point pour davantage de précision. Vous pouvez également chercher
     le lieu en utilisant le nom ou l'adresse avec le bouton ci-dessous.</span>
-frequency: Combien de fois par semaine vous rendez-vous à ce lieu?
+frequencyWeekly: Combien de fois par semaine vous rendez-vous à ce lieu?
 destinations.save: Enregistrer et continuer
 addGroupedObject: Ajouter une destination manquante
 deleteThisGroupedObject: Supprimer cette destination

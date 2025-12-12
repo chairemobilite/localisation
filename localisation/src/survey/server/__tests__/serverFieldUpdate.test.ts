@@ -146,7 +146,7 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
                 _sequence: 1,
                 _uuid: 'address-1',
                 ownership: 'rent',
-                rent: 1200,
+                rentMonthly: 1200,
                 areUtilitiesIncluded: true
             };
 
@@ -182,9 +182,9 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
                 ownership: 'buy',
                 mortgage: 300000,
                 interestRate: 5,
-                amortizationPeriod: '25',
-                taxes: 3600,
-                utilities: 200
+                amortizationPeriodInYears: '25',
+                taxesYearly: 3600,
+                utilitiesMonthly: 200
             };
 
             mockCalculateMonthlyCost.mockReturnValue({
@@ -214,7 +214,7 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
                 _sequence: 1,
                 _uuid: 'address-1',
                 ownership: 'rent',
-                rent: 1200,
+                rentMonthly: 1200,
                 areUtilitiesIncluded: true
             };
 
@@ -222,9 +222,9 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
                 _sequence: 2,
                 _uuid: 'address-2',
                 ownership: 'rent',
-                rent: 1500,
+                rentMonthly: 1500,
                 areUtilitiesIncluded: false,
-                utilities: 150
+                utilitiesMonthly: 150
             };
 
             mockCalculateMonthlyCost
@@ -272,7 +272,7 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
                 _sequence: 1,
                 _uuid: 'address-1',
                 ownership: 'rent',
-                rent: 1200,
+                rentMonthly: 1200,
                 areUtilitiesIncluded: true
             };
 
@@ -336,7 +336,7 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
                 _sequence: 1,
                 _uuid: 'address-1',
                 ownership: 'rent',
-                rent: 1200,
+                rentMonthly: 1200,
                 areUtilitiesIncluded: true
             };
 
@@ -353,7 +353,7 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
                 _sequence: 1,
                 _uuid: 'address-1',
                 ownership: 'rent',
-                rent: 1200,
+                rentMonthly: 1200,
                 areUtilitiesIncluded: true
             };
 
@@ -370,7 +370,7 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
                 _sequence: 1,
                 _uuid: 'address-1',
                 ownership: 'rent',
-                rent: 1200,
+                rentMonthly: 1200,
                 areUtilitiesIncluded: true
             };
 
@@ -387,7 +387,7 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
                 _sequence: 1,
                 _uuid: 'address-1',
                 ownership: 'rent',
-                rent: 1200,
+                rentMonthly: 1200,
                 areUtilitiesIncluded: true
             };
 
@@ -414,7 +414,7 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
                 _sequence: 1,
                 _uuid: 'address-1',
                 ownership: 'rent',
-                rent: 1200,
+                rentMonthly: 1200,
                 areUtilitiesIncluded: true
             };
 
@@ -452,7 +452,7 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
                 _sequence: 1,
                 _uuid: 'address-1',
                 ownership: 'rent',
-                rent: 1200,
+                rentMonthly: 1200,
                 areUtilitiesIncluded: true
             };
 
@@ -463,7 +463,7 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
                 ownership: 'buy',
                 mortgage: 300000,
                 interestRate: 5,
-                amortizationPeriod: 'invalid' as any
+                amortizationPeriodInYears: 'invalid' as any
             };
 
             mockCalculateMonthlyCost
@@ -503,7 +503,7 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
                 _sequence: 2,
                 _uuid: 'address-2',
                 ownership: 'rent',
-                rent: 1100,
+                rentMonthly: 1100,
                 areUtilitiesIncluded: true
             };
 
@@ -511,7 +511,7 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
                 _sequence: 1,
                 _uuid: 'address-1',
                 ownership: 'rent',
-                rent: 1200,
+                rentMonthly: 1200,
                 areUtilitiesIncluded: true
             };
 
@@ -560,7 +560,7 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
                 _sequence: 1,
                 _uuid: 'address-1',
                 ownership: 'rent',
-                rent: 1200,
+                rentMonthly: 1200,
                 areUtilitiesIncluded: true
             };
 
@@ -592,7 +592,7 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
                 _sequence: 1,
                 _uuid: 'address-1',
                 ownership: 'rent',
-                rent: 1200,
+                rentMonthly: 1200,
                 areUtilitiesIncluded: true
             };
 
@@ -629,7 +629,7 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
                 _sequence: 1,
                 _uuid: 'address-1',
                 ownership: 'rent',
-                rent: 1200,
+                rentMonthly: 1200,
                 areUtilitiesIncluded: true
             };
 
@@ -637,7 +637,7 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
                 _sequence: 2,
                 _uuid: 'address-2',
                 ownership: 'rent',
-                rent: 1500,
+                rentMonthly: 1500,
                 areUtilitiesIncluded: true
             };
 
