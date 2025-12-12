@@ -302,6 +302,314 @@ describe('calculateMonthlyCost', () => {
 
         it.todo('should return correct percentage of income for housing cost');
     });
+
+    describe('Vehicle cost calculation', () => {
+        it('should return carCostMonthly as 0 when there are no vehicles', () => {
+            const address: Address = {
+                _sequence: 1,
+                _uuid: 'address-1',
+                ownership: 'rent',
+                rent: 1200,
+                areUtilitiesIncluded: true
+            };
+
+            const interviewNoVehicles = _cloneDeep(mockInterview);
+            interviewNoVehicles.response.cars = {};
+
+            const result = calculateMonthlyCost(address, interviewNoVehicles);
+
+            expect(result.carCostMonthly).toBe(0);
+            expect(result.housingCostMonthly).toBe(1200);
+            expect(result.totalCostMonthly).toBe(1200);
+        });
+
+        it('should return carCostMonthly as 0 when vehicles field is undefined', () => {
+            const address: Address = {
+                _sequence: 1,
+                _uuid: 'address-1',
+                ownership: 'rent',
+                rent: 1200,
+                areUtilitiesIncluded: true
+            };
+
+            const interviewUndefinedVehicles = _cloneDeep(mockInterview);
+            // Don't set cars field at all
+
+            const result = calculateMonthlyCost(address, interviewUndefinedVehicles);
+
+            expect(result.carCostMonthly).toBe(0);
+            expect(result.housingCostMonthly).toBe(1200);
+            expect(result.totalCostMonthly).toBe(1200);
+        });
+
+        it('should calculate carCostMonthly correctly for one vehicle', () => {
+            const address: Address = {
+                _sequence: 1,
+                _uuid: 'address-1',
+                ownership: 'rent',
+                rent: 1200,
+                areUtilitiesIncluded: true
+            };
+
+            const interviewOneVehicle = _cloneDeep(mockInterview);
+            interviewOneVehicle.response.cars = {
+                'car-1': {
+                    _sequence: 1,
+                    _uuid: 'car-1',
+                    category: 'passengerCar' as any,
+                    engineType: 'electric' as any
+                }
+            };
+
+            const result = calculateMonthlyCost(address, interviewOneVehicle);
+
+            // Average CAA cost for passenger car electric is ~5947.69/year = ~495.64/month
+            expect(result.carCostMonthly).toBeGreaterThan(490);
+            expect(result.carCostMonthly).toBeLessThan(500);
+            expect(result.housingCostMonthly).toBe(1200);
+            expect(result.totalCostMonthly).toBeGreaterThan(1690);
+            expect(result.totalCostMonthly).toBeLessThan(1700);
+        });
+
+        it('should calculate carCostMonthly correctly for three vehicles', () => {
+            const address: Address = {
+                _sequence: 1,
+                _uuid: 'address-1',
+                ownership: 'rent',
+                rent: 1500,
+                areUtilitiesIncluded: true
+            };
+
+            const interviewThreeVehicles = _cloneDeep(mockInterview);
+            interviewThreeVehicles.response.cars = {
+                'car-1': {
+                    _sequence: 1,
+                    _uuid: 'car-1',
+                    category: 'passengerCar' as any,
+                    engineType: 'gas' as any
+                },
+                'car-2': {
+                    _sequence: 2,
+                    _uuid: 'car-2',
+                    category: 'suv' as any,
+                    engineType: 'hybrid' as any
+                },
+                'car-3': {
+                    _sequence: 3,
+                    _uuid: 'car-3',
+                    category: 'pickup' as any,
+                    engineType: 'electric' as any
+                }
+            };
+
+            const result = calculateMonthlyCost(address, interviewThreeVehicles);
+
+            // Sum of costs: passengerCar/gas (~9399) + suv/hybrid (~7831) + pickup/electric (~10440) = ~27670/year = ~2305/month
+            expect(result.carCostMonthly).not.toBeNull();
+            expect(result.carCostMonthly).toBeGreaterThan(2200);
+            expect(result.carCostMonthly).toBeLessThan(2400);
+            expect(result.housingCostMonthly).toBe(1500);
+            expect(result.totalCostMonthly).toBeGreaterThan(3700);
+            expect(result.totalCostMonthly).toBeLessThan(3900);
+        });
+
+        it('should return null carCostMonthly when vehicle has missing category', () => {
+            const address: Address = {
+                _sequence: 1,
+                _uuid: 'address-1',
+                ownership: 'rent',
+                rent: 1200,
+                areUtilitiesIncluded: true
+            };
+
+            const interviewMissingCategory = _cloneDeep(mockInterview);
+            interviewMissingCategory.response.cars = {
+                'car-1': {
+                    _sequence: 1,
+                    _uuid: 'car-1',
+                    engineType: 'electric' as any
+                    // Missing category
+                }
+            };
+
+            const result = calculateMonthlyCost(address, interviewMissingCategory);
+
+            expect(result.carCostMonthly).toBeNull();
+            expect(result.housingCostMonthly).toBe(1200);
+            expect(result.totalCostMonthly).toBeNull();
+        });
+
+        it('should return null carCostMonthly when vehicle has missing engineType', () => {
+            const address: Address = {
+                _sequence: 1,
+                _uuid: 'address-1',
+                ownership: 'rent',
+                rent: 1200,
+                areUtilitiesIncluded: true
+            };
+
+            const interviewMissingEngine = _cloneDeep(mockInterview);
+            interviewMissingEngine.response.cars = {
+                'car-1': {
+                    _sequence: 1,
+                    _uuid: 'car-1',
+                    category: 'passengerCar' as any
+                    // Missing engineType
+                }
+            };
+
+            const result = calculateMonthlyCost(address, interviewMissingEngine);
+
+            expect(result.carCostMonthly).toBeNull();
+            expect(result.housingCostMonthly).toBe(1200);
+            expect(result.totalCostMonthly).toBeNull();
+        });
+
+        it('should return null carCostMonthly when vehicle has unknown category', () => {
+            const address: Address = {
+                _sequence: 1,
+                _uuid: 'address-1',
+                ownership: 'rent',
+                rent: 1200,
+                areUtilitiesIncluded: true
+            };
+
+            const interviewUnknownCategory = _cloneDeep(mockInterview);
+            interviewUnknownCategory.response.cars = {
+                'car-1': {
+                    _sequence: 1,
+                    _uuid: 'car-1',
+                    category: 'unknownCategory' as any,
+                    engineType: 'electric' as any
+                }
+            };
+
+            const result = calculateMonthlyCost(address, interviewUnknownCategory);
+
+            expect(result.carCostMonthly).toBeNull();
+            expect(result.housingCostMonthly).toBe(1200);
+            expect(result.totalCostMonthly).toBeNull();
+        });
+
+        it('should return null carCostMonthly when vehicle has unknown engineType', () => {
+            const address: Address = {
+                _sequence: 1,
+                _uuid: 'address-1',
+                ownership: 'rent',
+                rent: 1200,
+                areUtilitiesIncluded: true
+            };
+
+            const interviewUnknownEngine = _cloneDeep(mockInterview);
+            interviewUnknownEngine.response.cars = {
+                'car-1': {
+                    _sequence: 1,
+                    _uuid: 'car-1',
+                    category: 'passengerCar' as any,
+                    engineType: 'unknownEngine' as any
+                }
+            };
+
+            const result = calculateMonthlyCost(address, interviewUnknownEngine);
+
+            expect(result.carCostMonthly).toBeNull();
+            expect(result.housingCostMonthly).toBe(1200);
+            expect(result.totalCostMonthly).toBeNull();
+        });
+
+        it('should return null carCostMonthly when vehicle combination is not available', () => {
+            const address: Address = {
+                _sequence: 1,
+                _uuid: 'address-1',
+                ownership: 'rent',
+                rent: 1200,
+                areUtilitiesIncluded: true
+            };
+
+            const interviewInvalidCombo = _cloneDeep(mockInterview);
+            interviewInvalidCombo.response.cars = {
+                'car-1': {
+                    _sequence: 1,
+                    _uuid: 'car-1',
+                    category: 'pickup' as any,
+                    engineType: 'pluginHybrid' as any // This combination is not available in CAA data
+                }
+            };
+
+            const result = calculateMonthlyCost(address, interviewInvalidCombo);
+
+            expect(result.carCostMonthly).toBeNull();
+            expect(result.housingCostMonthly).toBe(1200);
+            expect(result.totalCostMonthly).toBeNull();
+        });
+
+        it('should return null carCostMonthly when one vehicle out of many has missing data', () => {
+            const address: Address = {
+                _sequence: 1,
+                _uuid: 'address-1',
+                ownership: 'rent',
+                rent: 1200,
+                areUtilitiesIncluded: true
+            };
+
+            const interviewMixedVehicles = _cloneDeep(mockInterview);
+            interviewMixedVehicles.response.cars = {
+                'car-1': {
+                    _sequence: 1,
+                    _uuid: 'car-1',
+                    category: 'passengerCar' as any,
+                    engineType: 'electric' as any
+                },
+                'car-2': {
+                    _sequence: 2,
+                    _uuid: 'car-2',
+                    category: 'suv' as any
+                    // Missing engineType
+                },
+                'car-3': {
+                    _sequence: 3,
+                    _uuid: 'car-3',
+                    category: 'pickup' as any,
+                    engineType: 'electric' as any
+                }
+            };
+
+            const result = calculateMonthlyCost(address, interviewMixedVehicles);
+
+            expect(result.carCostMonthly).toBeNull();
+            expect(result.housingCostMonthly).toBe(1200);
+            expect(result.totalCostMonthly).toBeNull();
+        });
+
+        it('should handle vehicles with nicknames', () => {
+            const address: Address = {
+                _sequence: 1,
+                _uuid: 'address-1',
+                ownership: 'rent',
+                rent: 1200,
+                areUtilitiesIncluded: true
+            };
+
+            const interviewWithNickname = _cloneDeep(mockInterview);
+            interviewWithNickname.response.cars = {
+                'car-1': {
+                    _sequence: 1,
+                    _uuid: 'car-1',
+                    nickname: 'My Tesla',
+                    category: 'passengerCar' as any,
+                    engineType: 'electric' as any
+                }
+            };
+
+            const result = calculateMonthlyCost(address, interviewWithNickname);
+
+            expect(result.carCostMonthly).toBeGreaterThan(490);
+            expect(result.carCostMonthly).toBeLessThan(500);
+            expect(result.housingCostMonthly).toBe(1200);
+            expect(result.totalCostMonthly).toBeGreaterThan(1690);
+            expect(result.totalCostMonthly).toBeLessThan(1700);
+        });
+    });
 });
 
 describe('calculateAccessibilityAndRouting', () => {

@@ -58,9 +58,40 @@ export type Destination = {
     frequency?: string;
 };
 
+// FIXME These enums should be for the backend only, the frontend categories
+// could be different from calculation ones, so we can map them when needed
+export enum CarCategory {
+    PassengerCar = 'passengerCar',
+    LuxuryCar = 'luxuryCar',
+    Pickup = 'pickup',
+    Suv = 'suv',
+    Other = 'other'
+}
+
+// FIXME These enums should be for the backend only, the frontend engines could
+// be different, so we can map them when needed
+export enum CarEngine {
+    Electric = 'electric',
+    PluginHybrid = 'pluginHybrid',
+    Hybrid = 'hybrid',
+    Gas = 'gas'
+}
+
+export type Vehicle = {
+    _sequence: number;
+    _uuid: string;
+    nickname?: string;
+    category?: CarCategory;
+    engineType?: CarEngine;
+};
+
 export type CalculationResults = {
     /** Monthly cost for housing. Can be null if there is missing information */
     housingCostMonthly: number | null;
     /** Percentage of income spent on housing. Can be null if there is missing information */
     housingCostPercentageOfIncome: number | null;
+    /** Monthly cost for car possession. Can be null if there is missing information or errors */
+    carCostMonthly: number | null;
+    /** Precomputed total, only if both housing and car costs are available, null otherwise */
+    totalCostMonthly: number | null;
 };

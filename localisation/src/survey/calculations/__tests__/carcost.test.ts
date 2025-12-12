@@ -6,7 +6,8 @@
  */
 
 
-import { carCostAverageCaa, CarCategory, CarEngine } from '../carcost';
+import { CarCategory, CarEngine } from '../../common/types';
+import { carCostAverageCaa } from '../carcost';
 
 describe('carCostAverageCaa', () => {
     describe('valid combinations', () => {

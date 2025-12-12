@@ -5,19 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-export enum CarCategory {
-    PassengerCar = 'passengerCar',
-    LuxuryCar = 'luxuryCar',
-    Pickup = 'pickup',
-    Suv = 'suv'
-}
-
-export enum CarEngine {
-    Electric = 'electric',
-    PluginHybrid = 'pluginHybrid',
-    Hybrid = 'hybrid',
-    Gas = 'gas'
-}
+import { CarCategory, CarEngine } from '../common/types';
 
 /* Calculated average from CAA data. Will need to be done properly
    Was scraped from their website. Average were calculated from a subset of the
@@ -47,7 +35,9 @@ export const averageAnnualCarCost: Record<CarCategory, Partial<Record<CarEngine,
         [CarEngine.PluginHybrid]: 7175.75,
         [CarEngine.Hybrid]: 7831.03,
         [CarEngine.Gas]: 9907.93
-    }
+    },
+    // No data for other types of vehicles
+    [CarCategory.Other]: {}
 };
 
 /* Compute car cost based on average per type. This is based on data from CAA.
