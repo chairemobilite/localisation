@@ -148,7 +148,7 @@ export const resultsByAddress: GroupConfig = {
 };
 
 // Custom text widget because the label has placeholders. Also, since the value comes from server, the conditional is on the path itself, so it needs to be custom
-export const monthlyCost: TextWidgetConfig = {
+export const monthlyHousingCost: TextWidgetConfig = {
     ...defaultInputBase.infoTextBase,
     path: 'monthlyCost.housingCostMonthly',
     containsHtml: true,
@@ -159,6 +159,40 @@ export const monthlyCost: TextWidgetConfig = {
     conditional: (interview: UserInterviewAttributes, path: string) => {
         const monthlyCost = getResponse(interview, path as string, null);
         return monthlyCost !== null;
+    }
+};
+
+// Custom text widget because the label has placeholders. Also, since the value comes from server, the conditional is on the path itself, so it needs to be custom
+export const monthlyCarCost: TextWidgetConfig = {
+    ...defaultInputBase.infoTextBase,
+    path: 'monthlyCost.carCostMonthly',
+    containsHtml: true,
+    text: (t: TFunction, interview: UserInterviewAttributes, path) => {
+        const monthlyCost = getResponse(interview, path as string, null) as number;
+        return monthlyCost === null
+            ? t('results:monthlyCost.carCostMonthlyNull')
+            : t('results:monthlyCost.carCostMonthly', { carCostMonthly: monthlyCost?.toFixed(2) });
+    },
+    conditional: (interview: UserInterviewAttributes, path: string) => {
+        // If the monthly costs are calculated, then car cost is also calculated (can be null error occurred)
+        const monthlyCosts = getResponse(interview, path as string, null, '../');
+        return monthlyCosts !== null;
+    }
+};
+
+// Custom text widget because the label has placeholders. Also, since the value comes from server, the conditional is on the path itself, so it needs to be custom
+export const monthlyTotalCost: TextWidgetConfig = {
+    ...defaultInputBase.infoTextBase,
+    path: 'monthlyCost.totalCostMonthly',
+    containsHtml: true,
+    text: (t: TFunction, interview: UserInterviewAttributes, path) => {
+        const monthlyCost = getResponse(interview, path as string, null) as any;
+        return t('results:monthlyCost.totalCostMonthly', { monthlyCost: monthlyCost?.toFixed(2) });
+    },
+    conditional: (interview: UserInterviewAttributes, path: string) => {
+        // FIXME Get a type for this to avoid any casting
+        const monthlyCosts = getResponse(interview, path as string, null) as any;
+        return monthlyCosts !== null;
     }
 };
 

@@ -8,6 +8,11 @@ resultsIntro: >-
 comparisonMap: Comparaison d'accessibilité
 monthlyCost.housingCostMonthly: >-
     Coût mensuel total du logement<br /><strong>{{housingCostMonthly}}</strong> $
+monthlyCost.carCostMonthly: >-
+    Coût mensuel de la possession de véhicules (selon les données de CAA Québec)<br
+    /><strong>{{carCostMonthly}}</strong> $
+monthlyCost.totalCostMonthly: Coût mensuel total<br /><strong>{{monthlyCost}}</strong>
+    $
 routingTimeDistances: Calcul de chemin vers les destinations fréquentes
 resultsByMode: Par mode de déplacement
 travelTimeSeconds: 'Durée: {{minutes}} minutes'
@@ -21,3 +26,6 @@ modeNames.walking: Marche
 modeNames.cycling: Vélo
 modeNames.driving: Voiture
 modeNames.transit: Transport collectif
+monthlyCost.carCostMonthlyNull: >-
+    Coût mensuel de la possession de véhicules (selon les données de CAA Québec)<br
+    />-

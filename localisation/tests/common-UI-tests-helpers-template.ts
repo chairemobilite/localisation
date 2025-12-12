@@ -241,7 +241,13 @@ export const fillResultsSectionTests = ({ context, householdSize }: CommonTestPa
     // Test custom widget resultsByAddress
     // Implement custom test
 
-    // Test custom widget monthlyCost
+    // Test custom widget monthlyHousingCost
+    // Implement custom test
+
+    // Test custom widget monthlyCarCost
+    // Implement custom test
+
+    // Test custom widget monthlyTotalCost
     // Implement custom test
 
     // Test custom widget destinationsRouting

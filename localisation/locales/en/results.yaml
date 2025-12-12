@@ -7,6 +7,9 @@ resultsIntro: >-
     the two potential addresses:</strong>
 comparisonMap: Accessibility comparison
 monthlyCost.housingCostMonthly: Total Housing Monthly Cost<br />$<strong>{{housingCostMonthly}}</strong>
+monthlyCost.carCostMonthly: >-
+    Monthly cost of car possession (according to CAA Québec data)<br />$<strong>{{carCostMonthly}}</strong>
+monthlyCost.totalCostMonthly: Total Monthly Cost<br />$<strong>{{monthlyCost}}</strong>
 routingTimeDistances: Routing calculation to frequent destinations
 resultsByMode: By transportation mode
 travelTimeSeconds: 'Duration: {{minutes}} minutes'
@@ -20,3 +23,5 @@ modeNames.walking: Walking
 modeNames.cycling: Cycling
 modeNames.driving: Driving
 modeNames.transit: Transit
+monthlyCost.carCostMonthlyNull: Monthly cost of car possession (according to CAA Québec
+    data)<br />-
