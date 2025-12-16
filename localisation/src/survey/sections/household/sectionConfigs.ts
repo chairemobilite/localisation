@@ -29,7 +29,7 @@ export const sectionConfig: SectionConfig = {
     enableConditional: function (interview) {
         return isSectionCompleted({ interview, sectionName: previousSectionName });
     },
-    // Allow to click on the section menu
+    // Flag the section as completed or not
     completionConditional: function (interview) {
         return isSectionCompleted({ interview, sectionName: currentSectionName });
     }

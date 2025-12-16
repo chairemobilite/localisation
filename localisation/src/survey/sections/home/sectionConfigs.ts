@@ -27,7 +27,7 @@ export const sectionConfig: SectionConfig = {
     preload: customPreload,
     // Allow to click on the section menu
     enableConditional: true,
-    // Allow to click on the section menu
+    // Flag the section as completed or not
     completionConditional: function (interview) {
         return isSectionCompleted({ interview, sectionName: currentSectionName });
     }
