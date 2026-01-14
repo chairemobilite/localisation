@@ -11,7 +11,4 @@ household.size: >-
 household.income: >-
     What was your <strong>household's income range</strong> before taxes (gross income),
     in 2024?
-household.carNumber: >-
-    <strong>Cars</strong>, SUVs, light-duty trucks or vans, etc.<br /><span class="_pale
-    _oblique">Available to one or more members of your household.</span>
 home.save: Save and continue

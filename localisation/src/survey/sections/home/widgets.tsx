@@ -43,21 +43,6 @@ export const household_income: WidgetConfig.InputSelectType = {
     validations: validations.requiredValidation
 };
 
-export const household_carNumber: WidgetConfig.InputRadioNumberType = {
-    ...defaultInputBase.inputRadioNumberBase,
-    path: 'household.carNumber',
-    twoColumns: false,
-    containsHtml: true,
-    label: (t: TFunction) => t('home:household.carNumber'),
-    valueRange: {
-        min: 0,
-        max: 3
-    },
-    overMaxAllowed: true,
-    conditional: defaultConditional,
-    validations: validations.carNumberValidation
-};
-
 export const home_save: WidgetConfig.ButtonWidgetConfig = {
     ...defaultInputBase.buttonNextBase,
     path: 'home.save',

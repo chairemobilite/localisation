@@ -26,20 +26,13 @@ export const sectionConfig: SectionConfig = {
     widgets: widgetsNames,
     // Do some actions before the section is loaded
     preload: customPreload,
-    // Allow to click on the section menu. If the number of cars is zero, disable clicking on it.
+    // Allow to click on the section menu
     enableConditional: function (interview) {
-        const carNumber = getResponse(interview, 'household.carNumber', 0) as number;
-        return isSectionCompleted({ interview, sectionName: previousSectionName }) && carNumber !== 0;
+        return isSectionCompleted({ interview, sectionName: previousSectionName });
     },
-    // Flag the section as completed or not. If the number of cars is zero, mark is as completed so the navigation works properly for subsequent sections.
+    // Flag the section as completed or not
     completionConditional: function (interview) {
-        const carNumber = getResponse(interview, 'household.carNumber', 0) as number;
-        return carNumber === 0 || isSectionCompleted({ interview, sectionName: currentSectionName });
-    },
-    // Skip this section if the number of cars is zero
-    isSectionVisible: (interview, _iterationContext) => {
-        const carNumber = getResponse(interview, 'household.carNumber', 0) as number;
-        return carNumber !== 0;
+        return isSectionCompleted({ interview, sectionName: currentSectionName });
     }
 };
 

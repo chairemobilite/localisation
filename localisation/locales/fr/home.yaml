@@ -11,7 +11,4 @@ household.size: >-
 household.income: >-
     <strong>Tranche de revenu</strong> avant impôts (brut) <strong>du ménage</strong>,
     en 2024?
-household.carNumber: >-
-    <strong>Automobiles</strong>, VUS, camions légers ou fourgonnettes, etc.<br /><span
-    class="_pale _oblique">À la disposition de votre ménage.</span>
 home.save: Enregistrer et continuer
