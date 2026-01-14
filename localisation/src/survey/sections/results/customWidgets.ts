@@ -153,12 +153,10 @@ export const monthlyHousingCost: TextWidgetConfig = {
     path: 'monthlyCost.housingCostMonthly',
     containsHtml: true,
     text: (t: TFunction, interview: UserInterviewAttributes, path) => {
-        const monthlyCost = getResponse(interview, path as string, null) as number;
-        return t('results:monthlyCost.housingCostMonthly', { housingCostMonthly: monthlyCost?.toFixed(2) });
-    },
-    conditional: (interview: UserInterviewAttributes, path: string) => {
-        const monthlyCost = getResponse(interview, path as string, null);
-        return monthlyCost !== null;
+        const monthlyCost = getResponse(interview, path as string, null) as number | null;
+        return typeof monthlyCost !== 'number'
+            ? t('results:monthlyCost.housingCostMonthlyNull')
+            : t('results:monthlyCost.housingCostMonthly', { housingCostMonthly: monthlyCost.toFixed(2) });
     }
 };
 
@@ -168,15 +166,10 @@ export const monthlyCarCost: TextWidgetConfig = {
     path: 'monthlyCost.carCostMonthly',
     containsHtml: true,
     text: (t: TFunction, interview: UserInterviewAttributes, path) => {
-        const monthlyCost = getResponse(interview, path as string, null) as number;
-        return monthlyCost === null
+        const monthlyCost = getResponse(interview, path as string, null) as number | null;
+        return typeof monthlyCost !== 'number'
             ? t('results:monthlyCost.carCostMonthlyNull')
-            : t('results:monthlyCost.carCostMonthly', { carCostMonthly: monthlyCost?.toFixed(2) });
-    },
-    conditional: (interview: UserInterviewAttributes, path: string) => {
-        // If the monthly costs are calculated, then car cost is also calculated (can be null error occurred)
-        const monthlyCosts = getResponse(interview, path as string, null, '../');
-        return monthlyCosts !== null;
+            : t('results:monthlyCost.carCostMonthly', { carCostMonthly: monthlyCost.toFixed(2) });
     }
 };
 
@@ -186,13 +179,10 @@ export const monthlyTotalCost: TextWidgetConfig = {
     path: 'monthlyCost.totalCostMonthly',
     containsHtml: true,
     text: (t: TFunction, interview: UserInterviewAttributes, path) => {
-        const monthlyCost = getResponse(interview, path as string, null) as any;
-        return t('results:monthlyCost.totalCostMonthly', { monthlyCost: monthlyCost?.toFixed(2) });
-    },
-    conditional: (interview: UserInterviewAttributes, path: string) => {
-        // FIXME Get a type for this to avoid any casting
-        const monthlyCosts = getResponse(interview, path as string, null) as any;
-        return monthlyCosts !== null;
+        const monthlyCost = getResponse(interview, path as string, null) as number | null;
+        return typeof monthlyCost !== 'number'
+            ? t('results:monthlyCost.totalCostMonthlyNull')
+            : t('results:monthlyCost.totalCostMonthly', { monthlyCost: monthlyCost.toFixed(2) });
     }
 };
 
