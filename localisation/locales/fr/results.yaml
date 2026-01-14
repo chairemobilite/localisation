@@ -28,3 +28,5 @@ modeNames.driving: Voiture
 modeNames.transit: Transport collectif
 monthlyCost.carCostMonthlyNull: >-
     Coût mensuel de la possession de véhicules (selon les données de la CAA)<br />-
+monthlyCost.housingCostMonthlyNull: Coût mensuel total du logement<br />-
+monthlyCost.totalCostMonthlyNull: Coût mensuel total<br />-
