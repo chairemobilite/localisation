@@ -2,7 +2,6 @@ import { isSectionCompleted } from 'evolution-common/lib/services/questionnaire/
 import { SectionConfig } from 'evolution-common/lib/services/questionnaire/types';
 import { widgetsNames } from './widgetsNames';
 import { customPreload } from './customPreload';
-import { getResponse } from 'evolution-common/lib/utils/helpers';
 
 export const currentSectionName: string = 'addresses';
 const previousSectionName: SectionConfig['previousSection'] = 'cars';
@@ -28,10 +27,7 @@ export const sectionConfig: SectionConfig = {
     preload: customPreload,
     // Allow to click on the section menu
     enableConditional: function (interview) {
-        const carNumber = getResponse(interview, 'household.carNumber', 0) as number;
-        return carNumber === 0 //If the car number is zero, the previous section is skipped and we check that household is complete instead
-            ? isSectionCompleted({ interview, sectionName: 'household' })
-            : isSectionCompleted({ interview, sectionName: previousSectionName });
+        return isSectionCompleted({ interview, sectionName: previousSectionName });
     },
     // Flag the section as completed or not
     completionConditional: function (interview) {

@@ -55,8 +55,6 @@ export const fillHomeSectionTests = ({ context, householdSize }: CommonTestParam
     // Test select widget household_income with choices householdIncomeChoices
     /* @link file://./../src/survey/common/choices.tsx */
 
-    // Test radionumber widget household_carNumber
-
     // Test nextbutton widget home_save
     testHelpers.inputNextButtonTest({ context, text: '?', nextPageUrl: '?' });
 
@@ -108,9 +106,7 @@ export const fillCarsSectionTests = ({ context, householdSize }: CommonTestParam
     // Test custom widget carInformation
     // Implement custom test
 
-    // Test string widget carNickname with conditional if2OrMoreCarsConditional
-    /* @link file://./../src/survey/common/conditionals.tsx */
-    testHelpers.inputVisibleTest({ context, path: '?.nickname', isVisible: true });
+    // Test string widget carNickname
     testHelpers.inputStringTest({ context, path: '?.nickname', value: '?' });
 
     // Test radio widget carCategory with choices carCategoryChoices

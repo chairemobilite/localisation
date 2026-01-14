@@ -8,7 +8,6 @@ import { defaultConditional } from 'evolution-common/lib/services/widgets/condit
 import * as WidgetConfig from 'evolution-common/lib/services/questionnaire/types';
 import * as validations from 'evolution-common/lib/services/widgets/validations/validations';
 import * as choices from '../../common/choices';
-import * as conditionals from '../../common/conditionals';
 import * as customWidgets from './customWidgets';
 
 export const carsIntro: WidgetConfig.TextWidgetConfig = {
@@ -27,7 +26,7 @@ export const carNickname: WidgetConfig.InputStringType = {
     twoColumns: false,
     containsHtml: true,
     label: (t: TFunction) => t('cars:nickname'),
-    conditional: conditionals.if2OrMoreCarsConditional,
+    conditional: defaultConditional,
     validations: validations.requiredValidation
 };
 

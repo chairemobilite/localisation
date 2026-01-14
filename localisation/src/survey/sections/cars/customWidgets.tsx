@@ -1,6 +1,9 @@
 import { TFunction } from 'i18next';
 import { GroupConfig } from 'evolution-common/lib/services/questionnaire/types';
 import { carInformationWidgetsNames } from './widgetsNames';
+import { countCars } from '../../common/customHelpers';
+
+const MAX_CARS_COUNT = 13;
 
 // This custom widget groups information widgets for individual cars.
 export const carInformation: GroupConfig = {
@@ -18,11 +21,12 @@ export const carInformation: GroupConfig = {
             return `Car ${sequence || groupedObject['_sequence']}`;
         }
     },
-    showGroupedObjectDeleteButton: function (interview, _path) {
-        return false;
+    showGroupedObjectDeleteButton: function (_interview, _path) {
+        return true;
     },
-    showGroupedObjectAddButton: function (_interview, _path) {
-        return false;
+    showGroupedObjectAddButton: function (interview, _path) {
+        const carCount = countCars({ interview });
+        return carCount < MAX_CARS_COUNT;
     },
     groupedObjectAddButtonLabel: (t: TFunction) => t('cars:addGroupedObject'),
     groupedObjectDeleteButtonLabel: (t: TFunction) => t('cars:deleteThisGroupedObject'),
