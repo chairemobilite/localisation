@@ -42,6 +42,8 @@ Si ce n'est pas déjà fait, copier le fichier d'exemple pour créer le fichier 
 cp .env.example .env
 ```
 
+**Important :** Pour faire les calculs de trajets et de coûts de transport, Localisation demande un accès à une instance de [Transition](https://github.com/chairemobilite/transition) correctement configurée. Les informations de connexion à cette instance doivent être configurées dans le fichier `.env` (voir ci-dessous).
+
 N'oubliez pas de mettre à jour le fichier `.env` avec les bonnes valeurs pour votre environnement. Il faut probablement changer les valeurs suivantes:
 
 ```env
@@ -57,6 +59,9 @@ MAIL_TRANSPORT_SMTP_HOST = "smtp.example.org"
 MAIL_TRANSPORT_SMTP_AUTH_USER = "MYUSERNAME"
 MAIL_TRANSPORT_SMTP_AUTH_PWD = "MYPASSWORD"
 MAIL_FROM_ADDRESS = "example@example.org"
+TRANSITION_API_URL = "MYTRANSITIONAPIURL"
+TRANSITION_API_USERNAME = "MYTRANSITIONAPIUSERNAME"
+TRANSITION_API_PASSWORD = "MYTRANSITIONAPIPASSWORD"
 ```
 
 ## Rouler l'application
