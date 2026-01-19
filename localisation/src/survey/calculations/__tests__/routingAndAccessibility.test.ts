@@ -9,6 +9,7 @@ import { getAccessibilityMapFromAddress, getRoutingFromAddressToDestination } fr
 import { Address, Destination } from '../../common/types';
 import * as routing from 'evolution-backend/lib/services/routing';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
+import _ from 'lodash';
 
 // Mock the routing module
 jest.mock('evolution-backend/lib/services/routing', () => ({
@@ -450,10 +451,10 @@ describe('getRoutingFromAddressToDestination', () => {
             const result = await getRoutingFromAddressToDestination(address, destination);
 
             expect(result).not.toBeNull();
-            expect(result?.resultsByMode.walking).not.toBeNull();
-            expect(result?.resultsByMode.cycling).toBeNull();
-            expect(result?.resultsByMode.driving).toBeNull();
-            expect(result?.resultsByMode.transit).not.toBeNull();
+            expect(result?.resultsByMode.walking).toEqual({ _uuid: 'walking', _sequence: 1, distanceMeters: 1000, travelTimeSeconds: 720 });
+            expect(result?.resultsByMode.cycling).toEqual({ _uuid: 'cycling' });
+            expect(result?.resultsByMode.driving).toEqual({ _uuid: 'driving' });
+            expect(result?.resultsByMode.transit).toEqual({ _uuid: 'transit', _sequence: 0, distanceMeters: 1300, travelTimeSeconds: 600 });
         });
 
         it('should handle when all modes fail', async () => {
@@ -479,10 +480,10 @@ describe('getRoutingFromAddressToDestination', () => {
             const result = await getRoutingFromAddressToDestination(address, destination);
 
             expect(result).not.toBeNull();
-            expect(result?.resultsByMode.walking).toBeNull();
-            expect(result?.resultsByMode.cycling).toBeNull();
-            expect(result?.resultsByMode.driving).toBeNull();
-            expect(result?.resultsByMode.transit).toBeNull();
+            expect(result?.resultsByMode.walking).toEqual({ _uuid: 'walking' });
+            expect(result?.resultsByMode.cycling).toEqual({ _uuid: 'cycling' });
+            expect(result?.resultsByMode.driving).toEqual({ _uuid: 'driving' });
+            expect(result?.resultsByMode.transit).toEqual({ _uuid: 'transit' });
         });
     });
 
