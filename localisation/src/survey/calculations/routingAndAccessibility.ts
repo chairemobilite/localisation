@@ -79,10 +79,14 @@ export const getRoutingFromAddressToDestination = async (
             transitScenario: scenario
         });
         const results = {
-            walking: null,
-            cycling: null,
-            driving: null,
-            transit: null
+            // FIXME Initialized with a _uuid parameter just to satisfy the
+            // Evolution framework, but if the results display is moved out of
+            // Evolution, set to `null` by default instead to clarify that the
+            // values are not available
+            walking: { _uuid: 'walking' },
+            cycling: { _uuid: 'cycling' },
+            driving: { _uuid: 'driving' },
+            transit: { _uuid: 'transit' }
         } as RoutingByModeDistanceAndTime['resultsByMode'];
         calculationModes.forEach((mode, index) => {
             const modeTimeAndDistance = timeAndDistances[mode];
