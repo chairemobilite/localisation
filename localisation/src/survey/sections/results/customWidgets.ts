@@ -37,6 +37,7 @@ export const comparisonMap: InfoMapWidgetConfig = {
         });
         return { lat: centerPoint.geometry.coordinates[1], lon: centerPoint.geometry.coordinates[0] };
     },
+    height: 'calc(100vh - 170px)', // Adjusted to account for the header
     title: (t: TFunction, interview: UserInterviewAttributes) => t('results:comparisonMap'),
     linestringColor: '#0000ff',
     geojsons: (interview) => {
