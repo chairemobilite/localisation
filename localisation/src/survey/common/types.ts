@@ -95,3 +95,12 @@ export type CalculationResults = {
     /** Precomputed total, only if both housing and car costs are available, null otherwise */
     totalCostMonthly: number | null;
 };
+
+// Type for the destination result object in the results template
+export type DestinationResult = {
+    homeAddressUuid: string;
+    destinationAddressUuid: string;
+    mode: 'walking' | 'cycling' | 'driving' | 'transit';
+    distanceMeters?: number;
+    travelTimeSeconds?: number;
+};
