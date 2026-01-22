@@ -1,5 +1,9 @@
 @use 'common-styles';
 
+// Color variables
+$ButtonColor: black;
+$ItemColor: #D9D9D9;
+
 #item-nav-user {
     display: none;
 }
@@ -14,10 +18,268 @@
     }
 }
 
-// Make the map fill the entire container when it's the only child (no list)
-.survey-visited-places-list-and-map-container {
-    .survey-visited-places-map {
-        width: 100%;
-    }
+/* Start of the Results section styles */
+// Make sure the form parent of results section takes the full width of the page
+.apptr__form:has(.survey-section-shortname-results) {
+    max-width: 100%;
+    width: 100%;
 }
 
+// Make the results section a flex container for side-by-side layout
+.survey-section-shortname-results {
+    display: flex;
+    flex-direction: row;
+    gap: 2rem;
+    padding: 0 2rem;
+    width: 100%;
+    align-items: center; // Center items vertically
+
+    // Map on the left side
+    .survey-visited-places-map {
+        flex: 1;
+        min-width: 0; // Allows flex item to shrink below content size
+    }
+
+    // Location comparison on the right side
+    .location-comparison {
+        display: flex;
+        flex-direction: column;
+        gap: 4rem;
+        flex: 0 0 600px; // Fixed width of 600px, don't grow or shrink
+        max-width: 600px;
+        max-height: calc(100vh - 150px); // Constrain height to viewport height minus the header
+        background: white;
+        font-family: inherit;
+        padding: 2rem;
+        overflow-y: auto; // Allow scrolling if content is too tall
+        border-radius: 2rem 0 0 2rem; // Round the top left corner and the bottom left corner
+
+        // Reset the default styles of the h2, h3, h4 tags
+        h2::before,
+        h2::after,
+        h3::before,
+        h3::after,
+        h4::before,
+        h4::after {
+            background: unset;
+            margin-bottom: 0;
+            height: unset;
+        }
+
+        h2,
+        h3,
+        h4 {
+            margin-block-start: 0;
+            margin-block-end: 0;
+            font-weight: 700;
+            text-align: left;
+            color: black;
+        }
+    }
+
+    // Costs section
+    #costs-section {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+        // Grid areas are used to position the elements in the grid using specific id of the elements.
+        grid-template-areas:
+            "costs-section-title costs-section-title costs-section-title costs-section-title"
+            "button-group-costs button-group-costs button-group-costs button-group-costs"
+            "housing-cost-item-1 transport-cost-item-1 housing-cost-item-2 transport-cost-item-2"
+            "total-cost-item-1 total-cost-item-1 total-cost-item-2 total-cost-item-2"
+            "note-costs-item-1 note-costs-item-1 note-costs-item-2 note-costs-item-2";
+        gap: 1.5rem;
+    }
+
+    // Environment section
+    #environment-section {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+        // Grid areas are used to position the elements in the grid using specific id of the elements.
+        grid-template-areas:
+            "environment-section-title environment-section-title environment-section-title environment-section-title"
+            "point-interest-item-1 environment-item-1 point-interest-item-2 environment-item-2";
+        gap: 1.5rem;
+    }
+
+    /* Grid areas */
+    #costs-section-title {
+        grid-area: costs-section-title;
+    }
+
+    #housing-cost-item-1 {
+        grid-area: housing-cost-item-1;
+    }
+
+    #transport-cost-item-1 {
+        grid-area: transport-cost-item-1;
+    }
+
+    #housing-cost-item-2 {
+        grid-area: housing-cost-item-2;
+    }
+
+    #transport-cost-item-2 {
+        grid-area: transport-cost-item-2;
+    }
+
+    #button-group-costs {
+        grid-area: button-group-costs;
+    }
+
+    #total-cost-item-1 {
+        grid-area: total-cost-item-1;
+    }
+
+    #total-cost-item-2 {
+        grid-area: total-cost-item-2;
+    }
+
+    #note-costs-item-1 {
+        grid-area: note-costs-item-1;
+    }
+
+    #note-costs-item-2 {
+        grid-area: note-costs-item-2;
+    }
+
+    #point-interest-item-1 {
+        grid-area: point-interest-item-1;
+    }
+
+    #environment-item-1 {
+        grid-area: environment-item-1;
+    }
+
+    #point-interest-item-2 {
+        grid-area: point-interest-item-2;
+    }
+
+    #environment-item-2 {
+        grid-area: environment-item-2;
+    }
+
+    #environment-section-title {
+        grid-area: environment-section-title;
+    }
+
+    #environment-section {
+        grid-area: environment-section;
+    }
+
+    // Buttons
+    .button-group {
+        display: flex;
+        gap: 1.5rem;
+
+        button {
+            background-color: $ButtonColor;
+            color: white;
+            border-radius: 1.5rem;
+            border: none;
+            padding: 1rem;
+            font-weight: 700;
+        }
+
+        button.active:is(:hover, :focus) {
+            background-color: rgba($ButtonColor, 0.8);
+        }
+
+        button.inactive {
+            background-color: $ItemColor;
+            color: black;
+        }
+
+        button.inactive:is(:hover, :focus) {
+            background-color: rgba($ItemColor, 0.8);
+        }
+    }
+
+    // Value item
+    .value-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        background-color: $ItemColor;
+        border-radius: 1.5rem;
+        padding: 1rem;
+        text-align: center;
+
+        // SVG icons
+        svg {
+            color: black;
+            height: 3rem;
+        }
+    }
+
+    // Frequent destinations section container value item SVG icon
+    .frequent-destinations-section-container .value-item svg {
+        color: black;
+        height: 2rem;
+        margin-right: 0.5rem;
+    }
+
+    // Frequent destination mode
+    .frequent-destination-mode {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.25rem;
+    }
+
+    // Frequent destinations section
+    #frequent-destinations-section {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    // Frequent destinations columns
+    .frequent-destinations-columns {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+
+    // Frequent destinations section container
+    .frequent-destinations-section-container {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        padding-bottom: 1rem;
+
+        // This is used to limit the number of lines of the title and to show an ellipsis if the title is too long
+        h4 {
+            line-height: 1.2;
+            min-height: calc(1.2em * 2);
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            overflow-wrap: anywhere;
+        }
+    }
+
+    // Sticky location names section so it stays visible when scrolling
+    #location-names-section {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        position: sticky;
+        top: -2rem; // Otherwise the text would go behind the location names section
+        background-color: white;
+        z-index: 10;
+        font-weight: 700;
+        color: black;
+        padding: 10px 0;
+
+        h2 {
+            grid-column: span 2;
+        }
+    }
+
+}
+
+/* End of the Results section styles */
