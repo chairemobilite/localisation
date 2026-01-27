@@ -27,7 +27,7 @@ export const carNickname: WidgetConfig.InputStringType = {
     containsHtml: true,
     label: (t: TFunction) => t('cars:nickname'),
     conditional: defaultConditional,
-    validations: validations.requiredValidation
+    validations: validations.optionalValidation
 };
 
 export const carCategory: WidgetConfig.InputRadioType = {
