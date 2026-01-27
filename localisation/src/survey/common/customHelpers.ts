@@ -1,3 +1,11 @@
+/*
+ * Copyright 2025, Polytechnique Montreal and contributors
+ *
+ * This file is licensed under the MIT License.
+ * License text available at https://opensource.org/licenses/MIT
+ */
+
+import i18n from 'i18next';
 import { UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { getResponse } from 'evolution-common/lib/utils/helpers';
 import { Address, Destination, Vehicle } from './types';
@@ -101,4 +109,14 @@ export const getVehiclesArray = function (interview: UserInterviewAttributes): V
     return Object.values(vehicles)
         .filter((v): v is Vehicle => v && typeof v === 'object' && typeof (v as any)._sequence === 'number')
         .sort((vehicleA, vehicleB) => vehicleA._sequence - vehicleB._sequence);
+};
+
+/**
+ * Get the user defined nickname of the vehicle. If there is none, return a numbered label that will change dynamically based on the current language.
+ * @param {Vehicle} car The car we want to get the nickname of.
+ * @returns The car's nickname, or a dynamically generated label if it doesn't have one.
+ */
+export const getVehicleNickname = function (car: Vehicle): string {
+    const nickname = car.nickname?.trim();
+    return nickname || i18n.t('localisation:cars:numberedCar', { number: car._sequence });
 };
