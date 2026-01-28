@@ -328,3 +328,14 @@ details summary {
 .survey-trip-item.survey-trip-item-selected.survey-trip-item-mode-icons {
     border-bottom: 1px solid rgba(7, 67, 171, 0.6);
 }
+
+.survey {
+    h2 {
+        font-weight: 500;
+        color: rgba(0, 0, 0, 1.0);
+    }
+
+    h3 {
+        color: rgba(0, 0, 0, 1.0);
+    }
+}
