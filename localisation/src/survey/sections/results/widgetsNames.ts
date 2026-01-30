@@ -4,15 +4,4 @@
 
 import { SectionConfig } from 'evolution-common/lib/services/questionnaire/types';
 
-export const widgetsNames: SectionConfig['widgets'] = ['resultsIntro', 'comparisonMap', 'resultsByAddress'];
-
-export const resultsByAddressWidgetsNames: SectionConfig['widgets'] = [
-    'monthlyHousingCost',
-    'monthlyCarCost',
-    'monthlyTotalCost',
-    'destinationsRouting'
-];
-
-export const destinationsRoutingWidgetsNames: SectionConfig['widgets'] = ['tripMode'];
-
-export const tripModeWidgetsNames: SectionConfig['widgets'] = ['tripTime', 'tripDistance'];
+export const widgetsNames: SectionConfig['widgets'] = ['resultsIntro', 'comparisonMap'];

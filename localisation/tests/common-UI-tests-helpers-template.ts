@@ -233,28 +233,4 @@ export const fillResultsSectionTests = ({ context, householdSize }: CommonTestPa
 
     // Test custom widget comparisonMap
     // Implement custom test
-
-    // Test custom widget resultsByAddress
-    // Implement custom test
-
-    // Test custom widget monthlyHousingCost
-    // Implement custom test
-
-    // Test custom widget monthlyCarCost
-    // Implement custom test
-
-    // Test custom widget monthlyTotalCost
-    // Implement custom test
-
-    // Test custom widget destinationsRouting
-    // Implement custom test
-
-    // Test custom widget tripMode
-    // Implement custom test
-
-    // Test custom widget tripTime
-    // Implement custom test
-
-    // Test custom widget tripDistance
-    // Implement custom test
 };

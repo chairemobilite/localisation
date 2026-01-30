@@ -18,19 +18,3 @@ export const resultsIntro: WidgetConfig.TextWidgetConfig = {
 };
 
 export const comparisonMap = customWidgets.comparisonMap;
-
-export const resultsByAddress = customWidgets.resultsByAddress;
-
-export const monthlyHousingCost = customWidgets.monthlyHousingCost;
-
-export const monthlyCarCost = customWidgets.monthlyCarCost;
-
-export const monthlyTotalCost = customWidgets.monthlyTotalCost;
-
-export const destinationsRouting = customWidgets.destinationsRouting;
-
-export const tripMode = customWidgets.tripMode;
-
-export const tripTime = customWidgets.tripTime;
-
-export const tripDistance = customWidgets.tripDistance;
