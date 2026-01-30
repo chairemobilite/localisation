@@ -25,10 +25,16 @@ export type Address = {
     // Monthly utilities cost
     utilitiesMonthly?: number;
     monthlyCost?: CalculationResults;
-    accessibilityMap?: GeoJSON.FeatureCollection<GeoJSON.MultiPolygon> | null;
+    accessibilityMap?: AddressAccessibilityMapsDurations | null;
     routingTimeDistances?: {
         [destinationUuid: string]: RoutingByModeDistanceAndTime | null;
     } | null;
+};
+
+export type AddressAccessibilityMapsDurations = {
+    duration15Minutes: GeoJSON.Feature<GeoJSON.MultiPolygon> | null;
+    duration30Minutes: GeoJSON.Feature<GeoJSON.MultiPolygon> | null;
+    duration45Minutes: GeoJSON.Feature<GeoJSON.MultiPolygon> | null;
 };
 
 export type TimeAndDistance = {

@@ -2,6 +2,7 @@ import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire
 import { getAddressesArray } from '../common/customHelpers';
 import { calculateAccessibilityAndRouting, calculateMonthlyCost } from '../calculations';
 
+// FIXME Add callbacks to invalidate results when geographies change and calculate results only on demand
 export default [
     {
         field: '_sections._actions',

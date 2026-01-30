@@ -7,7 +7,7 @@
 
 import serverFieldUpdate from '../serverFieldUpdate';
 import { UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
-import { Address } from '../../common/types';
+import { Address, AddressAccessibilityMapsDurations } from '../../common/types';
 import * as calculations from '../../calculations';
 
 // Mock the calculations module
@@ -26,28 +26,27 @@ const mockCalculateAccessibilityAndRouting = calculations.calculateAccessibility
 describe('serverFieldUpdate - _sections._actions callback', () => {
     const sectionsActionsCallback = serverFieldUpdate.find(callback => callback.field === '_sections._actions')!;
 
-    const mockAccessibilityMap: GeoJSON.FeatureCollection<GeoJSON.MultiPolygon> = {
-        type: 'FeatureCollection',
-        features: [
-            {
-                type: 'Feature',
-                geometry: {
-                    type: 'MultiPolygon',
-                    coordinates: [
+    const mockAccessibilityMap: AddressAccessibilityMapsDurations = {
+        duration15Minutes: null,
+        duration30Minutes: {
+            type: 'Feature',
+            geometry: {
+                type: 'MultiPolygon',
+                coordinates: [
+                    [
                         [
-                            [
-                                [-73.51, 45.51],
-                                [-73.49, 45.51],
-                                [-73.49, 45.49],
-                                [-73.51, 45.49],
-                                [-73.51, 45.51]
-                            ]
+                            [-73.51, 45.51],
+                            [-73.49, 45.51],
+                            [-73.49, 45.49],
+                            [-73.51, 45.49],
+                            [-73.51, 45.51]
                         ]
                     ]
-                },
-                properties: {}
-            }
-        ]
+                ]
+            },
+            properties: {}
+        },
+        duration45Minutes: null
     };
     const mockRoutingTimeDistances = {
         'destination-uuid-1': {

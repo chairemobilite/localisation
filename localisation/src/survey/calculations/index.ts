@@ -1,6 +1,11 @@
 import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
-import { Address, CalculationResults, RoutingByModeDistanceAndTime } from '../common/types';
+import type {
+    Address,
+    AddressAccessibilityMapsDurations,
+    CalculationResults,
+    RoutingByModeDistanceAndTime
+} from '../common/types';
 import { mortgageMonthlyPayment } from './mortgage';
 import { getResponse } from 'evolution-common/lib/utils/helpers';
 import { getAccessibilityMapFromAddress, getRoutingFromAddressToDestination } from './routingAndAccessibility';
@@ -128,7 +133,7 @@ export const calculateAccessibilityAndRouting = async (
     address: Address,
     interview: InterviewAttributes
 ): Promise<{
-    accessibilityMap: GeoJSON.FeatureCollection<GeoJSON.MultiPolygon> | null;
+    accessibilityMap: AddressAccessibilityMapsDurations | null;
     routingTimeDistances: { [destinationUuid: string]: RoutingByModeDistanceAndTime | null } | null;
 }> => {
     // Make sure there is a scenario defined, otherwise, do a quick return
