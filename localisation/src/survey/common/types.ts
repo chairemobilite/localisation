@@ -1,3 +1,5 @@
+import type { AccessibilityMapPolygonProperties } from 'evolution-backend/lib/services/routing/types';
+
 /**
  * Type for housing locations
  *
@@ -25,16 +27,21 @@ export type Address = {
     // Monthly utilities cost
     utilitiesMonthly?: number;
     monthlyCost?: CalculationResults;
-    accessibilityMap?: AddressAccessibilityMapsDurations | null;
+    accessibilityMapsByMode?: {
+        walking: AddressAccessibilityMapsDurations | null;
+        cycling: AddressAccessibilityMapsDurations | null;
+        driving: AddressAccessibilityMapsDurations | null;
+        transit: AddressAccessibilityMapsDurations | null;
+    } | null;
     routingTimeDistances?: {
         [destinationUuid: string]: RoutingByModeDistanceAndTime | null;
     } | null;
 };
 
 export type AddressAccessibilityMapsDurations = {
-    duration15Minutes: GeoJSON.Feature<GeoJSON.MultiPolygon> | null;
-    duration30Minutes: GeoJSON.Feature<GeoJSON.MultiPolygon> | null;
-    duration45Minutes: GeoJSON.Feature<GeoJSON.MultiPolygon> | null;
+    duration15Minutes: GeoJSON.Feature<GeoJSON.MultiPolygon, AccessibilityMapPolygonProperties> | null;
+    duration30Minutes: GeoJSON.Feature<GeoJSON.MultiPolygon, AccessibilityMapPolygonProperties> | null;
+    duration45Minutes: GeoJSON.Feature<GeoJSON.MultiPolygon, AccessibilityMapPolygonProperties> | null;
 };
 
 export type TimeAndDistance = {

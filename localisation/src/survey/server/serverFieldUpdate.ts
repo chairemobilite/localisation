@@ -25,8 +25,8 @@ export default [
                     calculationPromises.push(
                         calculateAccessibilityAndRouting(address, interview)
                             .then((accessibilityAndRouting) => {
-                                updatedValues[`addresses.${address._uuid}.accessibilityMap`] =
-                                    accessibilityAndRouting.accessibilityMap;
+                                updatedValues[`addresses.${address._uuid}.accessibilityMapsByMode`] =
+                                    accessibilityAndRouting.accessibilityMapsByMode;
                                 updatedValues[`addresses.${address._uuid}.routingTimeDistances`] =
                                     accessibilityAndRouting.routingTimeDistances;
                             })
@@ -36,7 +36,7 @@ export default [
                                     address._uuid,
                                     error
                                 );
-                                updatedValues[`addresses.${address._uuid}.accessibilityMap`] = null;
+                                updatedValues[`addresses.${address._uuid}.accessibilityMapsByMode`] = null;
                                 updatedValues[`addresses.${address._uuid}.routingTimeDistances`] = null;
                             })
                     );

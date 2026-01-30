@@ -46,6 +46,7 @@ module.exports = {
     trRoutingScenarios: {
         SE: '6fff51a9-b6d9-464e-bf2b-eeae574ac75e'
     },
+    emptyScenarioForSimpleModes: '7564af29-f653-4378-8499-6ba3cfa5c462',
     
     detectLanguage: false,
     detectLanguageFromUrl: true,

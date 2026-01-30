@@ -10,7 +10,8 @@ import { calculateAccessibilityAndRouting, calculateMonthlyCost } from '../index
 import { Address, AddressAccessibilityMapsDurations, Destination, RoutingByModeDistanceAndTime } from '../../common/types';
 import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { mortgageMonthlyPayment } from '../mortgage';
-import { getAccessibilityMapFromAddress, getRoutingFromAddressToDestination } from '../routingAndAccessibility';
+import { getAccessibilityMapFromAddressForSimpleModes, getAccessibilityMapFromAddressForTransit, getRoutingFromAddressToDestination } from '../routingAndAccessibility';
+import { mock } from 'node:test';
 
 jest.mock('../mortgage', () => ({
         mortgageMonthlyPayment: jest.fn()
@@ -18,11 +19,15 @@ jest.mock('../mortgage', () => ({
 const mockMortgageMonthlyPayment = mortgageMonthlyPayment as jest.MockedFunction<typeof mortgageMonthlyPayment>;
 // Mock the getAccessibilityMapFromAddress function
 jest.mock('../routingAndAccessibility', () => ({
-    getAccessibilityMapFromAddress: jest.fn(),
+    getAccessibilityMapFromAddressForTransit: jest.fn(),
+    getAccessibilityMapFromAddressForSimpleModes: jest.fn(),
     getRoutingFromAddressToDestination: jest.fn()
 }));
-const mockGetAccessibilityMapFromAddress = getAccessibilityMapFromAddress as jest.MockedFunction<
-    typeof getAccessibilityMapFromAddress
+const mockGetAccessibilityMapFromAddressForTransit = getAccessibilityMapFromAddressForTransit as jest.MockedFunction<
+    typeof getAccessibilityMapFromAddressForTransit
+>;
+const mockGetAccessibilityMapFromAddressForSimpleModes = getAccessibilityMapFromAddressForSimpleModes as jest.MockedFunction<
+    typeof getAccessibilityMapFromAddressForSimpleModes
 >;
 const mockGetRoutingFromAddressToDestination = getRoutingFromAddressToDestination as jest.MockedFunction<
     typeof getRoutingFromAddressToDestination
@@ -633,7 +638,7 @@ describe('calculateAccessibilityAndRouting', () => {
         properties: {}
     };
 
-    const mockAccessibilityMap: AddressAccessibilityMapsDurations = {
+    const mockAccessibilityMapOneMode: AddressAccessibilityMapsDurations = {
         duration15Minutes: {
             type: 'Feature',
             geometry: {
@@ -651,7 +656,8 @@ describe('calculateAccessibilityAndRouting', () => {
                 ]
             },
             properties: {
-                durationSeconds: 15 * 60
+                durationSeconds: 15 * 60,
+                areaSqM: 4000000
             }
         }, 
         duration30Minutes:{
@@ -671,7 +677,8 @@ describe('calculateAccessibilityAndRouting', () => {
                 ]
             },
             properties: {
-                durationSeconds: 30 * 60
+                durationSeconds: 30 * 60,
+                areaSqM: 4000000
             }
         },
         duration45Minutes: {
@@ -691,10 +698,18 @@ describe('calculateAccessibilityAndRouting', () => {
                 ]
             },
             properties: {
-                durationSeconds: 45 * 60
+                durationSeconds: 45 * 60,
+                areaSqM: 4000000
             }
         }
     };
+
+    const mockAccessibilityMap = {
+        walking: mockAccessibilityMapOneMode,
+        cycling: mockAccessibilityMapOneMode,
+        driving: mockAccessibilityMapOneMode,
+        transit: mockAccessibilityMapOneMode
+    }
 
     const mockDestination1: Destination = {
         _sequence: 1,
@@ -756,7 +771,12 @@ describe('calculateAccessibilityAndRouting', () => {
     beforeEach(() => {
         jest.clearAllMocks();
         // Set up default mock return values
-        mockGetAccessibilityMapFromAddress.mockResolvedValue(mockAccessibilityMap);
+        mockGetAccessibilityMapFromAddressForTransit.mockResolvedValue(mockAccessibilityMapOneMode);
+        mockGetAccessibilityMapFromAddressForSimpleModes.mockResolvedValue({
+            walking: mockAccessibilityMapOneMode,
+            cycling: mockAccessibilityMapOneMode,
+            driving: mockAccessibilityMapOneMode
+        });
         testInterview = _cloneDeep(mockInterview);
         config.trRoutingScenarios = {
             SE: 'testScenario'
@@ -779,12 +799,12 @@ describe('calculateAccessibilityAndRouting', () => {
 
             const result = await calculateAccessibilityAndRouting(address, testInterview);
 
-            expect(result.accessibilityMap).toEqual(mockAccessibilityMap);
+            expect(result.accessibilityMapsByMode).toEqual(mockAccessibilityMap);
             expect(result.routingTimeDistances).toEqual({
                 'destination-1': mockRoutingResult1,
                 'destination-2': mockRoutingResult2
             });
-            expect(mockGetAccessibilityMapFromAddress).toHaveBeenCalledWith(address);
+            expect(mockGetAccessibilityMapFromAddressForTransit).toHaveBeenCalledWith(address);
             expect(mockGetRoutingFromAddressToDestination).toHaveBeenCalledTimes(2);
             expect(mockGetRoutingFromAddressToDestination).toHaveBeenCalledWith(address, mockDestination1);
             expect(mockGetRoutingFromAddressToDestination).toHaveBeenCalledWith(address, mockDestination2);
@@ -802,9 +822,9 @@ describe('calculateAccessibilityAndRouting', () => {
 
             const result = await calculateAccessibilityAndRouting(address, testInterview);
 
-            expect(result.accessibilityMap).toEqual(mockAccessibilityMap);
+            expect(result.accessibilityMapsByMode).toEqual(mockAccessibilityMap);
             expect(result.routingTimeDistances).toEqual({});
-            expect(mockGetAccessibilityMapFromAddress).toHaveBeenCalledWith(address);
+            expect(mockGetAccessibilityMapFromAddressForTransit).toHaveBeenCalledWith(address);
             expect(mockGetRoutingFromAddressToDestination).not.toHaveBeenCalled();
         });
 
@@ -823,7 +843,7 @@ describe('calculateAccessibilityAndRouting', () => {
 
             const result = await calculateAccessibilityAndRouting(address, testInterview);
 
-            expect(result.accessibilityMap).toEqual(mockAccessibilityMap);
+            expect(result.accessibilityMapsByMode).toEqual(mockAccessibilityMap);
             expect(result.routingTimeDistances).toEqual({
                 'destination-1': mockRoutingResult1
             });
@@ -833,20 +853,25 @@ describe('calculateAccessibilityAndRouting', () => {
     });
 
     describe('error handling', () => {
-        it('should return null accessibility map and empty routing when getAccessibilityMapFromAddress returns null', async () => {
+        it('should return null accessibility map and empty routing when getAccessibilityMapFromAddressForTransit returns null', async () => {
             const address: Address = {
                 _sequence: 1,
                 _uuid: 'address-1'
                 // No geography
             };
 
-            mockGetAccessibilityMapFromAddress.mockResolvedValueOnce(null);
+            mockGetAccessibilityMapFromAddressForTransit.mockResolvedValueOnce(null);
 
             const result = await calculateAccessibilityAndRouting(address, testInterview);
 
-            expect(result.accessibilityMap).toBeNull();
+            expect(result.accessibilityMapsByMode).toEqual({
+                transit: null,
+                walking: mockAccessibilityMapOneMode,
+                cycling: mockAccessibilityMapOneMode,
+                driving: mockAccessibilityMapOneMode
+            });
             expect(result.routingTimeDistances).toEqual({});
-            expect(mockGetAccessibilityMapFromAddress).toHaveBeenCalledWith(address);
+            expect(mockGetAccessibilityMapFromAddressForTransit).toHaveBeenCalledWith(address);
         });
 
         it('should handle promise rejection from getAccessibilityMapFromAddress', async () => {
@@ -856,7 +881,7 @@ describe('calculateAccessibilityAndRouting', () => {
                 geography: mockGeography
             };
 
-            mockGetAccessibilityMapFromAddress.mockRejectedValueOnce(new Error('Service error'));
+            mockGetAccessibilityMapFromAddressForTransit.mockRejectedValueOnce(new Error('Service error'));
 
             await expect(calculateAccessibilityAndRouting(address, testInterview)).rejects.toThrow('Service error');
         });
@@ -877,7 +902,7 @@ describe('calculateAccessibilityAndRouting', () => {
             const result = await calculateAccessibilityAndRouting(address, testInterview);
 
             expect(mockGetRoutingFromAddressToDestination).toHaveBeenCalledTimes(2);
-            expect(result.accessibilityMap).toEqual(mockAccessibilityMap);
+            expect(result.accessibilityMapsByMode).toEqual(mockAccessibilityMap);
             expect(result.routingTimeDistances).toEqual({
                 'destination-1': mockRoutingResult1,
                 'destination-2': null
@@ -904,7 +929,7 @@ describe('calculateAccessibilityAndRouting', () => {
 
             const result = await calculateAccessibilityAndRouting(address, testInterview);
 
-            expect(result.accessibilityMap).toEqual(mockAccessibilityMap);
+            expect(result.accessibilityMapsByMode).toEqual(mockAccessibilityMap);
         });
 
         it('should calculate accessibility for owned address', async () => {
@@ -918,11 +943,11 @@ describe('calculateAccessibilityAndRouting', () => {
                 geography: mockGeography
             };
 
-            mockGetAccessibilityMapFromAddress.mockResolvedValueOnce(mockAccessibilityMap);
+            mockGetAccessibilityMapFromAddressForTransit.mockResolvedValueOnce(mockAccessibilityMapOneMode);
 
             const result = await calculateAccessibilityAndRouting(address, testInterview);
 
-            expect(result.accessibilityMap).toEqual(mockAccessibilityMap);
+            expect(result.accessibilityMapsByMode).toEqual(mockAccessibilityMap);
             // No destination
             expect(result.routingTimeDistances).toEqual({});
         });
@@ -946,7 +971,7 @@ describe('calculateAccessibilityAndRouting', () => {
 
             const result = await calculateAccessibilityAndRouting(address, testInterview);
 
-            expect(result.accessibilityMap).toEqual(mockAccessibilityMap);
+            expect(result.accessibilityMapsByMode).toEqual(mockAccessibilityMap);
             expect(result.routingTimeDistances).toEqual({
                 'destination-2': mockRoutingResult2
             });
@@ -964,26 +989,7 @@ describe('calculateAccessibilityAndRouting', () => {
 
             const result = await calculateAccessibilityAndRouting(address, testInterview);
 
-            expect(result.accessibilityMap).toEqual(mockAccessibilityMap);
-            expect(result.routingTimeDistances).toEqual({});
-        });
-    });
-
-    describe('empty results', () => {
-        it('should handle null values for accessibility maps', async () => {
-            const address: Address = {
-                _sequence: 1,
-                _uuid: 'address-1',
-                geography: mockGeography
-            };
-
-            // Set the destinations in the interview response with no destination
-            testInterview.response.destinations = {};
-            mockGetAccessibilityMapFromAddress.mockResolvedValueOnce(null);
-
-            const result = await calculateAccessibilityAndRouting(address, testInterview);
-
-            expect(result.accessibilityMap).toEqual(null);
+            expect(result.accessibilityMapsByMode).toEqual(mockAccessibilityMap);
             expect(result.routingTimeDistances).toEqual({});
         });
     });
@@ -999,12 +1005,12 @@ describe('calculateAccessibilityAndRouting', () => {
             let accessibilityResolved = false;
             let routingResolved = false;
 
-            mockGetAccessibilityMapFromAddress.mockImplementation(
+            mockGetAccessibilityMapFromAddressForTransit.mockImplementation(
                 () =>
                     new Promise((resolve) => {
                         setTimeout(() => {
                             accessibilityResolved = true;
-                            resolve(mockAccessibilityMap);
+                            resolve(mockAccessibilityMapOneMode);
                         }, 10);
                     })
             );
@@ -1027,7 +1033,7 @@ describe('calculateAccessibilityAndRouting', () => {
 
             expect(accessibilityResolved).toBe(true);
             expect(routingResolved).toBe(true);
-            expect(result.accessibilityMap).toEqual(mockAccessibilityMap);
+            expect(result.accessibilityMapsByMode).toEqual(mockAccessibilityMap);
             expect(result.routingTimeDistances).toEqual({
                 'destination-1': mockRoutingResult1
             });
