@@ -1,6 +1,11 @@
 import { calculateTimeDistanceByMode, getTransitAccessibilityMap } from 'evolution-backend/lib/services/routing';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
-import { Address, RoutingByModeDistanceAndTime, Destination } from '../common/types';
+import type {
+    Address,
+    RoutingByModeDistanceAndTime,
+    Destination,
+    AddressAccessibilityMapsDurations
+} from '../common/types';
 import { RoutingOrTransitMode } from 'chaire-lib-common/lib/config/routingModes';
 
 /**
@@ -11,7 +16,7 @@ import { RoutingOrTransitMode } from 'chaire-lib-common/lib/config/routingModes'
  */
 export const getAccessibilityMapFromAddress = async (
     address: Address
-): Promise<GeoJSON.FeatureCollection<GeoJSON.MultiPolygon> | null> => {
+): Promise<AddressAccessibilityMapsDurations | null> => {
     try {
         const addressGeography = address.geography;
         if (!addressGeography) {
@@ -24,11 +29,11 @@ export const getAccessibilityMapFromAddress = async (
             console.error('No transit scenario defined in config for accessibility map calculation');
             return null;
         }
+        // This will get 3 polygons for 15, 30 and 45 minutes that will be assigned to each property of the result
         const accessibilityMapResponse = await getTransitAccessibilityMap({
             point: addressGeography,
-            numberOfPolygons: 1,
-            // FIXME allow to parameterize this
-            maxTotalTravelTimeMinutes: 30,
+            numberOfPolygons: 3,
+            maxTotalTravelTimeMinutes: 45,
             // FIXME Allow to parameterize these values
             departureSecondsSinceMidnight: 8 * 3600, // 8 AM
             transitScenario: scenario,
@@ -38,7 +43,17 @@ export const getAccessibilityMapFromAddress = async (
             console.log('Error getting summary: ', JSON.stringify(accessibilityMapResponse));
             return null;
         }
-        return accessibilityMapResponse.polygons;
+        const polygonsByDuration = {
+            duration15Minutes:
+                accessibilityMapResponse.polygons.features.find((p) => p.properties.durationSeconds === 15 * 60) ||
+                null,
+            duration30Minutes:
+                accessibilityMapResponse.polygons.features.find((p) => p.properties.durationSeconds === 30 * 60) ||
+                null,
+            duration45Minutes:
+                accessibilityMapResponse.polygons.features.find((p) => p.properties.durationSeconds === 45 * 60) || null
+        };
+        return polygonsByDuration;
     } catch (error) {
         console.error('Error getting accessibility map from address', error);
         return null;
