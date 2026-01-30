@@ -7,7 +7,7 @@
 import _cloneDeep from 'lodash/cloneDeep';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import { calculateAccessibilityAndRouting, calculateMonthlyCost } from '../index';
-import { Address, Destination, RoutingByModeDistanceAndTime } from '../../common/types';
+import { Address, AddressAccessibilityMapsDurations, Destination, RoutingByModeDistanceAndTime } from '../../common/types';
 import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { mortgageMonthlyPayment } from '../mortgage';
 import { getAccessibilityMapFromAddress, getRoutingFromAddressToDestination } from '../routingAndAccessibility';
@@ -633,28 +633,67 @@ describe('calculateAccessibilityAndRouting', () => {
         properties: {}
     };
 
-    const mockAccessibilityMap: GeoJSON.FeatureCollection<GeoJSON.MultiPolygon> = {
-        type: 'FeatureCollection',
-        features: [
-            {
-                type: 'Feature',
-                geometry: {
-                    type: 'MultiPolygon',
-                    coordinates: [
+    const mockAccessibilityMap: AddressAccessibilityMapsDurations = {
+        duration15Minutes: {
+            type: 'Feature',
+            geometry: {
+                type: 'MultiPolygon',
+                coordinates: [
+                    [
                         [
-                            [
-                                [-73.51, 45.51],
-                                [-73.49, 45.51],
-                                [-73.49, 45.49],
-                                [-73.51, 45.49],
-                                [-73.51, 45.51]
-                            ]
+                            [-73.51, 45.51],
+                            [-73.49, 45.51],
+                            [-73.49, 45.49],
+                            [-73.51, 45.49],
+                            [-73.51, 45.51]
                         ]
                     ]
-                },
-                properties: {}
+                ]
+            },
+            properties: {
+                durationSeconds: 15 * 60
             }
-        ]
+        }, 
+        duration30Minutes:{
+            type: 'Feature',
+            geometry: {
+                type: 'MultiPolygon',
+                coordinates: [
+                    [
+                        [
+                            [-73.52, 45.52],
+                            [-73.48, 45.52],
+                            [-73.48, 45.48],
+                            [-73.52, 45.48],
+                            [-73.52, 45.52]
+                        ]
+                    ]
+                ]
+            },
+            properties: {
+                durationSeconds: 30 * 60
+            }
+        },
+        duration45Minutes: {
+            type: 'Feature',
+            geometry: {
+                type: 'MultiPolygon',
+                coordinates: [
+                    [
+                        [
+                            [-72.53, 45.53],
+                            [-72.47, 45.53],
+                            [-72.47, 45.47],
+                            [-72.53, 45.47],
+                            [-72.53, 45.53]
+                        ]
+                    ]
+                ]
+            },
+            properties: {
+                durationSeconds: 45 * 60
+            }
+        }
     };
 
     const mockDestination1: Destination = {
@@ -767,54 +806,6 @@ describe('calculateAccessibilityAndRouting', () => {
             expect(result.routingTimeDistances).toEqual({});
             expect(mockGetAccessibilityMapFromAddress).toHaveBeenCalledWith(address);
             expect(mockGetRoutingFromAddressToDestination).not.toHaveBeenCalled();
-        });
-
-        it('should handle multiple features in accessibility map with destinations', async () => {
-            const address: Address = {
-                _sequence: 1,
-                _uuid: 'address-1',
-                geography: mockGeography
-            };
-
-            const multiFeatureMap: GeoJSON.FeatureCollection<GeoJSON.MultiPolygon> = {
-                type: 'FeatureCollection',
-                features: [
-                    mockAccessibilityMap.features[0],
-                    {
-                        type: 'Feature',
-                        geometry: {
-                            type: 'MultiPolygon',
-                            coordinates: [
-                                [
-                                    [
-                                        [-73.52, 45.52],
-                                        [-73.48, 45.52],
-                                        [-73.48, 45.48],
-                                        [-73.52, 45.48],
-                                        [-73.52, 45.52]
-                                    ]
-                                ]
-                            ]
-                        },
-                        properties: {}
-                    }
-                ]
-            };
-
-            // Set the destinations in the interview response with 1 destination
-            testInterview.response.destinations = {
-                'destination-1': mockDestination1
-            };
-            mockGetAccessibilityMapFromAddress.mockResolvedValueOnce(multiFeatureMap);
-            mockGetRoutingFromAddressToDestination.mockResolvedValueOnce(mockRoutingResult1);
-
-            const result = await calculateAccessibilityAndRouting(address, testInterview);
-
-            expect(result.accessibilityMap).toEqual(multiFeatureMap);
-            expect(result.accessibilityMap?.features).toHaveLength(2);
-            expect(result.routingTimeDistances).toEqual({
-                'destination-1': mockRoutingResult1
-            });
         });
 
         it('should handle single destination routing', async () => {
@@ -979,26 +970,20 @@ describe('calculateAccessibilityAndRouting', () => {
     });
 
     describe('empty results', () => {
-        it('should handle empty feature collection', async () => {
+        it('should handle null values for accessibility maps', async () => {
             const address: Address = {
                 _sequence: 1,
                 _uuid: 'address-1',
                 geography: mockGeography
             };
 
-            const emptyMap: GeoJSON.FeatureCollection<GeoJSON.MultiPolygon> = {
-                type: 'FeatureCollection',
-                features: []
-            };
-
             // Set the destinations in the interview response with no destination
             testInterview.response.destinations = {};
-            mockGetAccessibilityMapFromAddress.mockResolvedValueOnce(emptyMap);
+            mockGetAccessibilityMapFromAddress.mockResolvedValueOnce(null);
 
             const result = await calculateAccessibilityAndRouting(address, testInterview);
 
-            expect(result.accessibilityMap).toEqual(emptyMap);
-            expect(result.accessibilityMap?.features).toHaveLength(0);
+            expect(result.accessibilityMap).toEqual(null);
             expect(result.routingTimeDistances).toEqual({});
         });
     });

@@ -35,6 +35,7 @@ describe('getAccessibilityMapFromAddress', () => {
         properties: {}
     };
 
+    // Mock polygons for testing: with durations of 15, 30 and 45 minutes 
     const mockPolygons: GeoJSON.FeatureCollection<GeoJSON.MultiPolygon> = {
         type: 'FeatureCollection',
         features: [
@@ -54,7 +55,47 @@ describe('getAccessibilityMapFromAddress', () => {
                         ]
                     ]
                 },
-                properties: {}
+                properties: {
+                    durationSeconds: 15 * 60
+                }
+            }, {
+                type: 'Feature',
+                geometry: {
+                    type: 'MultiPolygon',
+                    coordinates: [
+                        [
+                            [
+                                [-73.52, 45.52],
+                                [-73.48, 45.52],
+                                [-73.48, 45.48],
+                                [-73.52, 45.48],
+                                [-73.52, 45.52]
+                            ]
+                        ]
+                    ]
+                },
+                properties: {
+                    durationSeconds: 30 * 60
+                }
+            }, {
+                type: 'Feature',
+                geometry: {
+                    type: 'MultiPolygon',
+                    coordinates: [
+                        [
+                            [
+                                [-72.53, 45.53],
+                                [-72.47, 45.53],
+                                [-72.47, 45.47],
+                                [-72.53, 45.47],
+                                [-72.53, 45.53]
+                            ]
+                        ]
+                    ]
+                },
+                properties: {
+                    durationSeconds: 45 * 60
+                }
             }
         ]
     };
@@ -88,11 +129,15 @@ describe('getAccessibilityMapFromAddress', () => {
 
             const result = await getAccessibilityMapFromAddress(address);
 
-            expect(result).toEqual(mockPolygons);
+            expect(result).toEqual({
+                duration15Minutes: mockPolygons.features[0],
+                duration30Minutes: mockPolygons.features[1],
+                duration45Minutes: mockPolygons.features[2]
+            });
             expect(mockGetTransitAccessibilityMap).toHaveBeenCalledWith({
                 point: mockGeography,
-                numberOfPolygons: 1,
-                maxTotalTravelTimeMinutes: 30,
+                numberOfPolygons: 3,
+                maxTotalTravelTimeMinutes: 45,
                 departureSecondsSinceMidnight: 8 * 3600,
                 transitScenario: mockScenario,
                 calculatePois: true
@@ -231,57 +276,25 @@ describe('getAccessibilityMapFromAddress', () => {
 
             const result = await getAccessibilityMapFromAddress(address);
 
-            expect(result).toEqual(emptyPolygons);
-            expect(result?.features).toHaveLength(0);
+            expect(result).toEqual({
+                duration15Minutes: null,
+                duration30Minutes: null,
+                duration45Minutes: null
+            });
         });
 
-        it('should handle multiple polygons in result', async () => {
+        it('should handle missing polygons in result (no 30 minutes)', async () => {
             const address: Address = {
                 _sequence: 1,
                 _uuid: 'address-1',
                 geography: mockGeography
             };
 
+            const mockedPolygons = [mockPolygons.features[0], mockPolygons.features[2]]; // Missing 30 minutes
+
             const multiplePolygons: GeoJSON.FeatureCollection<GeoJSON.MultiPolygon> = {
                 type: 'FeatureCollection',
-                features: [
-                    {
-                        type: 'Feature',
-                        geometry: {
-                            type: 'MultiPolygon',
-                            coordinates: [
-                                [
-                                    [
-                                        [-73.51, 45.51],
-                                        [-73.49, 45.51],
-                                        [-73.49, 45.49],
-                                        [-73.51, 45.49],
-                                        [-73.51, 45.51]
-                                    ]
-                                ]
-                            ]
-                        },
-                        properties: {}
-                    },
-                    {
-                        type: 'Feature',
-                        geometry: {
-                            type: 'MultiPolygon',
-                            coordinates: [
-                                [
-                                    [
-                                        [-73.52, 45.52],
-                                        [-73.48, 45.52],
-                                        [-73.48, 45.48],
-                                        [-73.52, 45.48],
-                                        [-73.52, 45.52]
-                                    ]
-                                ]
-                            ]
-                        },
-                        properties: {}
-                    }
-                ]
+                features: mockedPolygons
             };
 
             mockGetTransitAccessibilityMap.mockResolvedValue({
@@ -292,8 +305,11 @@ describe('getAccessibilityMapFromAddress', () => {
 
             const result = await getAccessibilityMapFromAddress(address);
 
-            expect(result).toEqual(multiplePolygons);
-            expect(result?.features).toHaveLength(2);
+            expect(result).toEqual({
+                duration15Minutes: mockPolygons.features[0],
+                duration30Minutes: null,
+                duration45Minutes: mockPolygons.features[2]
+            });
         });
     });
 });
