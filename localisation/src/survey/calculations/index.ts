@@ -8,7 +8,11 @@ import type {
 } from '../common/types';
 import { mortgageMonthlyPayment } from './mortgage';
 import { getResponse } from 'evolution-common/lib/utils/helpers';
-import { getAccessibilityMapFromAddress, getRoutingFromAddressToDestination } from './routingAndAccessibility';
+import {
+    getAccessibilityMapFromAddressForSimpleModes,
+    getAccessibilityMapFromAddressForTransit,
+    getRoutingFromAddressToDestination
+} from './routingAndAccessibility';
 import { getDestinationsArray, getVehiclesArray } from '../common/customHelpers';
 import { carCostAverageCaa } from './carcost';
 
@@ -133,7 +137,7 @@ export const calculateAccessibilityAndRouting = async (
     address: Address,
     interview: InterviewAttributes
 ): Promise<{
-    accessibilityMap: AddressAccessibilityMapsDurations | null;
+    accessibilityMapsByMode: Address['accessibilityMapsByMode'];
     routingTimeDistances: { [destinationUuid: string]: RoutingByModeDistanceAndTime | null } | null;
 }> => {
     // Make sure there is a scenario defined, otherwise, do a quick return
@@ -141,13 +145,14 @@ export const calculateAccessibilityAndRouting = async (
     if (scenario === undefined) {
         console.error('No transit scenario defined in config for routing and accessibility calculation');
         return {
-            accessibilityMap: null,
+            accessibilityMapsByMode: null,
             routingTimeDistances: null
         };
     }
 
     // Calculate the accessibility map for the address
-    const accessibilityMapPromise = getAccessibilityMapFromAddress(address);
+    const transitAccessibilityMapPromise = getAccessibilityMapFromAddressForTransit(address);
+    const simpleModesAccessibilityMapsPromise = getAccessibilityMapFromAddressForSimpleModes(address);
 
     // Calculate routing to each destination in the interview
     const destinations = getDestinationsArray(interview);
@@ -167,12 +172,16 @@ export const calculateAccessibilityAndRouting = async (
         );
     }
 
-    const accessibilityMap = await accessibilityMapPromise;
+    const transitAccessibilityMap = await transitAccessibilityMapPromise;
+    const simpleModesAccessibilityMaps = await simpleModesAccessibilityMapsPromise;
 
     await Promise.all(routingPromises);
 
     return {
-        accessibilityMap,
+        accessibilityMapsByMode: {
+            transit: transitAccessibilityMap,
+            ...simpleModesAccessibilityMaps
+        },
         routingTimeDistances
     };
 };

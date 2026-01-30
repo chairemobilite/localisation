@@ -44,10 +44,16 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
                     ]
                 ]
             },
-            properties: {}
+            properties: { durationSeconds: 30 * 60, areaSqM: 4000000 }
         },
         duration45Minutes: null
     };
+    const mockAccessibilityMapsByModeResult = {
+        transit: mockAccessibilityMap,
+        walking: mockAccessibilityMap,
+        cycling: mockAccessibilityMap,
+        driving: mockAccessibilityMap
+    }
     const mockRoutingTimeDistances = {
         'destination-uuid-1': {
             _uuid: 'destination-uuid-1',
@@ -115,7 +121,7 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
         jest.clearAllMocks();
         // Set up default mock return values
         mockCalculateAccessibilityAndRouting.mockResolvedValue({
-            accessibilityMap: mockAccessibilityMap,
+            accessibilityMapsByMode: mockAccessibilityMapsByModeResult,
             routingTimeDistances: mockRoutingTimeDistances
         });
     });
@@ -168,8 +174,8 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
                 carCostMonthly: 350,
                 totalCostMonthly: 1550
             });
-            expect('addresses.address-1.accessibilityMap' in result).toBe(true);
-            expect(result['addresses.address-1.accessibilityMap']).toEqual(mockAccessibilityMap);
+            expect('addresses.address-1.accessibilityMapsByMode' in result).toBe(true);
+            expect(result['addresses.address-1.accessibilityMapsByMode']).toEqual(mockAccessibilityMapsByModeResult);
             expect(mockCalculateMonthlyCost).toHaveBeenCalledWith(address, interview);
             expect(mockCalculateAccessibilityAndRouting).toHaveBeenCalledWith(address, interview);
         });
@@ -203,8 +209,8 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
             expect(result['addresses.address-1.monthlyCost'].housingCostMonthly).toBeLessThan(2300);
             expect(result['addresses.address-1.monthlyCost'].housingCostPercentageOfIncome).toBeNull();
             expect(result['addresses.address-1.monthlyCost'].carCostMonthly).toBe(450);
-            expect('addresses.address-1.accessibilityMap' in result).toBe(true);
-            expect(result['addresses.address-1.accessibilityMap']).toEqual(mockAccessibilityMap);
+            expect('addresses.address-1.accessibilityMapsByMode' in result).toBe(true);
+            expect(result['addresses.address-1.accessibilityMapsByMode']).toEqual(mockAccessibilityMapsByModeResult);
             expect(result['addresses.address-1.routingTimeDistances']).toEqual(mockRoutingTimeDistances);
         });
 
@@ -250,15 +256,15 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
 
             expect('addresses.address-1.monthlyCost' in result).toBe(true);
             expect('addresses.address-2.monthlyCost' in result).toBe(true);
-            expect('addresses.address-1.accessibilityMap' in result).toBe(true);
-            expect('addresses.address-2.accessibilityMap' in result).toBe(true);
+            expect('addresses.address-1.accessibilityMapsByMode' in result).toBe(true);
+            expect('addresses.address-2.accessibilityMapsByMode' in result).toBe(true);
 
             expect(result['addresses.address-1.monthlyCost'].housingCostMonthly).toBe(1200);
             expect(result['addresses.address-1.monthlyCost'].carCostMonthly).toBe(300);
             expect(result['addresses.address-2.monthlyCost'].housingCostMonthly).toBe(1650);
             expect(result['addresses.address-2.monthlyCost'].carCostMonthly).toBe(400);
-            expect(result['addresses.address-1.accessibilityMap']).toEqual(mockAccessibilityMap);
-            expect(result['addresses.address-2.accessibilityMap']).toEqual(mockAccessibilityMap);
+            expect(result['addresses.address-1.accessibilityMapsByMode']).toEqual(mockAccessibilityMapsByModeResult);
+            expect(result['addresses.address-2.accessibilityMapsByMode']).toEqual(mockAccessibilityMapsByModeResult);
             expect(result['addresses.address-1.routingTimeDistances']).toEqual(mockRoutingTimeDistances);
             expect(result['addresses.address-2.routingTimeDistances']).toEqual(mockRoutingTimeDistances);
             
@@ -297,7 +303,7 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
                 });
 
             mockCalculateAccessibilityAndRouting.mockResolvedValue({
-                accessibilityMap: null,
+                accessibilityMapsByMode: null,
                 routingTimeDistances: null
             });
 
@@ -313,8 +319,8 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
             expect(result['addresses.address-1.monthlyCost'].carCostMonthly).toBe(310);
             expect(result['addresses.address-2.monthlyCost'].housingCostMonthly).toBeNull();
             expect(result['addresses.address-2.monthlyCost'].carCostMonthly).toBeNull();
-            expect('addresses.address-1.accessibilityMap' in result).toBe(true);
-            expect('addresses.address-2.accessibilityMap' in result).toBe(true);
+            expect('addresses.address-1.accessibilityMapsByMode' in result).toBe(true);
+            expect('addresses.address-2.accessibilityMapsByMode' in result).toBe(true);
             expect('addresses.address-1.routingTimeDistances' in result).toBe(true);
             expect('addresses.address-2.routingTimeDistances' in result).toBe(true);
         });
@@ -405,7 +411,7 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
             expect('addresses.address-1.monthlyCost' in result).toBe(true);
             expect(result['addresses.address-1.monthlyCost'].housingCostMonthly).toBe(1200);
             expect(result['addresses.address-1.monthlyCost'].carCostMonthly).toBe(250);
-            expect('addresses.address-1.accessibilityMap' in result).toBe(true);
+            expect('addresses.address-1.accessibilityMapsByMode' in result).toBe(true);
         });
 
         it('should not calculate if last element is not results section', async () => {
@@ -546,8 +552,8 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
             expect(result['addresses.address-2.monthlyCost'].housingCostMonthly).toBe(1100);
             expect(result['addresses.address-2.monthlyCost'].carCostMonthly).toBe(270);
             expect(result['addresses.address-2.monthlyCost'].totalCostMonthly).toBe(1370);
-            expect('addresses.address-1.accessibilityMap' in result).toBe(true);
-            expect('addresses.address-2.accessibilityMap' in result).toBe(true);
+            expect('addresses.address-1.accessibilityMapsByMode' in result).toBe(true);
+            expect('addresses.address-2.accessibilityMapsByMode' in result).toBe(true);
             expect('addresses.address-1.routingTimeDistances' in result).toBe(true);
             expect('addresses.address-2.routingTimeDistances' in result).toBe(true);
         });
@@ -571,7 +577,7 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
             });
 
             mockCalculateAccessibilityAndRouting.mockResolvedValue({
-                accessibilityMap: null,
+                accessibilityMapsByMode: null,
                 routingTimeDistances: null
             });
 
@@ -580,8 +586,8 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
 
             const result = await sectionsActionsCallback.callback(interview, value) as any;
 
-            expect('addresses.address-1.accessibilityMap' in result).toBe(true);
-            expect(result['addresses.address-1.accessibilityMap']).toBeNull();
+            expect('addresses.address-1.accessibilityMapsByMode' in result).toBe(true);
+            expect(result['addresses.address-1.accessibilityMapsByMode']).toBeNull();
             expect('addresses.address-1.routingTimeDistances' in result).toBe(true);
             expect(result['addresses.address-1.routingTimeDistances']).toBeNull();
         });
@@ -610,8 +616,8 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
             const result = await sectionsActionsCallback.callback(interview, value) as any;
 
             // Should return a partial object with null accessibility map but monthly cost results
-            expect('addresses.address-1.accessibilityMap' in result).toBe(true);
-            expect(result['addresses.address-1.accessibilityMap']).toBeNull();
+            expect('addresses.address-1.accessibilityMapsByMode' in result).toBe(true);
+            expect(result['addresses.address-1.accessibilityMapsByMode']).toBeNull();
             expect('addresses.address-1.routingTimeDistances' in result).toBe(true);
             expect(result['addresses.address-1.routingTimeDistances']).toBeNull();
             expect('addresses.address-1.monthlyCost' in result).toBe(true);

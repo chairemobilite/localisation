@@ -67,11 +67,11 @@ export const comparisonMap: InfoMapWidgetConfig = {
             addressGeography.properties!.sequence = address._sequence;
             pointGeographies.push(addressGeography);
 
-            if (address.accessibilityMap?.duration30Minutes) {
+            if (address.accessibilityMapsByMode?.transit?.duration30Minutes) {
                 const accessibilityMapPolygon = {
-                    ...address.accessibilityMap.duration30Minutes,
+                    ...address.accessibilityMapsByMode.transit.duration30Minutes,
                     properties: {
-                        ...(address.accessibilityMap.duration30Minutes.properties || {}),
+                        ...(address.accessibilityMapsByMode.transit.duration30Minutes.properties || {}),
                         strokeColor: colorPalette[addressIndex % colorPalette.length],
                         fillColor: colorPalette[addressIndex % colorPalette.length]
                     }

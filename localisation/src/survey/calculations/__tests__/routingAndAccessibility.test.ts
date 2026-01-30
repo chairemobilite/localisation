@@ -5,12 +5,12 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { getAccessibilityMapFromAddress, getRoutingFromAddressToDestination } from '../routingAndAccessibility';
-import { Address, Destination } from '../../common/types';
+import { getAccessibilityMapFromAddressForSimpleModes, getAccessibilityMapFromAddressForTransit, getRoutingFromAddressToDestination } from '../routingAndAccessibility';
+import type { Address, Destination } from '../../common/types';
 import * as routing from 'evolution-backend/lib/services/routing';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import _ from 'lodash';
-import { AccessibilityMapPolygonProperties } from 'evolution-backend/lib/services/routing/types';
+import type { AccessibilityMapPolygonProperties } from 'evolution-backend/lib/services/routing/types';
 
 // Mock the routing module
 jest.mock('evolution-backend/lib/services/routing', () => ({
@@ -25,7 +25,75 @@ const mockCalculateTimeDistanceByMode = routing.calculateTimeDistanceByMode as j
     typeof routing.calculateTimeDistanceByMode
 >;
 
-describe('getAccessibilityMapFromAddress', () => {
+// Mock polygons for testing: with durations of 15, 30 and 45 minutes 
+const mockPolygons: GeoJSON.FeatureCollection<GeoJSON.MultiPolygon, AccessibilityMapPolygonProperties> = {
+    type: 'FeatureCollection',
+    features: [
+        {
+            type: 'Feature',
+            geometry: {
+                type: 'MultiPolygon',
+                coordinates: [
+                    [
+                        [
+                            [-73.51, 45.51],
+                            [-73.49, 45.51],
+                            [-73.49, 45.49],
+                            [-73.51, 45.49],
+                            [-73.51, 45.51]
+                        ]
+                    ]
+                ]
+            },
+            properties: {
+                durationSeconds: 15 * 60,
+                areaSqM: 1000000
+            }
+        }, {
+            type: 'Feature',
+            geometry: {
+                type: 'MultiPolygon',
+                coordinates: [
+                    [
+                        [
+                            [-73.52, 45.52],
+                            [-73.48, 45.52],
+                            [-73.48, 45.48],
+                            [-73.52, 45.48],
+                            [-73.52, 45.52]
+                        ]
+                    ]
+                ]
+            },
+            properties: {
+                durationSeconds: 30 * 60,
+                areaSqM: 1000000
+            }
+        }, {
+            type: 'Feature',
+            geometry: {
+                type: 'MultiPolygon',
+                coordinates: [
+                    [
+                        [
+                            [-72.53, 45.53],
+                            [-72.47, 45.53],
+                            [-72.47, 45.47],
+                            [-72.53, 45.47],
+                            [-72.53, 45.53]
+                        ]
+                    ]
+                ]
+            },
+            properties: {
+                durationSeconds: 45 * 60,
+                areaSqM: 1000000
+            }
+        }
+    ]
+};
+
+describe('getAccessibilityMapFromAddressForTransit', () => {
     const mockScenario = 'test-scenario';
     const mockGeography: GeoJSON.Feature<GeoJSON.Point> = {
         type: 'Feature',
@@ -34,74 +102,6 @@ describe('getAccessibilityMapFromAddress', () => {
             coordinates: [-73.5, 45.5]
         },
         properties: {}
-    };
-
-    // Mock polygons for testing: with durations of 15, 30 and 45 minutes 
-    const mockPolygons: GeoJSON.FeatureCollection<GeoJSON.MultiPolygon, AccessibilityMapPolygonProperties> = {
-        type: 'FeatureCollection',
-        features: [
-            {
-                type: 'Feature',
-                geometry: {
-                    type: 'MultiPolygon',
-                    coordinates: [
-                        [
-                            [
-                                [-73.51, 45.51],
-                                [-73.49, 45.51],
-                                [-73.49, 45.49],
-                                [-73.51, 45.49],
-                                [-73.51, 45.51]
-                            ]
-                        ]
-                    ]
-                },
-                properties: {
-                    durationSeconds: 15 * 60,
-                    areaSqM: 1000000
-                }
-            }, {
-                type: 'Feature',
-                geometry: {
-                    type: 'MultiPolygon',
-                    coordinates: [
-                        [
-                            [
-                                [-73.52, 45.52],
-                                [-73.48, 45.52],
-                                [-73.48, 45.48],
-                                [-73.52, 45.48],
-                                [-73.52, 45.52]
-                            ]
-                        ]
-                    ]
-                },
-                properties: {
-                    durationSeconds: 30 * 60,
-                    areaSqM: 1000000
-                }
-            }, {
-                type: 'Feature',
-                geometry: {
-                    type: 'MultiPolygon',
-                    coordinates: [
-                        [
-                            [
-                                [-72.53, 45.53],
-                                [-72.47, 45.53],
-                                [-72.47, 45.47],
-                                [-72.53, 45.47],
-                                [-72.53, 45.53]
-                            ]
-                        ]
-                    ]
-                },
-                properties: {
-                    durationSeconds: 45 * 60,
-                    areaSqM: 1000000
-                }
-            }
-        ]
     };
 
     beforeEach(() => {
@@ -131,7 +131,7 @@ describe('getAccessibilityMapFromAddress', () => {
                 source: 'test'
             });
 
-            const result = await getAccessibilityMapFromAddress(address);
+            const result = await getAccessibilityMapFromAddressForTransit(address);
 
             expect(result).toEqual({
                 duration15Minutes: mockPolygons.features[0],
@@ -150,170 +150,406 @@ describe('getAccessibilityMapFromAddress', () => {
 
     });
 
-    describe('error handling - missing geography', () => {
-        it('should return null when address has no geography', async () => {
-            const address: Address = {
-                _sequence: 1,
-                _uuid: 'address-1'
-                // No geography
-            };
+    test.each([
+        [{ description: 'address has no geography', address: { _sequence: 1, _uuid: 'address-1' as string } }],
+        [{ description: 'address geography is undefined', address: { _sequence: 1, _uuid: 'address-1', geography: undefined } }]
+    ])('error handling - $description', async ({ address }: { address: Address }) => {
+        const result = await getAccessibilityMapFromAddressForTransit(address);
 
-            const result = await getAccessibilityMapFromAddress(address);
-
-            expect(result).toBeNull();
-            expect(mockGetTransitAccessibilityMap).not.toHaveBeenCalled();
-        });
-
-        it('should return null when address geography is undefined', async () => {
-            const address: Address = {
-                _sequence: 1,
-                _uuid: 'address-1',
-                geography: undefined
-            };
-
-            const result = await getAccessibilityMapFromAddress(address);
-
-            expect(result).toBeNull();
-            expect(mockGetTransitAccessibilityMap).not.toHaveBeenCalled();
-        });
+        expect(result).toBeNull();
+        expect(mockGetTransitAccessibilityMap).not.toHaveBeenCalled();
     });
 
-    describe('error handling - missing scenario configuration', () => {
-        it('should return null when no transit scenario is defined in config', async () => {
-            delete config.trRoutingScenarios;
+    test.each([
+        {
+            description: 'no transit scenario is defined in config',
+            setupConfig: () => { delete config.trRoutingScenarios; }
+        },
+        {
+            description: 'SE scenario is undefined in config',
+            setupConfig: () => { config.trRoutingScenarios = {} as any; }
+        }
+    ])('error handling - missing scenario configuration - should return null when $description', async ({ setupConfig }) => {
+        setupConfig();
 
-            const address: Address = {
-                _sequence: 1,
-                _uuid: 'address-1',
-                geography: mockGeography
-            };
+        const address: Address = {
+            _sequence: 1,
+            _uuid: 'address-1',
+            geography: mockGeography
+        };
 
-            const result = await getAccessibilityMapFromAddress(address);
+        const result = await getAccessibilityMapFromAddressForTransit(address);
 
-            expect(result).toBeNull();
-            expect(mockGetTransitAccessibilityMap).not.toHaveBeenCalled();
-        });
-
-        it('should return null when SE scenario is undefined in config', async () => {
-            config.trRoutingScenarios = {} as any;
-
-            const address: Address = {
-                _sequence: 1,
-                _uuid: 'address-1',
-                geography: mockGeography
-            };
-
-            const result = await getAccessibilityMapFromAddress(address);
-
-            expect(result).toBeNull();
-            expect(mockGetTransitAccessibilityMap).not.toHaveBeenCalled();
-        });
+        expect(result).toBeNull();
+        expect(mockGetTransitAccessibilityMap).not.toHaveBeenCalled();
     });
 
-    describe('error handling - accessibility map service errors', () => {
-        it('should return null when getTransitAccessibilityMap returns error status', async () => {
-            const address: Address = {
-                _sequence: 1,
-                _uuid: 'address-1',
-                geography: mockGeography
-            };
+    test.each([
+        {
+            description: 'getTransitAccessibilityMap returns error status',
+            setupMock: () => {
+                mockGetTransitAccessibilityMap.mockResolvedValue({
+                    status: 'error',
+                    error: 'Service unavailable',
+                    source: 'test'
+                });
+            }
+        },
+        {
+            description: 'exception from getTransitAccessibilityMap',
+            setupMock: () => {
+                mockGetTransitAccessibilityMap.mockRejectedValue(new Error('Network error'));
+            }
+        },
+        {
+            description: 'service throws unexpected error',
+            setupMock: () => {
+                mockGetTransitAccessibilityMap.mockRejectedValue('Unknown error');
+            }
+        }
+    ])('error handling - accessibility map service errors - should return null when $description', async ({ setupMock }) => {
+        const address: Address = {
+            _sequence: 1,
+            _uuid: 'address-1',
+            geography: mockGeography
+        };
 
-            mockGetTransitAccessibilityMap.mockResolvedValue({
-                status: 'error',
-                error: 'Service unavailable',
-                source: 'test'
-            });
+        setupMock();
 
-            const result = await getAccessibilityMapFromAddress(address);
+        const result = await getAccessibilityMapFromAddressForTransit(address);
 
-            expect(result).toBeNull();
-            expect(mockGetTransitAccessibilityMap).toHaveBeenCalled();
-        });
-
-        it('should return null and handle exception from getTransitAccessibilityMap', async () => {
-            const address: Address = {
-                _sequence: 1,
-                _uuid: 'address-1',
-                geography: mockGeography
-            };
-
-            mockGetTransitAccessibilityMap.mockRejectedValue(new Error('Network error'));
-
-            const result = await getAccessibilityMapFromAddress(address);
-
-            expect(result).toBeNull();
-        });
-
-        it('should return null when service throws unexpected error', async () => {
-            const address: Address = {
-                _sequence: 1,
-                _uuid: 'address-1',
-                geography: mockGeography
-            };
-
-            mockGetTransitAccessibilityMap.mockRejectedValue('Unknown error');
-
-            const result = await getAccessibilityMapFromAddress(address);
-
-            expect(result).toBeNull();
-        });
+        expect(result).toBeNull();
+        expect(mockGetTransitAccessibilityMap).toHaveBeenCalled();
     });
 
-    describe('different polygon results', () => {
-        it('should handle empty polygon collection', async () => {
-            const address: Address = {
-                _sequence: 1,
-                _uuid: 'address-1',
-                geography: mockGeography
-            };
-
-            const emptyPolygons: GeoJSON.FeatureCollection<GeoJSON.MultiPolygon, AccessibilityMapPolygonProperties> = {
-                type: 'FeatureCollection',
-                features: []
-            };
-
-            mockGetTransitAccessibilityMap.mockResolvedValue({
-                status: 'success',
-                polygons: emptyPolygons,
-                source: 'test'
-            });
-
-            const result = await getAccessibilityMapFromAddress(address);
-
-            expect(result).toEqual({
+    test.each([
+        {
+            description: 'empty polygon collection',
+            polygonFeatures: [],
+            expected: {
                 duration15Minutes: null,
                 duration30Minutes: null,
                 duration45Minutes: null
-            });
+            }
+        },
+        {
+            description: 'missing polygons in result (no 30 minutes)',
+            polygonFeatures: [mockPolygons.features[0], mockPolygons.features[2]],
+            expected: {
+                duration15Minutes: mockPolygons.features[0],
+                duration30Minutes: null,
+                duration45Minutes: mockPolygons.features[2]
+            }
+        }
+    ])('different polygon results - should handle $description', async ({ polygonFeatures, expected }) => {
+        const address: Address = {
+            _sequence: 1,
+            _uuid: 'address-1',
+            geography: mockGeography
+        };
+
+        const polygons: GeoJSON.FeatureCollection<GeoJSON.MultiPolygon, AccessibilityMapPolygonProperties> = {
+            type: 'FeatureCollection',
+            features: polygonFeatures
+        };
+
+        mockGetTransitAccessibilityMap.mockResolvedValue({
+            status: 'success',
+            polygons: polygons,
+            source: 'test'
         });
 
-        it('should handle missing polygons in result (no 30 minutes)', async () => {
+        const result = await getAccessibilityMapFromAddressForTransit(address);
+
+        expect(result).toEqual(expected);
+    });
+});
+
+describe('getAccessibilityMapFromAddressForSimpleModes', () => {
+    const mockScenario = 'test-scenario';
+    const mockGeography: GeoJSON.Feature<GeoJSON.Point> = {
+        type: 'Feature',
+        geometry: {
+            type: 'Point',
+            coordinates: [-73.5, 45.5]
+        },
+        properties: {}
+    };
+
+    const mockWalkingPolygons = mockPolygons;
+    // durations are multiplied by 3 for cycling;
+    const mockCyclingPolygons = {
+        type: 'FeatureCollection' as const,
+        features: mockPolygons.features.map((feature) => ({
+            ...feature,
+            properties: {
+                ...feature.properties,
+                durationSeconds: feature.properties.durationSeconds * 3
+            }
+        }))
+    };
+    const mockDrivingPolygons = {
+        type: 'FeatureCollection' as const,
+        features: mockPolygons.features.map((feature) => ({
+            ...feature,
+            properties: {
+                ...feature.properties,
+                durationSeconds: feature.properties.durationSeconds * 8
+            }
+        }))
+    };
+
+    beforeEach(() => {
+        jest.clearAllMocks();
+        // Set up default config empty scenario
+        config.emptyScenarioForSimpleModes = mockScenario;
+    });
+
+    afterEach(() => {
+        // Clean up config
+        delete config.emptyScenarioForSimpleModes;
+    });
+
+    describe('successful accessibility map calculation', () => {
+        it('should return accessibility map for valid address with geography', async () => {
             const address: Address = {
                 _sequence: 1,
                 _uuid: 'address-1',
                 geography: mockGeography
             };
 
-            const mockedPolygons = [mockPolygons.features[0], mockPolygons.features[2]]; // Missing 30 minutes
-
-            const multiplePolygons: GeoJSON.FeatureCollection<GeoJSON.MultiPolygon, AccessibilityMapPolygonProperties> = {
-                type: 'FeatureCollection',
-                features: mockedPolygons
-            };
-
-            mockGetTransitAccessibilityMap.mockResolvedValue({
+            mockGetTransitAccessibilityMap.mockResolvedValueOnce({
                 status: 'success',
-                polygons: multiplePolygons,
+                polygons: mockWalkingPolygons,
+                source: 'test'
+            });
+            mockGetTransitAccessibilityMap.mockResolvedValueOnce({
+                status: 'success',
+                polygons: mockCyclingPolygons,
+                source: 'test'
+            });
+            mockGetTransitAccessibilityMap.mockResolvedValueOnce({
+                status: 'success',
+                polygons: mockDrivingPolygons,
                 source: 'test'
             });
 
-            const result = await getAccessibilityMapFromAddress(address);
+            const result = await getAccessibilityMapFromAddressForSimpleModes(address);
 
             expect(result).toEqual({
-                duration15Minutes: mockPolygons.features[0],
-                duration30Minutes: null,
-                duration45Minutes: mockPolygons.features[2]
+                walking: {
+                    duration15Minutes: mockWalkingPolygons.features[0],
+                    duration30Minutes: mockWalkingPolygons.features[1],
+                    duration45Minutes: mockWalkingPolygons.features[2]
+                },
+                cycling: {
+                    duration15Minutes: mockCyclingPolygons.features[0],
+                    duration30Minutes: mockCyclingPolygons.features[1],
+                    duration45Minutes: mockCyclingPolygons.features[2]
+                },
+                driving: {
+                    duration15Minutes: mockDrivingPolygons.features[0],
+                    duration30Minutes: mockDrivingPolygons.features[1],
+                    duration45Minutes: mockDrivingPolygons.features[2]
+                }
             });
+            // Test call for walking mode
+            expect(mockGetTransitAccessibilityMap).toHaveBeenCalledWith({
+                point: mockGeography,
+                numberOfPolygons: 3,
+                maxTotalTravelTimeMinutes: 45,
+                maxAccessEgressTravelTimeMinutes: 45,
+                departureSecondsSinceMidnight: 8 * 3600,
+                transitScenario: mockScenario,
+                walkingSpeedKmPerHour: 5,
+                calculatePois: true
+            });
+            // Test call for cycling mode
+            expect(mockGetTransitAccessibilityMap).toHaveBeenCalledWith({
+                point: mockGeography,
+                numberOfPolygons: 3,
+                maxTotalTravelTimeMinutes: 45 * 3,
+                maxAccessEgressTravelTimeMinutes: 45 * 3,
+                departureSecondsSinceMidnight: 8 * 3600,
+                transitScenario: mockScenario,
+                calculatePois: true
+            });
+            // Test call for driving mode
+            expect(mockGetTransitAccessibilityMap).toHaveBeenCalledWith({
+                point: mockGeography,
+                numberOfPolygons: 3,
+                maxTotalTravelTimeMinutes: 45 * 8,
+                maxAccessEgressTravelTimeMinutes: 45 * 8,
+                departureSecondsSinceMidnight: 8 * 3600,
+                transitScenario: mockScenario,
+                calculatePois: true
+            });
+        });
+
+    });
+
+    test.each([
+        [{ description: 'address has no geography', address: { _sequence: 1, _uuid: 'address-1' as string } }],
+        [{ description: 'address geography is undefined', address: { _sequence: 1, _uuid: 'address-1', geography: undefined } }]
+    ])('error handling - $description', async ({ address }: { address: Address }) => {
+        const result = await getAccessibilityMapFromAddressForSimpleModes(address);
+
+        expect(result).toEqual({
+            walking: null,
+            cycling: null,
+            driving: null
+        });
+        expect(mockGetTransitAccessibilityMap).not.toHaveBeenCalled();
+    });
+
+    test.each([
+        {
+            description: 'no transit scenario is defined in config',
+            setupConfig: () => { delete config.emptyScenarioForSimpleModes; }
+        },
+        {
+            description: 'SE scenario is undefined in config',
+            setupConfig: () => { config.emptyScenarioForSimpleModes = undefined; }
+        }
+    ])('error handling - missing scenario configuration - should return null when $description', async ({ setupConfig }) => {
+        setupConfig();
+
+        const address: Address = {
+            _sequence: 1,
+            _uuid: 'address-1',
+            geography: mockGeography
+        };
+
+        const result = await getAccessibilityMapFromAddressForSimpleModes(address);
+
+        expect(result).toEqual({
+            walking: null,
+            cycling: null,
+            driving: null
+        });
+        expect(mockGetTransitAccessibilityMap).not.toHaveBeenCalled();
+    });
+
+    test.each([
+        {
+            description: 'getTransitAccessibilityMap returns error status',
+            setupMock: () => {
+                mockGetTransitAccessibilityMap.mockResolvedValue({
+                    status: 'error',
+                    error: 'Service unavailable',
+                    source: 'test'
+                });
+            }
+        },
+        {
+            description: 'exception from getTransitAccessibilityMap',
+            setupMock: () => {
+                mockGetTransitAccessibilityMap.mockRejectedValue(new Error('Network error'));
+            }
+        },
+        {
+            description: 'service throws unexpected error',
+            setupMock: () => {
+                mockGetTransitAccessibilityMap.mockRejectedValue('Unknown error');
+            }
+        }
+    ])('error handling - accessibility map service errors - should return null when $description', async ({ setupMock }) => {
+        const address: Address = {
+            _sequence: 1,
+            _uuid: 'address-1',
+            geography: mockGeography
+        };
+
+        setupMock();
+
+        const result = await getAccessibilityMapFromAddressForSimpleModes(address);
+
+        expect(result).toEqual({
+            walking: null,
+            cycling: null,
+            driving: null
+        });
+        expect(mockGetTransitAccessibilityMap).toHaveBeenCalled();
+        expect(mockGetTransitAccessibilityMap).toHaveBeenCalledTimes(3);
+    });
+
+    test.each([
+        {
+            description: 'empty polygon collection',
+            polygonFeatures: [[], [], []],
+            expected: [{
+                duration15Minutes: null,
+                duration30Minutes: null,
+                duration45Minutes: null
+            }, {
+                duration15Minutes: null,
+                duration30Minutes: null,
+                duration45Minutes: null
+            }, {
+                duration15Minutes: null,
+                duration30Minutes: null,
+                duration45Minutes: null
+            }]
+        },
+        {
+            description: 'missing polygons in result (no 30 minutes for driving and walking, no 15 minutes for cycling)',
+            polygonFeatures: [
+                [mockWalkingPolygons.features[0], mockWalkingPolygons.features[2]],
+                [mockCyclingPolygons.features[1], mockCyclingPolygons.features[2]],
+                [mockDrivingPolygons.features[0], mockDrivingPolygons.features[2]]
+            ],
+            expected: [{
+                duration15Minutes: mockWalkingPolygons.features[0],
+                duration30Minutes: null,
+                duration45Minutes: mockWalkingPolygons.features[2]
+            }, {
+                duration15Minutes: null,
+                duration30Minutes: mockCyclingPolygons.features[1],
+                duration45Minutes: mockCyclingPolygons.features[2]
+            }, {
+                duration15Minutes: mockDrivingPolygons.features[0],
+                duration30Minutes: null,
+                duration45Minutes: mockDrivingPolygons.features[2]
+            }]
+        }
+    ])('different polygon results - should handle $description', async ({ polygonFeatures, expected }) => {
+        const address: Address = {
+            _sequence: 1,
+            _uuid: 'address-1',
+            geography: mockGeography
+        };
+
+        mockGetTransitAccessibilityMap.mockResolvedValueOnce({
+            status: 'success',
+            polygons: {
+                type: 'FeatureCollection',
+                features: polygonFeatures[0]
+            },
+            source: 'test'
+        });
+        mockGetTransitAccessibilityMap.mockResolvedValueOnce({
+            status: 'success',
+            polygons: {
+                type: 'FeatureCollection',
+                features: polygonFeatures[1]
+            },
+            source: 'test'
+        });
+        mockGetTransitAccessibilityMap.mockResolvedValueOnce({
+            status: 'success',
+            polygons: {
+                type: 'FeatureCollection',
+                features: polygonFeatures[2]
+            },
+            source: 'test'
+        });
+
+        const result = await getAccessibilityMapFromAddressForSimpleModes(address);
+
+        expect(result).toEqual({
+            walking: expected[0],
+            cycling: expected[1],
+            driving: expected[2]
         });
     });
 });
