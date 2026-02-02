@@ -4,6 +4,23 @@
 $ButtonColor: black;
 $ItemColor: #D9D9D9;
 
+// Mixin for vertical separator between columns
+@mixin vertical-separator($color: $ItemColor) {
+    position: relative; // Needed for pseudo-element positioning
+
+    &::after {
+        content: '';
+        position: absolute;
+        left: 50%;
+        top: 0;
+        bottom: 0;
+        width: 1px;
+        background-color: $color;
+        transform: translateX(-50%); // Center the 1px line
+        pointer-events: none; // Allow clicks to pass through
+    }
+}
+
 #item-nav-user {
     display: none;
 }
@@ -89,6 +106,7 @@ $ItemColor: #D9D9D9;
             "total-cost-item-1 total-cost-item-1 total-cost-item-2 total-cost-item-2"
             "note-costs-item-1 note-costs-item-1 note-costs-item-2 note-costs-item-2";
         gap: 1.5rem;
+        @include vertical-separator;
     }
 
     // Environment section
@@ -100,6 +118,7 @@ $ItemColor: #D9D9D9;
             "environment-section-title environment-section-title environment-section-title environment-section-title"
             "point-interest-item-1 environment-item-1 point-interest-item-2 environment-item-2";
         gap: 1.5rem;
+        @include vertical-separator;
     }
 
     /* Grid areas */
@@ -239,6 +258,7 @@ $ItemColor: #D9D9D9;
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 1.5rem;
+        @include vertical-separator;
     }
 
     // Frequent destinations section container
@@ -274,6 +294,7 @@ $ItemColor: #D9D9D9;
         font-weight: 700;
         color: black;
         padding: 10px 0;
+        border-bottom: 1px solid $ItemColor;
 
         h2 {
             grid-column: span 2;
