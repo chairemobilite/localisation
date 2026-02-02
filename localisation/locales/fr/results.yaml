@@ -6,3 +6,33 @@ resultsIntro: >-
     <strong>Voici les résultats, comparant l’accessibilité et le coût de la vie des
     deux adresses potentielles :</strong>
 comparisonMap: Comparaison d'accessibilité
+notApplicable: N/A
+locationComparison.title: Comparateur de logement
+locationComparison.address: Pour {{address}}
+locationComparison.defaultAddressName: 'logement #{{number}}'
+locationComparison.costsTitle: Coûts
+locationComparison.costsMonthly: Mensuel
+locationComparison.costsAnnual: Annuel
+locationComparison.costs25years: 25 ans
+locationComparison.costsHousing: Logement
+locationComparison.costsTransport: Transports
+locationComparison.costsTotal: Total
+locationComparison.costsPercentageOfIncome: '{{percentageOfIncome}}% du revenu brut'
+locationComparison.tooMuchSpendingWarning: >-
+    Il est à noter qu'il n'est pas recommandé de consacrer plus de 45 % de son revenu
+    brut au logement et aux transports.
+locationComparison.tooManyCarsWarning: >-
+    Notre modèle estime que les ménages dans cette situation possèdent {{numberOfCars}}
+    voitures.
+locationComparison.environmentTitle: Environnement
+locationComparison.environmentPointsOfInterest: Points d'intérêt
+locationComparison.environmentCo2: CO2
+locationComparison.environmentCo2Value: '{{value}} tonnes'
+locationComparison.frequentDestinationsTitle: Destinations fréquentes
+locationComparison.frequentDestinationsTitle_one: Destination fréquente
+locationComparison.frequentDestinationsFrom: De {{address}} à {{destination}}
+locationComparison.destinationNumber: 'Destination #{{number}}'
+modeNames.walking: Marche
+modeNames.cycling: Vélo
+modeNames.driving: Voiture
+modeNames.transit: Transport collectif

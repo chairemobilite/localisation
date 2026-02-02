@@ -6,3 +6,32 @@ resultsIntro: >-
     <strong>Here are the results, comparing the accessibility and living costs of
     the two potential addresses:</strong>
 comparisonMap: Accessibility comparison
+notApplicable: N/A
+locationComparison.title: Housing comparison tool
+locationComparison.address: For {{address}}
+locationComparison.defaultAddressName: 'house #{{number}}'
+locationComparison.costsTitle: Costs
+locationComparison.costsMonthly: Monthly
+locationComparison.costsAnnual: Annual
+locationComparison.costs25years: 25-years
+locationComparison.costsHousing: Housing
+locationComparison.costsTransport: Transport
+locationComparison.costsTotal: Total
+locationComparison.costsPercentageOfIncome: '{{percentageOfIncome}}% of gross income'
+locationComparison.tooMuchSpendingWarning: >-
+    Note that it is not recommended to spend more than 45% of gross income on housing
+    and transportation.
+locationComparison.tooManyCarsWarning: >-
+    Our model estimates that households in this situation have {{numberOfCars}} cars.
+locationComparison.environmentTitle: Environment
+locationComparison.environmentPointsOfInterest: Points of interest
+locationComparison.environmentCo2: CO2
+locationComparison.environmentCo2Value: '{{value}} tons'
+locationComparison.frequentDestinationsTitle: Frequent Destinations
+locationComparison.frequentDestinationsTitle_one: Frequent destination
+locationComparison.frequentDestinationsFrom: From {{address}} to {{destination}}
+locationComparison.destinationNumber: 'Destination #{{number}}'
+modeNames.walking: Walking
+modeNames.cycling: Cycling
+modeNames.driving: Driving
+modeNames.transit: Transit
