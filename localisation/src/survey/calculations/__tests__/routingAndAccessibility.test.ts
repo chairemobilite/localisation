@@ -10,6 +10,7 @@ import { Address, Destination } from '../../common/types';
 import * as routing from 'evolution-backend/lib/services/routing';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import _ from 'lodash';
+import { AccessibilityMapPolygonProperties } from 'evolution-backend/lib/services/routing/types';
 
 // Mock the routing module
 jest.mock('evolution-backend/lib/services/routing', () => ({
@@ -36,7 +37,7 @@ describe('getAccessibilityMapFromAddress', () => {
     };
 
     // Mock polygons for testing: with durations of 15, 30 and 45 minutes 
-    const mockPolygons: GeoJSON.FeatureCollection<GeoJSON.MultiPolygon> = {
+    const mockPolygons: GeoJSON.FeatureCollection<GeoJSON.MultiPolygon, AccessibilityMapPolygonProperties> = {
         type: 'FeatureCollection',
         features: [
             {
@@ -56,7 +57,8 @@ describe('getAccessibilityMapFromAddress', () => {
                     ]
                 },
                 properties: {
-                    durationSeconds: 15 * 60
+                    durationSeconds: 15 * 60,
+                    areaSqM: 1000000
                 }
             }, {
                 type: 'Feature',
@@ -75,7 +77,8 @@ describe('getAccessibilityMapFromAddress', () => {
                     ]
                 },
                 properties: {
-                    durationSeconds: 30 * 60
+                    durationSeconds: 30 * 60,
+                    areaSqM: 1000000
                 }
             }, {
                 type: 'Feature',
@@ -94,7 +97,8 @@ describe('getAccessibilityMapFromAddress', () => {
                     ]
                 },
                 properties: {
-                    durationSeconds: 45 * 60
+                    durationSeconds: 45 * 60,
+                    areaSqM: 1000000
                 }
             }
         ]
@@ -263,7 +267,7 @@ describe('getAccessibilityMapFromAddress', () => {
                 geography: mockGeography
             };
 
-            const emptyPolygons: GeoJSON.FeatureCollection<GeoJSON.MultiPolygon> = {
+            const emptyPolygons: GeoJSON.FeatureCollection<GeoJSON.MultiPolygon, AccessibilityMapPolygonProperties> = {
                 type: 'FeatureCollection',
                 features: []
             };
@@ -292,7 +296,7 @@ describe('getAccessibilityMapFromAddress', () => {
 
             const mockedPolygons = [mockPolygons.features[0], mockPolygons.features[2]]; // Missing 30 minutes
 
-            const multiplePolygons: GeoJSON.FeatureCollection<GeoJSON.MultiPolygon> = {
+            const multiplePolygons: GeoJSON.FeatureCollection<GeoJSON.MultiPolygon, AccessibilityMapPolygonProperties> = {
                 type: 'FeatureCollection',
                 features: mockedPolygons
             };

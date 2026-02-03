@@ -12,7 +12,6 @@
         "evolution/packages/evolution-common",
         "evolution/packages/evolution-backend",
         "evolution/packages/evolution-frontend",
-        "evolution/packages/evolution-interviewer",
         "evolution/packages/evolution-generator",
         "localisation"
     ],
