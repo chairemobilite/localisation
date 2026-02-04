@@ -4,7 +4,7 @@ import { getResponse } from 'evolution-common/lib/utils/helpers';
 import customPreloadBase from '../../common/customPreloadBase';
 import { currentSectionName } from './sectionConfigs';
 
-const DESTINATION_NUMBER = 2; // The number of frequent destinations we want to input. For now, we can keep it at 2.
+const DESTINATION_NUMBER = 1; // The number of frequent destinations the user will start with.
 
 export const customPreload: SectionConfig['preload'] = function (
     interview,

@@ -3,10 +3,10 @@
 # Any changes made to this file will be overwritten.
 
 visitedPlacesIntro: >-
-    Veuillez entrer <strong>deux lieux</strong> d’où vous faites fréquemment et régulièrement
-    un aller-retour depuis votre maison.<br /><span class="_pale _oblique">Ce devraient
-    être des endroits que vous allez visiter à partir des deux lieux entrés dans la
-    section précédente (travail, école, …).</span>
+    Veuillez entrer jusqu’à <strong>10 lieux</strong> d’où vous faites fréquemment
+    et régulièrement un aller-retour depuis votre maison.<br /><span class="_pale
+    _oblique">Ce devraient être des endroits que vous allez visiter à partir des deux
+    lieux entrés dans la section précédente (travail, école, …).</span>
 name: Nom ou adresse de la destination
 geography: >-
     Veuillez positionner la destination sur la carte<br /><span class="_pale _oblique">Naviguez,
