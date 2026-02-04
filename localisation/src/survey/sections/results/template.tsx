@@ -4,8 +4,9 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { TFunction } from 'i18next';
 // import _capitalize from 'lodash/capitalize';
 import { Widget } from 'evolution-frontend/lib/components/survey/Widget';
 import type { Address, DestinationResult } from 'localisation/src/survey/common/types.ts';
@@ -13,14 +14,36 @@ import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import LoadingPage from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
 import { SectionProps, useSectionTemplate } from 'evolution-frontend/lib/components/hooks/useSectionTemplate';
 import { getAddressesArray, getDestinationsArray } from '../../common/customHelpers';
+import type { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 
 // This matches the structure of Address.routingTimeDistances
 type RoutingTimeDistances = Address['routingTimeDistances'];
 
+// Helper function to adjust cost based on period (multiply by 12 for annual)
+// TODO: Change this function when doing 25-years costs.
+const adjustCostByPeriod = ({
+    value,
+    period,
+    translation
+}: {
+    value: number | string | undefined | null;
+    period: 'monthly' | 'annual';
+    translation: TFunction;
+}): number | string => {
+    if (value === undefined || value === null) {
+        return translation('results:notApplicable');
+    }
+    if (typeof value === 'string') {
+        return value; // Already a translated string, return as is
+    }
+    // value is a number
+    return period === 'annual' ? value * 12 : value;
+};
+
 // Helper function to format currency values
-const formatCurrency = (value: number | string | undefined | null): string => {
+const formatCurrency = ({ value }: { value: number | string | undefined | null }): string => {
     if (value === undefined || value === null || value === 'N/A') {
-        return value === 'N/A' ? 'N/A' : '0 $';
+        return 'N/A';
     }
     const numValue = typeof value === 'string' ? parseFloat(value) : value;
     if (isNaN(numValue)) {
@@ -34,7 +57,7 @@ const formatCurrency = (value: number | string | undefined | null): string => {
 };
 
 // Helper function to format time from seconds to minutes
-const formatTime = (seconds: number | undefined | null): string => {
+const formatTime = ({ seconds }: { seconds: number | undefined | null }): string => {
     if (seconds === undefined || seconds === null || isNaN(seconds)) {
         return 'N/A';
     }
@@ -43,7 +66,7 @@ const formatTime = (seconds: number | undefined | null): string => {
 };
 
 // Helper function to format distance from meters to kilometers
-const formatDistance = (meters: number | undefined): string => {
+const formatDistance = ({ meters }: { meters: number | undefined }): string => {
     if (meters === undefined || meters === null || isNaN(meters)) {
         return 'N/A';
     }
@@ -52,7 +75,7 @@ const formatDistance = (meters: number | undefined): string => {
 };
 
 // Helper function to get all mode SVGs
-const getModeSvgs = (translation: (key: string) => string): Record<string, React.ReactNode> => {
+const getModeSvgs = ({ translation }: { translation: TFunction }): Record<string, React.ReactNode> => {
     return {
         transit: (
             <svg
@@ -119,13 +142,13 @@ const getModeSvgs = (translation: (key: string) => string): Record<string, React
 };
 
 // Helper function to get the SVG for a mode
-const getModeSvg = (translation: (key: string) => string, mode: string): React.ReactNode => {
-    const svgs = getModeSvgs(translation);
+const getModeSvg = ({ translation, mode }: { translation: TFunction; mode: string }): React.ReactNode => {
+    const svgs = getModeSvgs({ translation });
     return svgs[mode] ?? null;
 };
 
 // SVG icons for cost items
-const HomeIcon: React.FC<{ translation: (key: string) => string }> = ({ translation }) => {
+const HomeIcon: React.FC<{ translation: TFunction }> = ({ translation }) => {
     return (
         <svg
             className="svg-icon-activities-home svg-icon svg-icon-activities"
@@ -142,7 +165,7 @@ const HomeIcon: React.FC<{ translation: (key: string) => string }> = ({ translat
     );
 };
 
-const CarIcon: React.FC<{ translation: (key: string) => string }> = ({ translation }) => {
+const CarIcon: React.FC<{ translation: TFunction }> = ({ translation }) => {
     return (
         <svg
             className="svg-icon-modes-car_driver_without_passenger svg-icon svg-icon-modes"
@@ -160,10 +183,13 @@ const CarIcon: React.FC<{ translation: (key: string) => string }> = ({ translati
 };
 
 // Helper function to build the frequent destinations
-const buildFrequentDestinations = (
-    routingTimeDistances: RoutingTimeDistances,
-    homeAddressUuid: string
-): DestinationResult[] => {
+const buildFrequentDestinations = ({
+    routingTimeDistances,
+    homeAddressUuid
+}: {
+    routingTimeDistances: RoutingTimeDistances;
+    homeAddressUuid: string;
+}): DestinationResult[] => {
     return Object.entries(routingTimeDistances).flatMap(([destinationUuid, destinationResult]) => {
         if (!destinationResult) {
             return [];
@@ -192,7 +218,7 @@ const CostItem: React.FC<CostItemProps> = ({ id, label, icon, value }) => (
     <div id={id} className="value-item">
         <div>{label}</div>
         {icon}
-        <div>{formatCurrency(value)}</div>
+        <div>{formatCurrency({ value })}</div>
     </div>
 );
 
@@ -204,7 +230,7 @@ type TotalCostItemProps = {
 };
 
 // Total cost item component
-const TotalCostItem: React.FC<TotalCostItemProps & { translation: (key: string) => string }> = ({
+const TotalCostItem: React.FC<TotalCostItemProps & { translation: TFunction }> = ({
     id,
     totalCost,
     percentageOfIncome: _percentageOfIncome,
@@ -213,7 +239,7 @@ const TotalCostItem: React.FC<TotalCostItemProps & { translation: (key: string) 
     return (
         <div id={id} className="value-item">
             <div>{translation('results:locationComparison.costsTotal')}</div>
-            <div>{formatCurrency(totalCost)}</div>
+            <div>{formatCurrency({ value: totalCost })}</div>
             {/* TODO: Add percentageOfIncome when this is implemented */}
             {/* {percentageOfIncome !== undefined && (
                 <div>{translation('results:locationComparison.costsPercentageOfIncome', { percentageOfIncome })}</div>
@@ -244,11 +270,11 @@ type FrequentDestinationCardProps = {
     result: DestinationResult;
 };
 
-const FrequentDestinationCard: React.FC<FrequentDestinationCardProps & { translation: (key: string) => string }> = ({
+const FrequentDestinationCard: React.FC<FrequentDestinationCardProps & { translation: TFunction }> = ({
     result,
     translation
 }) => {
-    const modeSvg = getModeSvg(translation, result.mode);
+    const modeSvg = getModeSvg({ translation, mode: result.mode });
 
     return (
         <div className="value-item">
@@ -257,7 +283,8 @@ const FrequentDestinationCard: React.FC<FrequentDestinationCardProps & { transla
                 <span>{translation(`results:modeNames.${result.mode}`)}</span>
             </div>
             <div>
-                {formatTime(result.travelTimeSeconds)} ({formatDistance(result.distanceMeters)})
+                {formatTime({ seconds: result.travelTimeSeconds })} ({formatDistance({ meters: result.distanceMeters })}
+                )
             </div>
         </div>
     );
@@ -269,9 +296,11 @@ type FrequentDestinationColumnProps = {
     rows: DestinationResult[];
 };
 
-const FrequentDestinationColumn: React.FC<
-    FrequentDestinationColumnProps & { translation: (key: string) => string }
-> = ({ title, rows, translation }) => (
+const FrequentDestinationColumn: React.FC<FrequentDestinationColumnProps & { translation: TFunction }> = ({
+    title,
+    rows,
+    translation
+}) => (
     <section className="frequent-destinations-section-container">
         <h4>{title}</h4>
         {rows.map((row) => (
@@ -284,72 +313,119 @@ const FrequentDestinationColumn: React.FC<
     </section>
 );
 
-// Main component to render the results section
-export const LocalisationResultsSection: React.FC<SectionProps> = (props: SectionProps) => {
-    const { preloaded } = useSectionTemplate(props);
-    const { t } = useTranslation();
+// Type for address information returned by the helper function
+type AddressInfo = {
+    address: Address | undefined;
+    uuid: string | undefined;
+    name: string;
+    housingCost: string | number;
+    transportCost: string | number;
+    totalCost: string | number;
+    housingCostPercentageOfIncome: string;
+    routingTimeDistances: RoutingTimeDistances;
+    displayName: string; // Name without "For " prefix
+};
 
-    if (!preloaded) {
-        return <LoadingPage />;
-    }
-
-    // TODO: Do a function that returns the information about the address and the destinations for both addresses
-
+// Helper function to get address and destination information for any address
+const getAddressesInfo = ({
+    interview,
+    translation
+}: {
+    interview: InterviewAttributes;
+    translation: TFunction;
+}): {
+    firstAddress: AddressInfo;
+    secondAddress: AddressInfo;
+    allFrequentDestinations: DestinationResult[];
+    destinationUuidsInOrder: (string | undefined)[];
+} => {
     // Get addresses array (already sorted by _sequence)
-    const addresses = getAddressesArray(props.interview);
-    // Find all the information about the first address (first home option)
-    const firstAddress = addresses[0]; // Full object for first address
-    const firstAddressUuid = firstAddress?._uuid; // UUID of first address
-    // TODO: This field should be required
-    const firstAddressName = t('results:locationComparison.address', {
-        address: firstAddress?.name ?? t('results:locationComparison.defaultAddressName', { number: 1 })
-    }); // Display label for first address
-    const firstAddressHousingCost = firstAddress?.monthlyCost?.housingCostMonthly ?? t('results:notApplicable'); // Monthly housing cost
-    const firstAddressTransportCost = firstAddress?.monthlyCost?.carCostMonthly ?? t('results:notApplicable'); // Monthly transport cost
-    const firstAddressTotalCost = firstAddress?.monthlyCost?.totalCostMonthly ?? t('results:notApplicable'); // Sum of monthly costs
-    // TODO: This field is not working yet
-    const firstAddressHousingCostPercentageOfIncome = firstAddress?.monthlyCost?.housingCostPercentageOfIncome ?? '0'; // % of income spent
-    // TODO: This field should be optional and dynamically generated based on the housing cost percentage of income
-    // const firstAddressCostsWarning = t('results:locationComparison.tooMuchSpendingWarning');
-    // const firstAddressPointsOfInterest = firstAddress?.pointsOfInterest ?? '0'; // Count of POIs near first address
-    // TODO: This field is not working yet
-    // const firstAddressCo2 = t('results:locationComparison.environmentCo2Value', { value: firstAddress?.co2 ?? 0 });
-    const firstAddressRoutingTimeDistances = firstAddress?.routingTimeDistances || {}; // Travel times/distances from first address to destinations
+    const addresses = getAddressesArray(interview);
 
-    // Find all the information about the second address (second home option)
-    const secondAddress = addresses[1]; // Full object for second address
-    const secondAddressUuid = secondAddress?._uuid; // UUID of second address
-    // TODO: This field should be required
-    const secondAddressName = t('results:locationComparison.address', {
-        address: secondAddress?.name ?? t('results:locationComparison.defaultAddressName', { number: 2 })
-    }); // Display label for second address
-    const secondAddressHousingCost = secondAddress?.monthlyCost?.housingCostMonthly ?? t('results:notApplicable'); // Monthly housing cost
-    const secondAddressTransportCost = secondAddress?.monthlyCost?.carCostMonthly ?? t('results:notApplicable'); // Monthly transport cost
-    const secondAddressTotalCost = secondAddress?.monthlyCost?.totalCostMonthly ?? t('results:notApplicable'); // Sum of monthly costs
-    // TODO: This field is not working yet
-    const secondAddressHousingCostPercentageOfIncome = secondAddress?.monthlyCost?.housingCostPercentageOfIncome ?? '0'; // % of income spent on housing
-    // TODO: This field should be optional, and dynamically generated based on the number of cars in the second address
-    // const secondAddressCostsWarning = t('results:locationComparison.tooManyCarsWarning', { numberOfCars: 2 });
-    // TODO: This field is not working yet
-    // const secondAddressPointsOfInterest = secondAddress?.pointsOfInterest ?? '0'; // Count of POIs near second address
-    // TODO: This field is not working yet
-    // const secondAddressCo2 = t('results:locationComparison.environmentCo2Value', { value: secondAddress?.co2 ?? 0 });
-    const secondAddressRoutingTimeDistances = secondAddress?.routingTimeDistances || {}; // Travel times/distances from second address to destinations
+    // Helper to extract information for a single address
+    const getAddressInfo = ({
+        address,
+        addressNumber
+    }: {
+        address: Address | undefined;
+        addressNumber: number;
+    }): AddressInfo => {
+        const uuid = address?._uuid;
+        const name = translation('results:locationComparison.address', {
+            address:
+                address?.name ?? translation('results:locationComparison.defaultAddressName', { number: addressNumber })
+        });
+        const housingCost = address?.monthlyCost?.housingCostMonthly ?? translation('results:notApplicable');
+        const transportCost = address?.monthlyCost?.carCostMonthly ?? translation('results:notApplicable');
+        const totalCost = address?.monthlyCost?.totalCostMonthly ?? translation('results:notApplicable');
+        const housingCostPercentageOfIncome = address?.monthlyCost?.housingCostPercentageOfIncome?.toString() ?? '0';
+        const routingTimeDistances = address?.routingTimeDistances || {};
+        const displayName =
+            address?.name ?? translation('results:locationComparison.defaultAddressName', { number: addressNumber });
+
+        return {
+            address,
+            uuid,
+            name,
+            housingCost,
+            transportCost,
+            totalCost,
+            housingCostPercentageOfIncome,
+            routingTimeDistances: routingTimeDistances as RoutingTimeDistances,
+            displayName
+        };
+    };
+
+    const firstAddress = addresses[0];
+    const secondAddress = addresses[1];
+
+    const firstAddressInfo = getAddressInfo({ address: firstAddress, addressNumber: 1 });
+    const secondAddressInfo = getAddressInfo({ address: secondAddress, addressNumber: 2 });
 
     // Build frequent destinations list (both homes, all destinations)
     // Flat list of all (home, destination, mode) combinations
     // Note: We need to check if the address UUIDs are defined to avoid errors
     const allFrequentDestinations: DestinationResult[] = [
-        ...(firstAddressUuid && firstAddressRoutingTimeDistances
-            ? buildFrequentDestinations(firstAddressRoutingTimeDistances as RoutingTimeDistances, firstAddressUuid)
+        ...(firstAddressInfo.uuid && firstAddressInfo.routingTimeDistances
+            ? buildFrequentDestinations({
+                routingTimeDistances: firstAddressInfo.routingTimeDistances,
+                homeAddressUuid: firstAddressInfo.uuid
+            })
             : []),
-        ...(secondAddressUuid && secondAddressRoutingTimeDistances
-            ? buildFrequentDestinations(secondAddressRoutingTimeDistances as RoutingTimeDistances, secondAddressUuid)
+        ...(secondAddressInfo.uuid && secondAddressInfo.routingTimeDistances
+            ? buildFrequentDestinations({
+                routingTimeDistances: secondAddressInfo.routingTimeDistances,
+                homeAddressUuid: secondAddressInfo.uuid
+            })
             : [])
     ];
 
-    // Determine destination order from first address routing data
-    const destinationUuidsInOrder = getDestinationsArray(props.interview).map((dest) => dest._uuid);
+    // Determine destination order from destinations array
+    const destinationUuidsInOrder = getDestinationsArray(interview).map((dest) => dest._uuid);
+
+    return {
+        firstAddress: firstAddressInfo,
+        secondAddress: secondAddressInfo,
+        allFrequentDestinations,
+        destinationUuidsInOrder
+    };
+};
+
+// Main component to render the results section
+export const LocalisationResultsSection: React.FC<SectionProps> = (props: SectionProps) => {
+    const { preloaded } = useSectionTemplate(props);
+    const { t } = useTranslation();
+    const [costPeriod, setCostPeriod] = useState<'monthly' | 'annual'>('monthly');
+
+    if (!preloaded) {
+        return <LoadingPage />;
+    }
+
+    // Get address and destination information for both addresses
+    const { firstAddress, secondAddress, allFrequentDestinations, destinationUuidsInOrder } = getAddressesInfo({
+        interview: props.interview,
+        translation: t
+    });
 
     // Prepare required data
     surveyHelper.devLog('%c rendering section ' + props.shortname, 'background: rgba(0,0,255,0.1);');
@@ -387,22 +463,32 @@ export const LocalisationResultsSection: React.FC<SectionProps> = (props: Sectio
                 {/* Location names section that is sticky */}
                 <section id="location-names-section">
                     <h2>{t('results:locationComparison.title')}</h2>
-                    <div>{firstAddressName}</div>
-                    <div>{secondAddressName}</div>
+                    <div>{firstAddress.name}</div>
+                    <div>{secondAddress.name}</div>
                 </section>
 
                 {/* Costs Section */}
                 <section id="costs-section">
                     <h3 id="costs-section-title">{t('results:locationComparison.costsTitle')}</h3>
                     <div id="button-group-costs" className="button-group">
-                        <button className="active" type="button">
+                        <button
+                            className={costPeriod === 'monthly' ? 'active' : 'inactive'}
+                            type="button"
+                            aria-pressed={costPeriod === 'monthly'}
+                            onClick={() => setCostPeriod('monthly')}
+                        >
                             {t('results:locationComparison.costsMonthly')}
                         </button>
-                        {/* TODO: Add annual and 25 years buttons when this is implemented */}
-                        {/* <button className="inactive" type="button">
+                        <button
+                            className={costPeriod === 'annual' ? 'active' : 'inactive'}
+                            type="button"
+                            aria-pressed={costPeriod === 'annual'}
+                            onClick={() => setCostPeriod('annual')}
+                        >
                             {t('results:locationComparison.costsAnnual')}
                         </button>
-                        <button className="inactive" type="button">
+                        {/* TODO: Add 25 years buttons when this is implemented */}
+                        {/* <button className="inactive" type="button">
                             {t('results:locationComparison.costs25years')}
                         </button> */}
                     </div>
@@ -411,37 +497,61 @@ export const LocalisationResultsSection: React.FC<SectionProps> = (props: Sectio
                         id="housing-cost-item-1"
                         label={t('results:locationComparison.costsHousing')}
                         icon={<HomeIcon translation={t} />}
-                        value={firstAddressHousingCost}
+                        value={adjustCostByPeriod({
+                            value: firstAddress.housingCost,
+                            period: costPeriod,
+                            translation: t
+                        })}
                     />
                     <CostItem
                         id="transport-cost-item-1"
                         label={t('results:locationComparison.costsTransport')}
                         icon={<CarIcon translation={t} />}
-                        value={firstAddressTransportCost}
+                        value={adjustCostByPeriod({
+                            value: firstAddress.transportCost,
+                            period: costPeriod,
+                            translation: t
+                        })}
                     />
                     <CostItem
                         id="housing-cost-item-2"
                         label={t('results:locationComparison.costsHousing')}
                         icon={<HomeIcon translation={t} />}
-                        value={secondAddressHousingCost}
+                        value={adjustCostByPeriod({
+                            value: secondAddress.housingCost,
+                            period: costPeriod,
+                            translation: t
+                        })}
                     />
                     <CostItem
                         id="transport-cost-item-2"
                         label={t('results:locationComparison.costsTransport')}
                         icon={<CarIcon translation={t} />}
-                        value={secondAddressTransportCost}
+                        value={adjustCostByPeriod({
+                            value: secondAddress.transportCost,
+                            period: costPeriod,
+                            translation: t
+                        })}
                     />
 
                     <TotalCostItem
                         id="total-cost-item-1"
-                        totalCost={firstAddressTotalCost}
-                        percentageOfIncome={firstAddressHousingCostPercentageOfIncome.toString()}
+                        totalCost={adjustCostByPeriod({
+                            value: firstAddress.totalCost,
+                            period: costPeriod,
+                            translation: t
+                        })}
+                        percentageOfIncome={firstAddress.housingCostPercentageOfIncome}
                         translation={t}
                     />
                     <TotalCostItem
                         id="total-cost-item-2"
-                        totalCost={secondAddressTotalCost}
-                        percentageOfIncome={secondAddressHousingCostPercentageOfIncome.toString()}
+                        totalCost={adjustCostByPeriod({
+                            value: secondAddress.totalCost,
+                            period: costPeriod,
+                            translation: t
+                        })}
+                        percentageOfIncome={secondAddress.housingCostPercentageOfIncome}
                         translation={t}
                     />
 
@@ -496,26 +606,17 @@ export const LocalisationResultsSection: React.FC<SectionProps> = (props: Sectio
                         }
 
                         // Get rows for each address
-                        const firstAddressRows = destinationRows.filter((d) => d.homeAddressUuid === firstAddressUuid);
+                        const firstAddressRows = destinationRows.filter((d) => d.homeAddressUuid === firstAddress.uuid);
                         const secondAddressRows = destinationRows.filter(
-                            (d) => d.homeAddressUuid === secondAddressUuid
+                            (d) => d.homeAddressUuid === secondAddress.uuid
                         );
-
-                        // Get address names for titles (without "For " prefix)
-                        const firstAddressDisplayName =
-                            firstAddress?.name ??
-                            t('results:locationComparison.defaultAddressName', {
-                                number: 1
-                            });
-                        const secondAddressDisplayName =
-                            secondAddress?.name ?? t('results:locationComparison.defaultAddressName', { number: 2 });
 
                         // Return the frequent destinations columns
                         return (
                             <div key={destinationUuid} className="frequent-destinations-columns">
                                 <FrequentDestinationColumn
                                     title={t('results:locationComparison.frequentDestinationsFrom', {
-                                        address: firstAddressDisplayName,
+                                        address: firstAddress.displayName,
                                         destination: destinationNameForDisplay
                                     })}
                                     rows={firstAddressRows}
@@ -523,7 +624,7 @@ export const LocalisationResultsSection: React.FC<SectionProps> = (props: Sectio
                                 />
                                 <FrequentDestinationColumn
                                     title={t('results:locationComparison.frequentDestinationsFrom', {
-                                        address: secondAddressDisplayName,
+                                        address: secondAddress.displayName,
                                         destination: destinationNameForDisplay
                                     })}
                                     rows={secondAddressRows}
