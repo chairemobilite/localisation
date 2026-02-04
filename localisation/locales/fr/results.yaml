@@ -17,7 +17,7 @@ locationComparison.costs25years: 25 ans
 locationComparison.costsHousing: Logement
 locationComparison.costsTransport: Transports
 locationComparison.costsTotal: Total
-locationComparison.costsPercentageOfIncome: '{{percentageOfIncome}}% du revenu brut'
+locationComparison.costsPercentageOfIncome: ({{percentageOfIncome}}% du revenu brut)
 locationComparison.tooMuchSpendingWarning: >-
     Il est à noter qu'il n'est pas recommandé de consacrer plus de 45 % de son revenu
     brut au logement et aux transports.

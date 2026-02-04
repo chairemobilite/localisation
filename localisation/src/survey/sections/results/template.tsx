@@ -226,24 +226,23 @@ const CostItem: React.FC<CostItemProps> = ({ id, label, icon, value }) => (
 type TotalCostItemProps = {
     id: string; // e.g., "total-cost-item-1"
     totalCost: string | number | undefined; // Total cost value
-    percentageOfIncome: string | undefined; // Percentage string
+    percentageOfIncome: string | null | undefined; // Percentage string
 };
 
 // Total cost item component
 const TotalCostItem: React.FC<TotalCostItemProps & { translation: TFunction }> = ({
     id,
     totalCost,
-    percentageOfIncome: _percentageOfIncome,
+    percentageOfIncome,
     translation
 }) => {
     return (
         <div id={id} className="value-item">
             <div>{translation('results:locationComparison.costsTotal')}</div>
             <div>{formatCurrency({ value: totalCost })}</div>
-            {/* TODO: Add percentageOfIncome when this is implemented */}
-            {/* {percentageOfIncome !== undefined && (
+            {percentageOfIncome !== undefined && percentageOfIncome !== null && (
                 <div>{translation('results:locationComparison.costsPercentageOfIncome', { percentageOfIncome })}</div>
-            )} */}
+            )}
         </div>
     );
 };
@@ -321,7 +320,7 @@ type AddressInfo = {
     housingCost: string | number;
     transportCost: string | number;
     totalCost: string | number;
-    housingCostPercentageOfIncome: string;
+    housingAndTransportCostPercentageOfIncome: string | undefined;
     routingTimeDistances: RoutingTimeDistances;
     displayName: string; // Name without "For " prefix
 };
@@ -358,7 +357,10 @@ const getAddressesInfo = ({
         const housingCost = address?.monthlyCost?.housingCostMonthly ?? translation('results:notApplicable');
         const transportCost = address?.monthlyCost?.carCostMonthly ?? translation('results:notApplicable');
         const totalCost = address?.monthlyCost?.totalCostMonthly ?? translation('results:notApplicable');
-        const housingCostPercentageOfIncome = address?.monthlyCost?.housingCostPercentageOfIncome?.toString() ?? '0';
+        const housingAndTransportCostPercentageOfIncome =
+            typeof address?.monthlyCost?.housingAndTransportCostPercentageOfIncome === 'number'
+                ? address.monthlyCost.housingAndTransportCostPercentageOfIncome.toString()
+                : undefined;
         const routingTimeDistances = address?.routingTimeDistances || {};
         const displayName =
             address?.name ?? translation('results:locationComparison.defaultAddressName', { number: addressNumber });
@@ -370,7 +372,7 @@ const getAddressesInfo = ({
             housingCost,
             transportCost,
             totalCost,
-            housingCostPercentageOfIncome,
+            housingAndTransportCostPercentageOfIncome,
             routingTimeDistances: routingTimeDistances as RoutingTimeDistances,
             displayName
         };
@@ -541,7 +543,7 @@ export const LocalisationResultsSection: React.FC<SectionProps> = (props: Sectio
                             period: costPeriod,
                             translation: t
                         })}
-                        percentageOfIncome={firstAddress.housingCostPercentageOfIncome}
+                        percentageOfIncome={firstAddress.housingAndTransportCostPercentageOfIncome}
                         translation={t}
                     />
                     <TotalCostItem
@@ -551,7 +553,7 @@ export const LocalisationResultsSection: React.FC<SectionProps> = (props: Sectio
                             period: costPeriod,
                             translation: t
                         })}
-                        percentageOfIncome={secondAddress.housingCostPercentageOfIncome}
+                        percentageOfIncome={secondAddress.housingAndTransportCostPercentageOfIncome}
                         translation={t}
                     />
 

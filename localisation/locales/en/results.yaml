@@ -17,7 +17,7 @@ locationComparison.costs25years: 25-years
 locationComparison.costsHousing: Housing
 locationComparison.costsTransport: Transport
 locationComparison.costsTotal: Total
-locationComparison.costsPercentageOfIncome: '{{percentageOfIncome}}% of gross income'
+locationComparison.costsPercentageOfIncome: ({{percentageOfIncome}}% of gross income)
 locationComparison.tooMuchSpendingWarning: >-
     Note that it is not recommended to spend more than 45% of gross income on housing
     and transportation.

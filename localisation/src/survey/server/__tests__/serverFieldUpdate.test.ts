@@ -157,7 +157,7 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
 
             mockCalculateMonthlyCost.mockReturnValue({
                 housingCostMonthly: 1200,
-                housingCostPercentageOfIncome: null,
+                housingAndTransportCostPercentageOfIncome: null,
                 carCostMonthly: 350,
                 totalCostMonthly: 1550
             });
@@ -170,7 +170,7 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
             expect('addresses.address-1.monthlyCost' in result).toBe(true);
             expect(result['addresses.address-1.monthlyCost']).toEqual({
                 housingCostMonthly: 1200,
-                housingCostPercentageOfIncome: null,
+                housingAndTransportCostPercentageOfIncome: null,
                 carCostMonthly: 350,
                 totalCostMonthly: 1550
             });
@@ -194,7 +194,7 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
 
             mockCalculateMonthlyCost.mockReturnValue({
                 housingCostMonthly: 2244.81,
-                housingCostPercentageOfIncome: null,
+                housingAndTransportCostPercentageOfIncome: null,
                 carCostMonthly: 450,
                 totalCostMonthly: 2694.81
             });
@@ -207,7 +207,7 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
             expect('addresses.address-1.monthlyCost' in result).toBe(true);
             expect(result['addresses.address-1.monthlyCost'].housingCostMonthly).toBeGreaterThan(2200);
             expect(result['addresses.address-1.monthlyCost'].housingCostMonthly).toBeLessThan(2300);
-            expect(result['addresses.address-1.monthlyCost'].housingCostPercentageOfIncome).toBeNull();
+            expect(result['addresses.address-1.monthlyCost'].housingAndTransportCostPercentageOfIncome).toBeNull();
             expect(result['addresses.address-1.monthlyCost'].carCostMonthly).toBe(450);
             expect('addresses.address-1.accessibilityMapsByMode' in result).toBe(true);
             expect(result['addresses.address-1.accessibilityMapsByMode']).toEqual(mockAccessibilityMapsByModeResult);
@@ -235,13 +235,13 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
             mockCalculateMonthlyCost
                 .mockReturnValueOnce({
                     housingCostMonthly: 1200,
-                    housingCostPercentageOfIncome: null,
+                    housingAndTransportCostPercentageOfIncome: null,
                     carCostMonthly: 300,
                     totalCostMonthly: 1500
                 })
                 .mockReturnValueOnce({
                     housingCostMonthly: 1650,
-                    housingCostPercentageOfIncome: null,
+                    housingAndTransportCostPercentageOfIncome: null,
                     carCostMonthly: 400,
                     totalCostMonthly: 2050
                 });
@@ -291,13 +291,13 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
             mockCalculateMonthlyCost
                 .mockReturnValueOnce({
                     housingCostMonthly: 1200,
-                    housingCostPercentageOfIncome: null,
+                    housingAndTransportCostPercentageOfIncome: null,
                     carCostMonthly: 310,
                     totalCostMonthly: 1510
                 })
                 .mockReturnValueOnce({
                     housingCostMonthly: null,
-                    housingCostPercentageOfIncome: null,
+                    housingAndTransportCostPercentageOfIncome: null,
                     carCostMonthly: null,
                     totalCostMonthly: null
                 });
@@ -398,7 +398,7 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
 
             mockCalculateMonthlyCost.mockReturnValue({
                 housingCostMonthly: 1200,
-                housingCostPercentageOfIncome: null,
+                housingAndTransportCostPercentageOfIncome: null,
                 carCostMonthly: 250,
                 totalCostMonthly: 1450
             });
@@ -474,13 +474,13 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
             mockCalculateMonthlyCost
                 .mockReturnValueOnce({
                     housingCostMonthly: 1200,
-                    housingCostPercentageOfIncome: null,
+                    housingAndTransportCostPercentageOfIncome: null,
                     carCostMonthly: 330,
                     totalCostMonthly: 1530
                 })
                 .mockReturnValueOnce({
                     housingCostMonthly: null,
-                    housingCostPercentageOfIncome: null,
+                    housingAndTransportCostPercentageOfIncome: null,
                     carCostMonthly: null,
                     totalCostMonthly: null
                 });
@@ -523,13 +523,13 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
             mockCalculateMonthlyCost
                 .mockReturnValueOnce({
                     housingCostMonthly: 1200,
-                    housingCostPercentageOfIncome: null,
+                    housingAndTransportCostPercentageOfIncome: null,
                     carCostMonthly: 290,
                     totalCostMonthly: 1490
                 })
                 .mockReturnValueOnce({
                     housingCostMonthly: 1100,
-                    housingCostPercentageOfIncome: null,
+                    housingAndTransportCostPercentageOfIncome: null,
                     carCostMonthly: 270,
                     totalCostMonthly: 1370
                 });
@@ -571,7 +571,7 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
 
             mockCalculateMonthlyCost.mockReturnValue({
                 housingCostMonthly: 1200,
-                housingCostPercentageOfIncome: null,
+                housingAndTransportCostPercentageOfIncome: null,
                 carCostMonthly: null,
                 totalCostMonthly: null
             });
@@ -603,7 +603,7 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
 
             mockCalculateMonthlyCost.mockReturnValue({
                 housingCostMonthly: 1200,
-                housingCostPercentageOfIncome: null,
+                housingAndTransportCostPercentageOfIncome: null,
                 carCostMonthly: 320,
                 totalCostMonthly: 1520
             });
@@ -623,7 +623,7 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
             expect('addresses.address-1.monthlyCost' in result).toBe(true);
             expect(result['addresses.address-1.monthlyCost']).toEqual({
                 housingCostMonthly: 1200,
-                housingCostPercentageOfIncome: null,
+                housingAndTransportCostPercentageOfIncome: null,
                 carCostMonthly: 320,
                 totalCostMonthly: 1520
             });
@@ -648,7 +648,7 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
 
             mockCalculateMonthlyCost.mockReturnValue({
                 housingCostMonthly: 1200,
-                housingCostPercentageOfIncome: null,
+                housingAndTransportCostPercentageOfIncome: null,
                 carCostMonthly: 280,
                 totalCostMonthly: 1480
             });
@@ -666,4 +666,5 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
             expect(mockCalculateAccessibilityAndRouting).toHaveBeenCalledWith(address2, interview);
         });
     });
+
 });
