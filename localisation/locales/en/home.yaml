@@ -10,5 +10,6 @@ household.size: >-
     yourself and children.</span>
 household.income: >-
     What was your <strong>household's income range</strong> before taxes (gross income),
-    in 2024?
+    in 2024?<br /><span class="_pale _oblique">This information is used to calculate
+    the percentage of gross income spent on transportation and housing.</span>
 home.save: Save and continue

@@ -11,7 +11,6 @@ import { Address, AddressAccessibilityMapsDurations, Destination, RoutingByModeD
 import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { mortgageMonthlyPayment } from '../mortgage';
 import { getAccessibilityMapFromAddressForSimpleModes, getAccessibilityMapFromAddressForTransit, getRoutingFromAddressToDestination } from '../routingAndAccessibility';
-import { mock } from 'node:test';
 
 jest.mock('../mortgage', () => ({
         mortgageMonthlyPayment: jest.fn()
@@ -303,9 +302,93 @@ describe('calculateMonthlyCost', () => {
     });
 
     describe('Income percentage calculation', () => {
-        it.todo('should return null when income is missing');
+        it.each([
+            { income: 60000, description: 'number' },
+            { income: '60000', description: 'numeric string' }
+        ])('should return correct percentage for numeric income ($description)', ({ income }) => {
+            const interview = _cloneDeep(mockInterview);
+            interview.response.household = { income } as any;
 
-        it.todo('should return correct percentage of income for housing cost');
+            const address: Address = {
+                _sequence: 1,
+                _uuid: 'address-1',
+                ownership: 'rent',
+                rentMonthly: 1200,
+                areUtilitiesIncluded: true
+            };
+
+            // (1200 * 12) / 60000 * 100 = 24
+            const result = calculateMonthlyCost(address, interview);
+            expect(result.housingAndTransportCostPercentageOfIncome).toBe(24);
+        });
+
+        it('should return correct percentage for income range string', () => {
+            const interview = _cloneDeep(mockInterview);
+            interview.response.household = { income: '050000_059999' } as any;
+            // Make sure there are no vehicles influencing transport cost
+            interview.response.cars = {};
+
+            const address: Address = {
+                _sequence: 1,
+                _uuid: 'address-1',
+                ownership: 'rent',
+                rentMonthly: 2000,
+                areUtilitiesIncluded: true
+            };
+
+            // averageAnnualIncome = (50000 + 59999) / 2 = 54999.5
+            // annualCost = 2000 * 12 = 24000
+            // percentage = 24000 / 54999.5 * 100 = 43.6 -> rounded to 0 decimals => 44
+            const result = calculateMonthlyCost(address, interview);
+            expect(result.housingAndTransportCostPercentageOfIncome).toBe(44);
+        });
+
+        it.each([
+            { household: {}, description: 'when income is missing' },
+            { household: { income: 0 }, description: 'when income is 0 to avoid division by zero' },
+            { household: { income: 'dontKnow' }, description: 'for special income value dontKnow' },
+            { household: { income: 'refusal' }, description: 'for special income value refusal' }
+        ])('should return null $description', ({ household }) => {
+            const interview = _cloneDeep(mockInterview);
+            interview.response.household = household as any;
+
+            const address: Address = {
+                _sequence: 1,
+                _uuid: 'address-1',
+                ownership: 'rent',
+                rentMonthly: 1200,
+                areUtilitiesIncluded: true
+            };
+
+            const result = calculateMonthlyCost(address, interview);
+            expect(result.housingAndTransportCostPercentageOfIncome).toBeNull();
+        });
+
+        it('should use minimum value for open-ended upper bracket to avoid underestimating percentage', () => {
+            const interview = _cloneDeep(mockInterview);
+            // Open-ended bracket: "$210,000 and more" (210000_999999)
+            interview.response.household = { income: '210000_999999' } as any;
+            // Make sure there are no vehicles influencing transport cost
+            interview.response.cars = {};
+
+            const address: Address = {
+                _sequence: 1,
+                _uuid: 'address-1',
+                ownership: 'rent',
+                rentMonthly: 2000,
+                areUtilitiesIncluded: true
+            };
+
+            // For open-ended bracket, we use the minimum (210000) instead of average
+            // If we used average: (210000 + 999999) / 2 = 604999.5
+            //   percentage = 24000 / 604999.5 * 100 = 4% (severely underestimated!)
+            // Using minimum: 210000
+            //   percentage = 24000 / 210000 * 100 = 11.4 -> rounded to 0 decimals => 11
+            // This gives a more conservative (higher) estimate that doesn't underestimate
+            // the percentage for someone earning, say, $220,000
+            const result = calculateMonthlyCost(address, interview);
+            expect(result.housingAndTransportCostPercentageOfIncome).toBe(11);
+        });
     });
 
     describe('Vehicle cost calculation', () => {

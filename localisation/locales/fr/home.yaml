@@ -10,5 +10,6 @@ household.size: >-
     _oblique">Y compris vous-même et les enfants.</span>
 household.income: >-
     <strong>Tranche de revenu</strong> avant impôts (brut) <strong>du ménage</strong>,
-    en 2024?
+    en 2024?<br /><span class="_pale _oblique">Cette information sert à calculer le
+    pourcentage du revenu brut consacré aux transports et au logement.</span>
 home.save: Enregistrer et continuer

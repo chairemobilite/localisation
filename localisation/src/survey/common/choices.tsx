@@ -194,17 +194,17 @@ export const householdIncomeChoices: ChoiceType[] = [
         }
     },
     {
-        value: '150000_199999',
+        value: '150000_209999',
         label: {
-            fr: '150 000$ à 199 999$',
-            en: '$150,000 to $199,999'
+            fr: '150 000$ à 209 999$',
+            en: '$150,000 to $209,999'
         }
     },
     {
-        value: '200000_999999',
+        value: '210000_999999',
         label: {
-            fr: '200 000 $ et plus',
-            en: '$200,000 and more'
+            fr: '210 000$ et plus',
+            en: '$210,000 and more'
         }
     },
     {

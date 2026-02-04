@@ -68,13 +68,106 @@ const calculateMonthlyHousingCost = (address: Address): number | null => {
     }
 };
 
-const calculatePercentageIncomeForHousing = (
-    monthlyHousingCost: number,
-    interview: InterviewAttributes
-): number | null => {
+// Calculate the percentage of income spent on housing and transport
+const calculatePercentageIncomeForHousingAndTransport = ({
+    monthlyHousingCost,
+    monthlyTransportCost,
+    interview
+}: {
+    monthlyHousingCost: number;
+    monthlyTransportCost: number;
+    interview: InterviewAttributes;
+}): number | null => {
     const income = getResponse(interview, 'household.income');
-    // TODO Implement
-    return null;
+
+    // Return null if income is not available
+    if (income === null || income === undefined) {
+        return null;
+    }
+
+    // Return null for special values
+    if (income === 'dontKnow' || income === 'refusal') {
+        return null;
+    }
+
+    let averageAnnualIncome: number;
+
+    // Handle numeric income values (number or numeric string)
+    if (typeof income === 'number') {
+        averageAnnualIncome = income;
+    } else if (typeof income === 'string') {
+        // If it's a range string, parse min/max and compute the average
+        if (income.includes('_')) {
+            // Parse the income range value (e.g., '010000_019999' -> [10000, 19999])
+            const parts = income.split('_');
+            if (parts.length !== 2) {
+                console.error('Invalid income format:', income);
+                return null;
+            }
+
+            // Parse the income range values
+            const minIncome = parseInt(parts[0], 10);
+            const maxIncome = parseInt(parts[1], 10);
+
+            // Return null if the income range values are not numbers
+            if (isNaN(minIncome) || isNaN(maxIncome)) {
+                console.error('Invalid income range values:', income);
+                return null;
+            }
+
+            // For open-ended upper brackets (e.g., "210000_999999" meaning "$210,000 and more"),
+            // use the minimum value instead of the average to avoid underestimating the percentage.
+            // Using the average would skew results significantly (e.g., someone earning $220,000
+            // would have their percentage calculated as if they earned ~$605,000, making it appear
+            // much lower than it actually is).
+            const isOpenEndedUpperBracket = maxIncome >= 999999;
+            if (isOpenEndedUpperBracket) {
+                averageAnnualIncome = minIncome;
+            } else {
+                // Calculate the average of the income range for closed ranges
+                averageAnnualIncome = (minIncome + maxIncome) / 2;
+            }
+        } else {
+            // String doesn't contain underscore, so it should be a direct numeric value (e.g., "60000" or "60000.5")
+            // First, remove any leading/trailing whitespace
+            const trimmedIncome = income.trim();
+
+            // Validate that the string contains only digits and optionally a decimal point
+            // Regex explanation: ^[0-9]+(\.[0-9]+)?$
+            //   ^[0-9]+     - Start of string, one or more digits
+            //   (\.[0-9]+)? - Optionally: a decimal point followed by one or more digits
+            //   $           - End of string
+            // This ensures the entire string is numeric (e.g., "60000", "60000.5") and rejects invalid formats
+            const isNumericString = /^[0-9]+(\.[0-9]+)?$/.test(trimmedIncome);
+
+            if (!isNumericString) {
+                console.error('Invalid income format:', income);
+                return null;
+            }
+
+            // Parse the validated numeric string to a number
+            averageAnnualIncome = parseFloat(trimmedIncome);
+        }
+    } else {
+        // Invalid type
+        console.error('Invalid income type:', income);
+        return null;
+    }
+
+    // Validate that averageAnnualIncome is a positive number to avoid division by zero
+    if (!isFinite(averageAnnualIncome) || averageAnnualIncome <= 0) {
+        return null;
+    }
+
+    // Calculate annual housing cost and transport cost
+    const annualHousingCost = monthlyHousingCost * 12;
+    const annualTransportCost = monthlyTransportCost * 12;
+
+    // Calculate percentage of income spent on housing and transport
+    const percentage = ((annualHousingCost + annualTransportCost) / averageAnnualIncome) * 100;
+
+    // Round to 0 decimal places
+    return Math.round(percentage);
 };
 
 // Calculate the monthly car cost for the interview. Will return null if there is missing information or any unknown category/engine
@@ -109,20 +202,31 @@ const calculateMonthlyCarCost = (_address: Address, interview: InterviewAttribut
  */
 export const calculateMonthlyCost = (address: Address, interview: InterviewAttributes): CalculationResults => {
     // Calculate the housing cost
-    const housingCost = calculateMonthlyHousingCost(address);
-    const housingCostPercentage =
-        housingCost !== null ? calculatePercentageIncomeForHousing(housingCost, interview) : null;
+    const monthlyHousingCost = calculateMonthlyHousingCost(address);
 
     // Calculate the cost of car ownership associated with this address (for now it does not depend on the address, but leave it here for future extensions)
-    const carCostMonthly = calculateMonthlyCarCost(address, interview);
+    const monthlyCarCost = calculateMonthlyCarCost(address, interview);
 
-    const totalMonthlyCost = housingCost !== null && carCostMonthly !== null ? housingCost + carCostMonthly : null;
+    // Calculate the percentage of income spent on housing and transport
+    const housingAndTransportCostPercentageOfIncome =
+        monthlyHousingCost !== null && monthlyCarCost !== null
+            ? calculatePercentageIncomeForHousingAndTransport({
+                monthlyHousingCost,
+                // TODO: Right now, we are only considering the car cost; we should add the cost of other transport options like public transport, biking, etc.
+                monthlyTransportCost: monthlyCarCost,
+                interview
+            })
+            : null;
+
+    // Calculate the total monthly cost
+    const totalMonthlyCost =
+        monthlyHousingCost !== null && monthlyCarCost !== null ? monthlyHousingCost + monthlyCarCost : null;
 
     // TODO Add cost of transportation options associated with this address
     return {
-        housingCostMonthly: housingCost,
-        housingCostPercentageOfIncome: housingCostPercentage,
-        carCostMonthly: carCostMonthly,
+        housingCostMonthly: monthlyHousingCost,
+        carCostMonthly: monthlyCarCost,
+        housingAndTransportCostPercentageOfIncome,
         totalCostMonthly: totalMonthlyCost
     };
 };

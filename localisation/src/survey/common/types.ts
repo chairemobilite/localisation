@@ -101,8 +101,8 @@ export type Vehicle = {
 export type CalculationResults = {
     /** Monthly cost for housing. Can be null if there is missing information */
     housingCostMonthly: number | null;
-    /** Percentage of income spent on housing. Can be null if there is missing information */
-    housingCostPercentageOfIncome: number | null;
+    /** Percentage of income spent on housing and transport. Can be null if there is missing information */
+    housingAndTransportCostPercentageOfIncome: number | null;
     /** Monthly cost for car possession. Can be null if there is missing information or errors */
     carCostMonthly: number | null;
     /** Precomputed total, only if both housing and car costs are available, null otherwise */
