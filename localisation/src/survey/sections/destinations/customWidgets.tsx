@@ -3,9 +3,13 @@ import { TFunction } from 'i18next';
 import { GroupConfig, InputMapFindPlaceType } from 'evolution-common/lib/services/questionnaire/types';
 import config from 'evolution-common/lib/config/project.config';
 import { formatGeocodingQueryStringFromMultipleFields, getResponse } from 'evolution-common/lib/utils/helpers';
-import { getActivityMarkerIcon } from 'evolution-common/lib/services/questionnaire/sections/visitedPlaces/activityIconMapping';
+// import { getActivityMarkerIcon } from 'evolution-common/lib/services/questionnaire/sections/visitedPlaces/activityIconMapping';
 import { defaultInvalidGeocodingResultTypes } from '../../common/customGeoData';
 import { getGeographyCustomValidation } from '../../common/customValidations';
+import { getDestinationsArray } from '../../common/customHelpers';
+
+const MIN_DESTINATIONS = 1;
+const MAX_DESTINATIONS = 10;
 
 // Groups information widgets for individual destinations.
 export const frequentVisitedPlaces: GroupConfig = {
@@ -17,17 +21,25 @@ export const frequentVisitedPlaces: GroupConfig = {
     },
     name: {
         fr: function (groupedObject: any, sequence, _interview) {
-            return `Destination ${sequence || groupedObject['_sequence']}`;
+            return `Destination #${sequence || groupedObject['_sequence']}`;
         },
         en: function (groupedObject: any, sequence, _interview) {
-            return `Destination ${sequence || groupedObject['_sequence']}`;
+            return `Destination #${sequence || groupedObject['_sequence']}`;
         }
     },
     showGroupedObjectDeleteButton: function (interview, _path) {
-        return false;
+        const destinations = getDestinationsArray(interview);
+        const destinationsCount = destinations.length;
+
+        // Only show the delete button if there are more than 1 destination
+        return destinationsCount > MIN_DESTINATIONS;
     },
-    showGroupedObjectAddButton: function (_interview, _path) {
-        return false;
+    showGroupedObjectAddButton: function (interview, _path) {
+        const destinations = getDestinationsArray(interview);
+        const destinationsCount = destinations.length;
+
+        // Only show the add button if there are less than 10 destinations
+        return destinationsCount < MAX_DESTINATIONS;
     },
     groupedObjectAddButtonLabel: (t: TFunction) => t('destinations:addGroupedObject'),
     groupedObjectDeleteButtonLabel: (t: TFunction) => t('destinations:deleteThisGroupedObject'),
