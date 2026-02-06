@@ -36,3 +36,15 @@ modeNames.walking: Marche
 modeNames.cycling: Vélo
 modeNames.driving: Voiture
 modeNames.transit: Transport collectif
+accessibilityPanel.title: Accessibilité
+accessibilityPanel.locationsTitle: Logement
+accessibilityPanel.bothAddresses: Les deux
+accessibilityPanel.firstAddressOnly: 'Logement #1'
+accessibilityPanel.secondAddressOnly: 'Logement #2'
+accessibilityPanel.travelTimeTitle: Temps de trajet
+accessibilityPanel.15min: 15 min.
+accessibilityPanel.30min: 30 min.
+accessibilityPanel.45min: 45 min.
+accessibilityPanel.modeOfTransportTitle: Mode de transport
+accessibilityPanel.minimize: Réduire la fenêtre
+accessibilityPanel.expand: Agrandir la fenêtre

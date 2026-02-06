@@ -35,3 +35,15 @@ modeNames.walking: Walking
 modeNames.cycling: Cycling
 modeNames.driving: Driving
 modeNames.transit: Transit
+accessibilityPanel.title: Accessibility
+accessibilityPanel.locationsTitle: Locations
+accessibilityPanel.bothAddresses: Both
+accessibilityPanel.firstAddressOnly: 'House #1'
+accessibilityPanel.secondAddressOnly: 'House #2'
+accessibilityPanel.travelTimeTitle: Travel time
+accessibilityPanel.15min: 15 min.
+accessibilityPanel.30min: 30 min.
+accessibilityPanel.45min: 45 min.
+accessibilityPanel.modeOfTransportTitle: Mode of transport
+accessibilityPanel.minimize: Minimize the panel
+accessibilityPanel.expand: Maximize the panel
