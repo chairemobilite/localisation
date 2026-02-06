@@ -47,6 +47,7 @@
     "moment": "^2.30.1",
     "moment-business-days": "^1.2.0",
     "moment-timezone": "^0.5.48",
+    "onnxruntime-node": "^1.24.1",
     "papaparse": "^5.5.3",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
