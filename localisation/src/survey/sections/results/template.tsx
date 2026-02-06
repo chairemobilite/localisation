@@ -413,11 +413,159 @@ const getAddressesInfo = ({
     };
 };
 
+// Accessibility Panel Component
+type AccessibilityPanelProps = {
+    translation: TFunction;
+    selectedLocation: 'both' | 'first' | 'second';
+    setSelectedLocation: (location: 'both' | 'first' | 'second') => void;
+    selectedTravelTime: '15' | '30' | '45';
+    setSelectedTravelTime: (time: '15' | '30' | '45') => void;
+    selectedMode: 'walking' | 'cycling' | 'transit';
+    setSelectedMode: (mode: 'walking' | 'cycling' | 'transit') => void;
+};
+
+// Accessibility panel component
+const AccessibilityPanel: React.FC<AccessibilityPanelProps> = ({
+    translation: t,
+    selectedLocation,
+    setSelectedLocation,
+    selectedTravelTime,
+    setSelectedTravelTime,
+    selectedMode,
+    setSelectedMode
+}) => {
+    const [isMinimized, setIsMinimized] = useState(false); // Whether the panel is minimized
+
+    return (
+        <section className="accessibility-panel">
+            <div className="accessibility-panel-header">
+                <h2>{t('results:accessibilityPanel.title')}</h2>
+
+                {/* Minimize/expand button */}
+                <button
+                    type="button"
+                    onClick={() => setIsMinimized(!isMinimized)}
+                    aria-label={
+                        isMinimized ? t('results:accessibilityPanel.expand') : t('results:accessibilityPanel.minimize')
+                    }
+                    aria-expanded={!isMinimized}
+                    className="button-action"
+                >
+                    {isMinimized ? '+' : '−'}
+                </button>
+            </div>
+
+            {!isMinimized && (
+                <>
+                    {/* Locations section */}
+                    <section>
+                        <h3>{t('results:accessibilityPanel.locationsTitle')}</h3>
+                        <div id="button-group-costs" className="button-group">
+                            <button
+                                className={selectedLocation === 'both' ? 'active' : 'inactive'}
+                                type="button"
+                                aria-pressed={selectedLocation === 'both'}
+                                onClick={() => setSelectedLocation('both')}
+                            >
+                                {t('results:accessibilityPanel.bothAddresses')}
+                            </button>
+                            <button
+                                className={selectedLocation === 'first' ? 'active' : 'inactive'}
+                                type="button"
+                                aria-pressed={selectedLocation === 'first'}
+                                onClick={() => setSelectedLocation('first')}
+                            >
+                                {t('results:accessibilityPanel.firstAddressOnly')}
+                            </button>
+                            <button
+                                className={selectedLocation === 'second' ? 'active' : 'inactive'}
+                                type="button"
+                                aria-pressed={selectedLocation === 'second'}
+                                onClick={() => setSelectedLocation('second')}
+                            >
+                                {t('results:accessibilityPanel.secondAddressOnly')}
+                            </button>
+                        </div>
+                    </section>
+
+                    {/* Travel time section */}
+                    <section>
+                        <h3>{t('results:accessibilityPanel.travelTimeTitle')}</h3>
+                        <div id="button-group-travel-time" className="button-group">
+                            <button
+                                className={selectedTravelTime === '15' ? 'active' : 'inactive'}
+                                type="button"
+                                aria-pressed={selectedTravelTime === '15'}
+                                onClick={() => setSelectedTravelTime('15')}
+                            >
+                                {t('results:accessibilityPanel.15min')}
+                            </button>
+                            <button
+                                className={selectedTravelTime === '30' ? 'active' : 'inactive'}
+                                type="button"
+                                aria-pressed={selectedTravelTime === '30'}
+                                onClick={() => setSelectedTravelTime('30')}
+                            >
+                                {t('results:accessibilityPanel.30min')}
+                            </button>
+                            <button
+                                className={selectedTravelTime === '45' ? 'active' : 'inactive'}
+                                type="button"
+                                aria-pressed={selectedTravelTime === '45'}
+                                onClick={() => setSelectedTravelTime('45')}
+                            >
+                                {t('results:accessibilityPanel.45min')}
+                            </button>
+                        </div>
+                    </section>
+
+                    {/* Mode of transport section */}
+                    <section>
+                        <h3>{t('results:accessibilityPanel.modeOfTransportTitle')}</h3>
+                        <div id="button-group-mode-of-transport" className="button-group">
+                            <button
+                                className={selectedMode === 'walking' ? 'active' : 'inactive'}
+                                type="button"
+                                aria-pressed={selectedMode === 'walking'}
+                                onClick={() => setSelectedMode('walking')}
+                            >
+                                {getModeSvg({ translation: t, mode: 'walking' })}
+                                {t('results:modeNames.walking')}
+                            </button>
+                            <button
+                                className={selectedMode === 'cycling' ? 'active' : 'inactive'}
+                                type="button"
+                                aria-pressed={selectedMode === 'cycling'}
+                                onClick={() => setSelectedMode('cycling')}
+                            >
+                                {getModeSvg({ translation: t, mode: 'cycling' })}
+                                {t('results:modeNames.cycling')}
+                            </button>
+                            <button
+                                className={selectedMode === 'transit' ? 'active' : 'inactive'}
+                                type="button"
+                                aria-pressed={selectedMode === 'transit'}
+                                onClick={() => setSelectedMode('transit')}
+                            >
+                                {getModeSvg({ translation: t, mode: 'transit' })}
+                                {t('results:modeNames.transit')}
+                            </button>
+                        </div>
+                    </section>
+                </>
+            )}
+        </section>
+    );
+};
+
 // Main component to render the results section
 export const LocalisationResultsSection: React.FC<SectionProps> = (props: SectionProps) => {
     const { preloaded } = useSectionTemplate(props);
     const { t } = useTranslation();
     const [costPeriod, setCostPeriod] = useState<'monthly' | 'annual'>('monthly');
+    const [selectedLocation, setSelectedLocation] = useState<'both' | 'first' | 'second'>('both');
+    const [selectedTravelTime, setSelectedTravelTime] = useState<'15' | '30' | '45'>('15');
+    const [selectedMode, setSelectedMode] = useState<'walking' | 'cycling' | 'transit'>('walking');
 
     if (!preloaded) {
         return <LoadingPage />;
@@ -459,6 +607,17 @@ export const LocalisationResultsSection: React.FC<SectionProps> = (props: Sectio
         <section className={`survey-section survey-section-shortname-${props.shortname}`}>
             {/* Map on the left side */}
             <div className="survey-visited-places-map">{widgetsComponentsByShortname['comparisonMap']}</div>
+
+            {/* Accessibility panel on top of the map on the left side */}
+            <AccessibilityPanel
+                translation={t}
+                selectedLocation={selectedLocation}
+                setSelectedLocation={setSelectedLocation}
+                selectedTravelTime={selectedTravelTime}
+                setSelectedTravelTime={setSelectedTravelTime}
+                selectedMode={selectedMode}
+                setSelectedMode={setSelectedMode}
+            />
 
             {/* Location comparison on the right side */}
             <section className="location-comparison">
