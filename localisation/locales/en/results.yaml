@@ -45,5 +45,5 @@ accessibilityPanel.15min: 15 min.
 accessibilityPanel.30min: 30 min.
 accessibilityPanel.45min: 45 min.
 accessibilityPanel.modeOfTransportTitle: Mode of transport
-accessibilityPanel.minimize: Minimize the panel
-accessibilityPanel.expand: Maximize the panel
+accessibilityPanel.collapse: Collapse the panel
+accessibilityPanel.expand: Expand the panel

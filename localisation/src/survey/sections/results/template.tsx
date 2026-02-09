@@ -4,10 +4,9 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import React, { useEffect, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
-// import _capitalize from 'lodash/capitalize';
 import { Widget } from 'evolution-frontend/lib/components/survey/Widget';
 import type { Address, DestinationResult } from 'localisation/src/survey/common/types.ts';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
@@ -15,14 +14,11 @@ import LoadingPage from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
 import { SectionProps, useSectionTemplate } from 'evolution-frontend/lib/components/hooks/useSectionTemplate';
 import { getAddressesArray, getDestinationsArray } from '../../common/customHelpers';
 import type { UserRuntimeInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
+import type { AccessibilityPanelAttrs } from '../../common/types';
 
 // Modified interview attributes with accessibility panel
 type ModifiedInterviewAttributes = UserRuntimeInterviewAttributes & {
-    accessibilityPanel: {
-        selectedLocation: 'both' | 'first' | 'second';
-        selectedTravelTime: '15' | '30' | '45';
-        selectedMode: 'walking' | 'cycling' | 'transit';
-    };
+    accessibilityPanel: Required<AccessibilityPanelAttrs>;
 };
 
 // This matches the structure of Address.routingTimeDistances
@@ -454,7 +450,7 @@ const AccessibilityPanel: React.FC<AccessibilityPanelProps> = ({
                     type="button"
                     onClick={() => setIsMinimized(!isMinimized)}
                     aria-label={
-                        isMinimized ? t('results:accessibilityPanel.expand') : t('results:accessibilityPanel.minimize')
+                        isMinimized ? t('results:accessibilityPanel.expand') : t('results:accessibilityPanel.collapse')
                     }
                     aria-expanded={!isMinimized}
                     className="button-action"
@@ -468,7 +464,7 @@ const AccessibilityPanel: React.FC<AccessibilityPanelProps> = ({
                     {/* Locations section */}
                     <section>
                         <h3>{t('results:accessibilityPanel.locationsTitle')}</h3>
-                        <div id="button-group-costs" className="button-group">
+                        <div className="button-group">
                             <button
                                 className={selectedLocation === 'both' ? 'active' : 'inactive'}
                                 type="button"
@@ -574,19 +570,17 @@ export const LocalisationResultsSection: React.FC<SectionProps> = (props: Sectio
     const [selectedLocation, setSelectedLocation] = useState<'both' | 'first' | 'second'>('both');
     const [selectedTravelTime, setSelectedTravelTime] = useState<'15' | '30' | '45'>('30');
     const [selectedMode, setSelectedMode] = useState<'walking' | 'cycling' | 'transit'>('transit');
-    const [modifiedInterview, setModifiedInterview] = useState<ModifiedInterviewAttributes>({
-        ...props.interview,
-        accessibilityPanel: { selectedLocation, selectedTravelTime, selectedMode }
-    } as ModifiedInterviewAttributes);
 
-    // Update the interview with the selected location, travel time, and mode when they change
-    // So that the map is updated with the new selected location, travel time, and mode
-    useEffect(() => {
-        setModifiedInterview({
+    // Compute the modified interview with accessibility panel settings using useMemo to avoid stale renders
+    // TODO: This is a workaround to sent data to the custom widgets.
+    // TODO: We should find a better way to save the data in the interview.
+    const modifiedInterview = useMemo<ModifiedInterviewAttributes>(
+        () => ({
             ...props.interview,
             accessibilityPanel: { selectedLocation, selectedTravelTime, selectedMode }
-        } as ModifiedInterviewAttributes);
-    }, [selectedLocation, selectedTravelTime, selectedMode, props.interview]);
+        }),
+        [props.interview, selectedLocation, selectedTravelTime, selectedMode]
+    );
 
     // Return the loading page if the interview is not preloaded
     if (!preloaded) {
@@ -613,7 +607,7 @@ export const LocalisationResultsSection: React.FC<SectionProps> = (props: Sectio
                 currentWidgetShortname={widgetShortname}
                 nextWidgetShortname={props.sectionConfig.widgets[i + 1]}
                 sectionName={props.shortname}
-                interview={modifiedInterview as ModifiedInterviewAttributes} // Use the modified interview (ModifiedInterviewAttributes) to update the map with the new selected location, travel time, and mode
+                interview={modifiedInterview} // Use the modified interview (ModifiedInterviewAttributes) to update the map with the new selected location, travel time, and mode
                 errors={props.errors}
                 user={props.user}
                 loadingState={props.loadingState}
@@ -632,7 +626,6 @@ export const LocalisationResultsSection: React.FC<SectionProps> = (props: Sectio
 
             {/* Accessibility panel on top of the map on the left side */}
             <AccessibilityPanel
-                translation={t}
                 selectedLocation={selectedLocation}
                 setSelectedLocation={setSelectedLocation}
                 selectedTravelTime={selectedTravelTime}

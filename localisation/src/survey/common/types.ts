@@ -117,3 +117,13 @@ export type DestinationResult = {
     distanceMeters?: number;
     travelTimeSeconds?: number;
 };
+
+/**
+ * Accessibility panel attributes for filtering and displaying accessibility maps.
+ * All properties are optional to allow for partial data during runtime.
+ */
+export type AccessibilityPanelAttrs = {
+    selectedLocation?: 'both' | 'first' | 'second';
+    selectedTravelTime?: '15' | '30' | '45';
+    selectedMode?: 'walking' | 'cycling' | 'transit';
+};
