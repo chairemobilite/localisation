@@ -25,6 +25,7 @@ const mockCalculateAccessibilityAndRouting = calculations.calculateAccessibility
 
 describe('serverFieldUpdate - _sections._actions callback', () => {
     const sectionsActionsCallback = serverFieldUpdate.find(callback => callback.field === '_sections._actions')!;
+    const registerUpdateOperationMock = jest.fn();
 
     const mockAccessibilityMap: AddressAccessibilityMapsDurations = {
         duration15Minutes: null,
@@ -152,7 +153,15 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
                 _uuid: 'address-1',
                 ownership: 'rent',
                 rentMonthly: 1200,
-                areUtilitiesIncluded: true
+                areUtilitiesIncluded: true,
+                geography: {
+                    type: 'Feature',
+                    geometry: {
+                        type: 'Point',
+                        coordinates: [-73.5674, 45.5019]
+                    },
+                    properties: {}
+                }
             };
 
             mockCalculateMonthlyCost.mockReturnValue({
@@ -165,7 +174,7 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
             const interview = createMockInterview({ 'address-1': address });
             const value = [{ section: 'results' }];
 
-            const result = await sectionsActionsCallback.callback(interview, value) as any;
+            const result = await sectionsActionsCallback.callback(interview, value, 'path', registerUpdateOperationMock) as any;
 
             expect('addresses.address-1.monthlyCost' in result).toBe(true);
             expect(result['addresses.address-1.monthlyCost']).toEqual({
@@ -175,9 +184,20 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
                 totalCostMonthly: 1550
             });
             expect('addresses.address-1.accessibilityMapsByMode' in result).toBe(true);
-            expect(result['addresses.address-1.accessibilityMapsByMode']).toEqual(mockAccessibilityMapsByModeResult);
+            expect(result['addresses.address-1.accessibilityMapsByMode']).toEqual('calculating');
             expect(mockCalculateMonthlyCost).toHaveBeenCalledWith(address, interview);
+            expect(registerUpdateOperationMock).toHaveBeenCalledWith({
+                opName: `addressCalculations${address._uuid}`,
+                opUniqueId: 1,
+                operation: expect.any(Function)
+            });
+
+            // Get the the 'operation' part of the argument passed to the registered operation and execute it to check if it returns the expected accessibility and routing results
+            const registeredOperation = registerUpdateOperationMock.mock.calls[0][0].operation;
+            const accessibilityAndRoutingResult = await registeredOperation(() => false);
+            expect(accessibilityAndRoutingResult['addresses.address-1.accessibilityMapsByMode']).toEqual(mockAccessibilityMapsByModeResult);
             expect(mockCalculateAccessibilityAndRouting).toHaveBeenCalledWith(address, interview);
+
         });
 
         it('should calculate monthly cost and accessibility map for single mortgage address when navigating to results section', async () => {
@@ -189,7 +209,15 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
                 interestRate: 5,
                 amortizationPeriodInYears: '25',
                 taxesYearly: 3600,
-                utilitiesMonthly: 200
+                utilitiesMonthly: 200,
+                geography: {
+                    type: 'Feature',
+                    geometry: {
+                        type: 'Point',
+                        coordinates: [-73.5674, 45.5019]
+                    },
+                    properties: {}
+                }
             };
 
             mockCalculateMonthlyCost.mockReturnValue({
@@ -202,7 +230,7 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
             const interview = createMockInterview({ 'address-1': address });
             const value = [{ section: 'results' }];
 
-            const result = await sectionsActionsCallback.callback(interview, value) as any;
+            const result = await sectionsActionsCallback.callback(interview, value, 'path', registerUpdateOperationMock) as any;
 
             expect('addresses.address-1.monthlyCost' in result).toBe(true);
             expect(result['addresses.address-1.monthlyCost'].housingCostMonthly).toBeGreaterThan(2200);
@@ -210,8 +238,22 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
             expect(result['addresses.address-1.monthlyCost'].housingAndTransportCostPercentageOfIncome).toBeNull();
             expect(result['addresses.address-1.monthlyCost'].carCostMonthly).toBe(450);
             expect('addresses.address-1.accessibilityMapsByMode' in result).toBe(true);
-            expect(result['addresses.address-1.accessibilityMapsByMode']).toEqual(mockAccessibilityMapsByModeResult);
-            expect(result['addresses.address-1.routingTimeDistances']).toEqual(mockRoutingTimeDistances);
+            expect(result['addresses.address-1.accessibilityMapsByMode']).toEqual('calculating');
+            expect(result['addresses.address-1.routingTimeDistances']).toEqual('calculating');
+
+            // Validate register update callback call
+            expect(registerUpdateOperationMock).toHaveBeenCalledWith({
+                opName: `addressCalculations${address._uuid}`,
+                opUniqueId: 1,
+                operation: expect.any(Function)
+            });
+
+            // Get the the 'operation' part of the argument passed to the registered operation and execute it to check if it returns the expected accessibility and routing results
+            const registeredOperation = registerUpdateOperationMock.mock.calls[0][0].operation;
+            const accessibilityAndRoutingResult = await registeredOperation(() => false);
+            expect(accessibilityAndRoutingResult['addresses.address-1.accessibilityMapsByMode']).toEqual(mockAccessibilityMapsByModeResult);
+            expect(accessibilityAndRoutingResult['addresses.address-1.routingTimeDistances']).toEqual(mockRoutingTimeDistances);
+            expect(mockCalculateAccessibilityAndRouting).toHaveBeenCalledWith(address, interview);
         });
 
         it('should calculate monthly cost and accessibility maps for multiple addresses when navigating to results section', async () => {
@@ -220,7 +262,15 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
                 _uuid: 'address-1',
                 ownership: 'rent',
                 rentMonthly: 1200,
-                areUtilitiesIncluded: true
+                areUtilitiesIncluded: true,
+                geography: {
+                    type: 'Feature',
+                    geometry: {
+                        type: 'Point',
+                        coordinates: [-73.5674, 45.5019]
+                    },
+                    properties: {}
+                }
             };
 
             const address2: Address = {
@@ -229,7 +279,15 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
                 ownership: 'rent',
                 rentMonthly: 1500,
                 areUtilitiesIncluded: false,
-                utilitiesMonthly: 150
+                utilitiesMonthly: 150,
+                geography: {
+                    type: 'Feature',
+                    geometry: {
+                        type: 'Point',
+                        coordinates: [-73.3333, 45.4444]
+                    },
+                    properties: {}
+                }
             };
 
             mockCalculateMonthlyCost
@@ -252,7 +310,7 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
             });
             const value = [{ section: 'results' }];
 
-            const result = await sectionsActionsCallback.callback(interview, value) as any;
+            const result = await sectionsActionsCallback.callback(interview, value, 'path', registerUpdateOperationMock) as any;
 
             expect('addresses.address-1.monthlyCost' in result).toBe(true);
             expect('addresses.address-2.monthlyCost' in result).toBe(true);
@@ -263,13 +321,39 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
             expect(result['addresses.address-1.monthlyCost'].carCostMonthly).toBe(300);
             expect(result['addresses.address-2.monthlyCost'].housingCostMonthly).toBe(1650);
             expect(result['addresses.address-2.monthlyCost'].carCostMonthly).toBe(400);
-            expect(result['addresses.address-1.accessibilityMapsByMode']).toEqual(mockAccessibilityMapsByModeResult);
-            expect(result['addresses.address-2.accessibilityMapsByMode']).toEqual(mockAccessibilityMapsByModeResult);
-            expect(result['addresses.address-1.routingTimeDistances']).toEqual(mockRoutingTimeDistances);
-            expect(result['addresses.address-2.routingTimeDistances']).toEqual(mockRoutingTimeDistances);
+            expect(result['addresses.address-1.accessibilityMapsByMode']).toEqual('calculating');
+            expect(result['addresses.address-2.accessibilityMapsByMode']).toEqual('calculating');
+            expect(result['addresses.address-1.routingTimeDistances']).toEqual('calculating');
+            expect(result['addresses.address-2.routingTimeDistances']).toEqual('calculating');
             
             expect(mockCalculateMonthlyCost).toHaveBeenCalledTimes(2);
-            expect(mockCalculateAccessibilityAndRouting).toHaveBeenCalledTimes(2);
+
+            // Validate register update callback call for both addresses
+            expect(registerUpdateOperationMock).toHaveBeenCalledWith({
+                opName: `addressCalculations${address1._uuid}`,
+                opUniqueId: 1,
+                operation: expect.any(Function)
+            });
+            expect(registerUpdateOperationMock).toHaveBeenCalledWith({
+                opName: `addressCalculations${address2._uuid}`,
+                opUniqueId: 1,
+                operation: expect.any(Function)
+            });
+
+            // Get the the 'operation' part of the argument passed to the registered operation and execute it to check if it returns the expected accessibility and routing results
+            // For the first address
+            const registeredOperation = registerUpdateOperationMock.mock.calls[0][0].operation;
+            const accessibilityAndRoutingResult = await registeredOperation(() => false);
+            expect(accessibilityAndRoutingResult['addresses.address-1.accessibilityMapsByMode']).toEqual(mockAccessibilityMapsByModeResult);
+            expect(accessibilityAndRoutingResult['addresses.address-1.routingTimeDistances']).toEqual(mockRoutingTimeDistances);
+            // For the second address
+            const registeredOperationAddress2 = registerUpdateOperationMock.mock.calls[1][0].operation;
+            const accessibilityAndRoutingResultAddress2 = await registeredOperationAddress2(() => false);
+            expect(accessibilityAndRoutingResultAddress2['addresses.address-2.accessibilityMapsByMode']).toEqual(mockAccessibilityMapsByModeResult);
+            expect(accessibilityAndRoutingResultAddress2['addresses.address-2.routingTimeDistances']).toEqual(mockRoutingTimeDistances);
+            // Validate calls to calculation functions
+            expect(mockCalculateAccessibilityAndRouting).toHaveBeenCalledWith(address1, interview);
+            expect(mockCalculateAccessibilityAndRouting).toHaveBeenCalledWith(address2, interview);
         });
 
         it('should handle addresses with incomplete data gracefully', async () => {
@@ -313,7 +397,7 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
             });
             const value = [{ section: 'results' }];
 
-            const result = await sectionsActionsCallback.callback(interview, value) as any;
+            const result = await sectionsActionsCallback.callback(interview, value, 'path', registerUpdateOperationMock) as any;
 
             expect(result['addresses.address-1.monthlyCost'].housingCostMonthly).toBe(1200);
             expect(result['addresses.address-1.monthlyCost'].carCostMonthly).toBe(310);
@@ -323,13 +407,66 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
             expect('addresses.address-2.accessibilityMapsByMode' in result).toBe(true);
             expect('addresses.address-1.routingTimeDistances' in result).toBe(true);
             expect('addresses.address-2.routingTimeDistances' in result).toBe(true);
+            expect(result['addresses.address-1.accessibilityMapsByMode']).toBeNull();
+            expect(result['addresses.address-2.accessibilityMapsByMode']).toBeNull();
+            expect(result['addresses.address-1.routingTimeDistances']).toBeNull();
+            expect(result['addresses.address-2.routingTimeDistances']).toBeNull();
+
+            // No geography, this function should not have been called and results should be null
+            expect(registerUpdateOperationMock).not.toHaveBeenCalled();
+        });
+
+        it('should calculate monthly cost and ignore accessibility map and routing if registerUpdateOperation is not set', async () => {
+            const address: Address = {
+                _sequence: 1,
+                _uuid: 'address-1',
+                ownership: 'buy',
+                mortgage: 300000,
+                interestRate: 5,
+                amortizationPeriodInYears: '25',
+                taxesYearly: 3600,
+                utilitiesMonthly: 200,
+                geography: {
+                    type: 'Feature',
+                    geometry: {
+                        type: 'Point',
+                        coordinates: [-73.5674, 45.5019]
+                    },
+                    properties: {}
+                }
+            };
+
+            mockCalculateMonthlyCost.mockReturnValue({
+                housingCostMonthly: 2244.81,
+                housingAndTransportCostPercentageOfIncome: null,
+                carCostMonthly: 450,
+                totalCostMonthly: 2694.81
+            });
+
+            const interview = createMockInterview({ 'address-1': address });
+            const value = [{ section: 'results' }];
+
+            // Calling the callback without the registerUpdateOperation argument to simulate the admin mode case
+            const result = await sectionsActionsCallback.callback(interview, value, 'path') as any;
+
+            expect('addresses.address-1.monthlyCost' in result).toBe(true);
+            expect(result['addresses.address-1.monthlyCost'].housingCostMonthly).toBeGreaterThan(2200);
+            expect(result['addresses.address-1.monthlyCost'].housingCostMonthly).toBeLessThan(2300);
+            expect(result['addresses.address-1.monthlyCost'].housingAndTransportCostPercentageOfIncome).toBeNull();
+            expect(result['addresses.address-1.monthlyCost'].carCostMonthly).toBe(450);
+            expect('addresses.address-1.accessibilityMapsByMode' in result).toBe(true);
+            expect(result['addresses.address-1.accessibilityMapsByMode']).toEqual(null);
+            expect(result['addresses.address-1.routingTimeDistances']).toEqual(null);
+
+            // Validate register update callback call
+            expect(registerUpdateOperationMock).not.toHaveBeenCalled();
         });
 
         it('should return empty object when no addresses exist', async () => {
             const interview = createMockInterview({});
             const value = [{ section: 'results' }];
 
-            const result = await sectionsActionsCallback.callback(interview, value);
+            const result = await sectionsActionsCallback.callback(interview, value, 'path', registerUpdateOperationMock);
 
             expect(result).toEqual({});
         });
@@ -348,7 +485,7 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
             const interview = createMockInterview({ 'address-1': address });
             const value = [{ section: 'profile' }];
 
-            const result = await sectionsActionsCallback.callback(interview, value);
+            const result = await sectionsActionsCallback.callback(interview, value, 'path', registerUpdateOperationMock);
 
             expect(result).toEqual({});
         });
@@ -365,7 +502,7 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
             const interview = createMockInterview({ 'address-1': address });
             const value = { section: 'results' };
 
-            const result = await sectionsActionsCallback.callback(interview, value);
+            const result = await sectionsActionsCallback.callback(interview, value, 'path', registerUpdateOperationMock);
 
             expect(result).toEqual({});
         });
@@ -382,7 +519,7 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
             const interview = createMockInterview({ 'address-1': address });
             const value: any[] = [];
 
-            const result = await sectionsActionsCallback.callback(interview, value);
+            const result = await sectionsActionsCallback.callback(interview, value, 'path', registerUpdateOperationMock);
 
             expect(result).toEqual({});
         });
@@ -406,7 +543,7 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
             const interview = createMockInterview({ 'address-1': address });
             const value = [{ section: 'profile' }, { section: 'addresses' }, { section: 'results' }];
 
-            const result = await sectionsActionsCallback.callback(interview, value) as any;
+            const result = await sectionsActionsCallback.callback(interview, value, 'path', registerUpdateOperationMock) as any;
 
             expect('addresses.address-1.monthlyCost' in result).toBe(true);
             expect(result['addresses.address-1.monthlyCost'].housingCostMonthly).toBe(1200);
@@ -426,7 +563,7 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
             const interview = createMockInterview({ 'address-1': address });
             const value = [{ section: 'results' }, { section: 'profile' }];
 
-            const result = await sectionsActionsCallback.callback(interview, value);
+            const result = await sectionsActionsCallback.callback(interview, value, 'path', registerUpdateOperationMock);
 
             expect(result).toEqual({});
         });
@@ -447,7 +584,7 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
 
             const value = [{ section: 'results' }];
 
-            const result = await sectionsActionsCallback.callback(invalidInterview, value);
+            const result = await sectionsActionsCallback.callback(invalidInterview, value, 'path', registerUpdateOperationMock);
 
             expect(result).toEqual({});
         });
@@ -491,7 +628,7 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
             });
             const value = [{ section: 'results' }];
 
-            const result = await sectionsActionsCallback.callback(interview, value) as any;
+            const result = await sectionsActionsCallback.callback(interview, value, 'path', registerUpdateOperationMock) as any;
 
             // Should still process valid address
             expect(result['addresses.address-1.monthlyCost'].housingCostMonthly).toBe(1200);
@@ -541,7 +678,7 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
             });
             const value = [{ section: 'results' }];
 
-            const result = await sectionsActionsCallback.callback(interview, value) as any;
+            const result = await sectionsActionsCallback.callback(interview, value, 'path', registerUpdateOperationMock) as any;
 
             // All addresses should be calculated regardless of order
             expect('addresses.address-1.monthlyCost' in result).toBe(true);
@@ -566,7 +703,15 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
                 _uuid: 'address-1',
                 ownership: 'rent',
                 rentMonthly: 1200,
-                areUtilitiesIncluded: true
+                areUtilitiesIncluded: true,
+                geography: {
+                    type: 'Feature',
+                    geometry: {
+                        type: 'Point',
+                        coordinates: [-73.5674, 45.5019]
+                    },
+                    properties: { }
+                }
             };
 
             mockCalculateMonthlyCost.mockReturnValue({
@@ -584,12 +729,24 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
             const interview = createMockInterview({ 'address-1': address });
             const value = [{ section: 'results' }];
 
-            const result = await sectionsActionsCallback.callback(interview, value) as any;
+            const result = await sectionsActionsCallback.callback(interview, value, 'path', registerUpdateOperationMock) as any;
 
-            expect('addresses.address-1.accessibilityMapsByMode' in result).toBe(true);
-            expect(result['addresses.address-1.accessibilityMapsByMode']).toBeNull();
-            expect('addresses.address-1.routingTimeDistances' in result).toBe(true);
-            expect(result['addresses.address-1.routingTimeDistances']).toBeNull();
+            expect(result['addresses.address-1.accessibilityMapsByMode']).toEqual('calculating');
+            expect(result['addresses.address-1.routingTimeDistances']).toEqual('calculating');
+
+            // Validate register update callback call
+            expect(registerUpdateOperationMock).toHaveBeenCalledWith({
+                opName: `addressCalculations${address._uuid}`,
+                opUniqueId: 1,
+                operation: expect.any(Function)
+            });
+
+            // Get the the 'operation' part of the argument passed to the registered operation and execute it to check if it returns the expected accessibility and routing results
+            const registeredOperation = registerUpdateOperationMock.mock.calls[0][0].operation;
+            const accessibilityAndRoutingResult = await registeredOperation(() => false);
+
+            expect(accessibilityAndRoutingResult['addresses.address-1.accessibilityMapsByMode']).toEqual(null);
+            expect(accessibilityAndRoutingResult['addresses.address-1.routingTimeDistances']).toEqual(null);
         });
 
         it('should handle accessibility map calculation errors and still return the monthly costs', async () => {
@@ -598,7 +755,15 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
                 _uuid: 'address-1',
                 ownership: 'rent',
                 rentMonthly: 1200,
-                areUtilitiesIncluded: true
+                areUtilitiesIncluded: true,
+                geography: {
+                    type: 'Feature',
+                    geometry: {
+                        type: 'Point',
+                        coordinates: [-73.5674, 45.5019]
+                    },
+                    properties: { }
+                }
             };
 
             mockCalculateMonthlyCost.mockReturnValue({
@@ -613,13 +778,9 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
             const interview = createMockInterview({ 'address-1': address });
             const value = [{ section: 'results' }];
 
-            const result = await sectionsActionsCallback.callback(interview, value) as any;
+            const result = await sectionsActionsCallback.callback(interview, value, 'path', registerUpdateOperationMock) as any;
 
             // Should return a partial object with null accessibility map but monthly cost results
-            expect('addresses.address-1.accessibilityMapsByMode' in result).toBe(true);
-            expect(result['addresses.address-1.accessibilityMapsByMode']).toBeNull();
-            expect('addresses.address-1.routingTimeDistances' in result).toBe(true);
-            expect(result['addresses.address-1.routingTimeDistances']).toBeNull();
             expect('addresses.address-1.monthlyCost' in result).toBe(true);
             expect(result['addresses.address-1.monthlyCost']).toEqual({
                 housingCostMonthly: 1200,
@@ -627,44 +788,22 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
                 carCostMonthly: 320,
                 totalCostMonthly: 1520
             });
-        });
 
-        it('should call calculateAccessibilityAndRouting for each address', async () => {
-            const address1: Address = {
-                _sequence: 1,
-                _uuid: 'address-1',
-                ownership: 'rent',
-                rentMonthly: 1200,
-                areUtilitiesIncluded: true
-            };
-
-            const address2: Address = {
-                _sequence: 2,
-                _uuid: 'address-2',
-                ownership: 'rent',
-                rentMonthly: 1500,
-                areUtilitiesIncluded: true
-            };
-
-            mockCalculateMonthlyCost.mockReturnValue({
-                housingCostMonthly: 1200,
-                housingAndTransportCostPercentageOfIncome: null,
-                carCostMonthly: 280,
-                totalCostMonthly: 1480
+            // Validate register update callback call
+            expect(registerUpdateOperationMock).toHaveBeenCalledWith({
+                opName: `addressCalculations${address._uuid}`,
+                opUniqueId: 1,
+                operation: expect.any(Function)
             });
 
-            const interview = createMockInterview({
-                'address-1': address1,
-                'address-2': address2
-            });
-            const value = [{ section: 'results' }];
+            // Get the the 'operation' part of the argument passed to the registered operation and execute it to check if it returns the expected accessibility and routing results
+            const registeredOperation = registerUpdateOperationMock.mock.calls[0][0].operation;
+            const accessibilityAndRoutingResult = await registeredOperation(() => false);
 
-            await sectionsActionsCallback.callback(interview, value);
-
-            expect(mockCalculateAccessibilityAndRouting).toHaveBeenCalledTimes(2);
-            expect(mockCalculateAccessibilityAndRouting).toHaveBeenCalledWith(address1, interview);
-            expect(mockCalculateAccessibilityAndRouting).toHaveBeenCalledWith(address2, interview);
+            expect(accessibilityAndRoutingResult['addresses.address-1.accessibilityMapsByMode']).toEqual(null);
+            expect(accessibilityAndRoutingResult['addresses.address-1.routingTimeDistances']).toEqual(null);
         });
+
     });
 
 });

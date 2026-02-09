@@ -98,6 +98,11 @@ export const comparisonMap: InfoMapWidgetConfig = {
             addressGeography.properties!.sequence = address._sequence;
             pointGeographies.push(addressGeography);
 
+            // Skip if the accessibility map is still being calculated
+            if (address.accessibilityMapsByMode === 'calculating') {
+                continue;
+            }
+
             // Transform the selected travel time to the property name of the accessibility map
             const durationProperty = `duration${selectedTravelTime}Minutes` as
                 | 'duration15Minutes'

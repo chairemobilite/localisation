@@ -27,15 +27,21 @@ export type Address = {
     // Monthly utilities cost
     utilitiesMonthly?: number;
     monthlyCost?: CalculationResults;
-    accessibilityMapsByMode?: {
-        walking: AddressAccessibilityMapsDurations | null;
-        cycling: AddressAccessibilityMapsDurations | null;
-        driving: AddressAccessibilityMapsDurations | null;
-        transit: AddressAccessibilityMapsDurations | null;
-    } | null;
-    routingTimeDistances?: {
-        [destinationUuid: string]: RoutingByModeDistanceAndTime | null;
-    } | null;
+    accessibilityMapsByMode?:
+        | {
+              walking: AddressAccessibilityMapsDurations | null;
+              cycling: AddressAccessibilityMapsDurations | null;
+              driving: AddressAccessibilityMapsDurations | null;
+              transit: AddressAccessibilityMapsDurations | null;
+          }
+        | null
+        | 'calculating';
+    routingTimeDistances?:
+        | {
+              [destinationUuid: string]: RoutingByModeDistanceAndTime | null;
+          }
+        | null
+        | 'calculating';
 };
 
 export type AddressAccessibilityMapsDurations = {

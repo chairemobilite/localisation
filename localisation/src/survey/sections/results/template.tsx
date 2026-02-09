@@ -4,9 +4,10 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
+import { v4 as uuidV4 } from 'uuid';
 import { Widget } from 'evolution-frontend/lib/components/survey/Widget';
 import type { Address, DestinationResult } from 'localisation/src/survey/common/types.ts';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
@@ -192,7 +193,7 @@ const buildFrequentDestinations = ({
     routingTimeDistances,
     homeAddressUuid
 }: {
-    routingTimeDistances: RoutingTimeDistances;
+    routingTimeDistances: Exclude<Address['routingTimeDistances'], null | 'calculating'>;
     homeAddressUuid: string;
 }): DestinationResult[] => {
     return Object.entries(routingTimeDistances).flatMap(([destinationUuid, destinationResult]) => {
@@ -274,17 +275,15 @@ type FrequentDestinationCardProps = {
     result: DestinationResult;
 };
 
-const FrequentDestinationCard: React.FC<FrequentDestinationCardProps & { translation: TFunction }> = ({
-    result,
-    translation
-}) => {
-    const modeSvg = getModeSvg({ translation, mode: result.mode });
+const FrequentDestinationCard: React.FC<FrequentDestinationCardProps> = ({ result }) => {
+    const { t } = useTranslation();
+    const modeSvg = getModeSvg({ translation: t, mode: result.mode });
 
     return (
         <div className="value-item">
             <div className="frequent-destination-mode">
                 {modeSvg}
-                <span>{translation(`results:modeNames.${result.mode}`)}</span>
+                <span>{t(`results:modeNames.${result.mode}`)}</span>
             </div>
             <div>
                 {formatTime({ seconds: result.travelTimeSeconds })} ({formatDistance({ meters: result.distanceMeters })}
@@ -298,20 +297,17 @@ const FrequentDestinationCard: React.FC<FrequentDestinationCardProps & { transla
 type FrequentDestinationColumnProps = {
     title: string;
     rows: DestinationResult[];
+    hasResult: boolean;
 };
 
-const FrequentDestinationColumn: React.FC<FrequentDestinationColumnProps & { translation: TFunction }> = ({
-    title,
-    rows,
-    translation
-}) => (
+const FrequentDestinationColumn: React.FC<FrequentDestinationColumnProps> = ({ title, rows, hasResult }) => (
     <section className="frequent-destinations-section-container">
         <h4>{title}</h4>
+        {!hasResult && <LoadingPage />}
         {rows.map((row) => (
             <FrequentDestinationCard
                 key={`${row.homeAddressUuid}-${row.destinationAddressUuid}-${row.mode}`}
                 result={row}
-                translation={translation}
             />
         ))}
     </section>
@@ -328,6 +324,8 @@ type AddressInfo = {
     housingAndTransportCostPercentageOfIncome: string | undefined;
     routingTimeDistances: RoutingTimeDistances;
     displayName: string; // Name without "For " prefix
+    hasAccessibilityResults: boolean; // Whether this address has accessibility results to show yet
+    hasRoutingResults: boolean; // Whether this address has routing results to show yet
 };
 
 // Helper function to get address and destination information for any address
@@ -369,6 +367,9 @@ const getAddressesInfo = ({
         const routingTimeDistances = address?.routingTimeDistances || {};
         const displayName =
             address?.name ?? translation('results:locationComparison.defaultAddressName', { number: addressNumber });
+        // These values are false if the results are still calculating, for an existing address. True for undefined addresses to not show a loading state if there is nothing to load
+        const hasAccessibilityResults = address === undefined || address.accessibilityMapsByMode !== 'calculating';
+        const hasRoutingResults = address === undefined || address.routingTimeDistances !== 'calculating';
 
         return {
             address,
@@ -379,7 +380,9 @@ const getAddressesInfo = ({
             totalCost,
             housingAndTransportCostPercentageOfIncome,
             routingTimeDistances: routingTimeDistances as RoutingTimeDistances,
-            displayName
+            displayName,
+            hasAccessibilityResults,
+            hasRoutingResults
         };
     };
 
@@ -393,13 +396,17 @@ const getAddressesInfo = ({
     // Flat list of all (home, destination, mode) combinations
     // Note: We need to check if the address UUIDs are defined to avoid errors
     const allFrequentDestinations: DestinationResult[] = [
-        ...(firstAddressInfo.uuid && firstAddressInfo.routingTimeDistances
+        ...(firstAddressInfo.uuid &&
+        firstAddressInfo.routingTimeDistances &&
+        firstAddressInfo.routingTimeDistances !== 'calculating'
             ? buildFrequentDestinations({
                 routingTimeDistances: firstAddressInfo.routingTimeDistances,
                 homeAddressUuid: firstAddressInfo.uuid
             })
             : []),
-        ...(secondAddressInfo.uuid && secondAddressInfo.routingTimeDistances
+        ...(secondAddressInfo.uuid &&
+        secondAddressInfo.routingTimeDistances &&
+        secondAddressInfo.routingTimeDistances !== 'calculating'
             ? buildFrequentDestinations({
                 routingTimeDistances: secondAddressInfo.routingTimeDistances,
                 homeAddressUuid: secondAddressInfo.uuid
@@ -426,6 +433,7 @@ type AccessibilityPanelProps = {
     setSelectedTravelTime: (time: '15' | '30' | '45') => void;
     selectedMode: 'walking' | 'cycling' | 'transit';
     setSelectedMode: (mode: 'walking' | 'cycling' | 'transit') => void;
+    hasAllAccessibilityResults: boolean; // Whether both addresses have accessibility results to show yet
 };
 
 // Accessibility panel component
@@ -435,7 +443,8 @@ const AccessibilityPanel: React.FC<AccessibilityPanelProps> = ({
     selectedTravelTime,
     setSelectedTravelTime,
     selectedMode,
-    setSelectedMode
+    setSelectedMode,
+    hasAllAccessibilityResults
 }) => {
     const { t } = useTranslation();
     const [isMinimized, setIsMinimized] = useState(false); // Whether the panel is minimized
@@ -458,8 +467,8 @@ const AccessibilityPanel: React.FC<AccessibilityPanelProps> = ({
                     {isMinimized ? '+' : '−'}
                 </button>
             </div>
-
-            {!isMinimized && (
+            {!isMinimized && !hasAllAccessibilityResults && <LoadingPage />}
+            {!isMinimized && hasAllAccessibilityResults && (
                 <>
                     {/* Locations section */}
                     <section>
@@ -562,6 +571,9 @@ const AccessibilityPanel: React.FC<AccessibilityPanelProps> = ({
     );
 };
 
+// Wait for 3 seconds before re-checking (adjust as needed, but calculations may take up to 30 seconds, so 3 seconds is ok)
+const refreshCalculationFrequencyMs = 3000;
+
 // Main component to render the results section
 export const LocalisationResultsSection: React.FC<SectionProps> = (props: SectionProps) => {
     const { preloaded } = useSectionTemplate(props);
@@ -581,6 +593,25 @@ export const LocalisationResultsSection: React.FC<SectionProps> = (props: Sectio
         }),
         [props.interview, selectedLocation, selectedTravelTime, selectedMode]
     );
+
+    useEffect(() => {
+        const addresses = getAddressesArray(props.interview);
+        const waitingForCalculations = addresses.some(
+            (address) =>
+                address.routingTimeDistances === 'calculating' || address.accessibilityMapsByMode === 'calculating'
+        );
+        if (waitingForCalculations) {
+            const timeoutId = setTimeout(() => {
+                // Just make sure to trigger an update to re-check the calculation status
+                props.startUpdateInterview({
+                    valuesByPath: { '_calculationStatus.waitingForResults': uuidV4() }
+                });
+            }, refreshCalculationFrequencyMs);
+
+            // Cleanup function to cancel the timeout on unmount
+            return () => clearTimeout(timeoutId);
+        }
+    }, [props.interview]);
 
     // Return the loading page if the interview is not preloaded
     if (!preloaded) {
@@ -632,6 +663,9 @@ export const LocalisationResultsSection: React.FC<SectionProps> = (props: Sectio
                 setSelectedTravelTime={setSelectedTravelTime}
                 selectedMode={selectedMode}
                 setSelectedMode={setSelectedMode}
+                hasAllAccessibilityResults={
+                    firstAddress.hasAccessibilityResults && secondAddress.hasAccessibilityResults
+                }
             />
 
             {/* Location comparison on the right side */}
@@ -776,11 +810,6 @@ export const LocalisationResultsSection: React.FC<SectionProps> = (props: Sectio
                             (d) => d.destinationAddressUuid === destinationUuid
                         );
 
-                        // If there are no destination rows, return null
-                        if (destinationRows.length === 0) {
-                            return null;
-                        }
-
                         // Get rows for each address
                         const firstAddressRows = destinationRows.filter((d) => d.homeAddressUuid === firstAddress.uuid);
                         const secondAddressRows = destinationRows.filter(
@@ -796,7 +825,7 @@ export const LocalisationResultsSection: React.FC<SectionProps> = (props: Sectio
                                         destination: destinationNameForDisplay
                                     })}
                                     rows={firstAddressRows}
-                                    translation={t}
+                                    hasResult={firstAddress.hasRoutingResults}
                                 />
                                 <FrequentDestinationColumn
                                     title={t('results:locationComparison.frequentDestinationsFrom', {
@@ -804,7 +833,7 @@ export const LocalisationResultsSection: React.FC<SectionProps> = (props: Sectio
                                         destination: destinationNameForDisplay
                                     })}
                                     rows={secondAddressRows}
-                                    translation={t}
+                                    hasResult={secondAddress.hasRoutingResults}
                                 />
                             </div>
                         );
