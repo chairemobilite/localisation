@@ -4,7 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
 // import _capitalize from 'lodash/capitalize';
@@ -14,7 +14,16 @@ import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import LoadingPage from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
 import { SectionProps, useSectionTemplate } from 'evolution-frontend/lib/components/hooks/useSectionTemplate';
 import { getAddressesArray, getDestinationsArray } from '../../common/customHelpers';
-import type { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
+import type { UserRuntimeInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
+
+// Modified interview attributes with accessibility panel
+type ModifiedInterviewAttributes = UserRuntimeInterviewAttributes & {
+    accessibilityPanel: {
+        selectedLocation: 'both' | 'first' | 'second';
+        selectedTravelTime: '15' | '30' | '45';
+        selectedMode: 'walking' | 'cycling' | 'transit';
+    };
+};
 
 // This matches the structure of Address.routingTimeDistances
 type RoutingTimeDistances = Address['routingTimeDistances'];
@@ -330,7 +339,7 @@ const getAddressesInfo = ({
     interview,
     translation
 }: {
-    interview: InterviewAttributes;
+    interview: UserRuntimeInterviewAttributes;
     translation: TFunction;
 }): {
     firstAddress: AddressInfo;
@@ -415,7 +424,6 @@ const getAddressesInfo = ({
 
 // Accessibility Panel Component
 type AccessibilityPanelProps = {
-    translation: TFunction;
     selectedLocation: 'both' | 'first' | 'second';
     setSelectedLocation: (location: 'both' | 'first' | 'second') => void;
     selectedTravelTime: '15' | '30' | '45';
@@ -426,7 +434,6 @@ type AccessibilityPanelProps = {
 
 // Accessibility panel component
 const AccessibilityPanel: React.FC<AccessibilityPanelProps> = ({
-    translation: t,
     selectedLocation,
     setSelectedLocation,
     selectedTravelTime,
@@ -434,6 +441,7 @@ const AccessibilityPanel: React.FC<AccessibilityPanelProps> = ({
     selectedMode,
     setSelectedMode
 }) => {
+    const { t } = useTranslation();
     const [isMinimized, setIsMinimized] = useState(false); // Whether the panel is minimized
 
     return (
@@ -564,9 +572,23 @@ export const LocalisationResultsSection: React.FC<SectionProps> = (props: Sectio
     const { t } = useTranslation();
     const [costPeriod, setCostPeriod] = useState<'monthly' | 'annual'>('monthly');
     const [selectedLocation, setSelectedLocation] = useState<'both' | 'first' | 'second'>('both');
-    const [selectedTravelTime, setSelectedTravelTime] = useState<'15' | '30' | '45'>('15');
-    const [selectedMode, setSelectedMode] = useState<'walking' | 'cycling' | 'transit'>('walking');
+    const [selectedTravelTime, setSelectedTravelTime] = useState<'15' | '30' | '45'>('30');
+    const [selectedMode, setSelectedMode] = useState<'walking' | 'cycling' | 'transit'>('transit');
+    const [modifiedInterview, setModifiedInterview] = useState<ModifiedInterviewAttributes>({
+        ...props.interview,
+        accessibilityPanel: { selectedLocation, selectedTravelTime, selectedMode }
+    } as ModifiedInterviewAttributes);
 
+    // Update the interview with the selected location, travel time, and mode when they change
+    // So that the map is updated with the new selected location, travel time, and mode
+    useEffect(() => {
+        setModifiedInterview({
+            ...props.interview,
+            accessibilityPanel: { selectedLocation, selectedTravelTime, selectedMode }
+        } as ModifiedInterviewAttributes);
+    }, [selectedLocation, selectedTravelTime, selectedMode, props.interview]);
+
+    // Return the loading page if the interview is not preloaded
     if (!preloaded) {
         return <LoadingPage />;
     }
@@ -591,7 +613,7 @@ export const LocalisationResultsSection: React.FC<SectionProps> = (props: Sectio
                 currentWidgetShortname={widgetShortname}
                 nextWidgetShortname={props.sectionConfig.widgets[i + 1]}
                 sectionName={props.shortname}
-                interview={props.interview}
+                interview={modifiedInterview as ModifiedInterviewAttributes} // Use the modified interview (ModifiedInterviewAttributes) to update the map with the new selected location, travel time, and mode
                 errors={props.errors}
                 user={props.user}
                 loadingState={props.loadingState}
