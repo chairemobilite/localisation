@@ -7,6 +7,7 @@ import {
 } from 'evolution-common/lib/services/questionnaire/types';
 import { getActivityMarkerIcon } from 'evolution-common/lib/services/questionnaire/sections/visitedPlaces/activityIconMapping';
 import { getAddressesArray, getDestinationsArray } from '../../common/customHelpers';
+import type { AccessibilityPanelAttrs } from '../../common/types';
 
 // Colors taken from a qualitative color scheme from ColorBrewer https://colorbrewer2.org/#type=qualitative&scheme=Accent&n=5
 const colorPalette = ['#7fc97f', '#beaed4', '#fdc086', '#ffff99', '#386cb0'];
@@ -41,12 +42,10 @@ export const comparisonMap: InfoMapWidgetConfig = {
 
         // Type assertion to access accessibilityPanel which may be present at runtime
         // Note: This is a workaround to access the accessibilityPanel data directly from the template file
+        // TODO: This is a workaround to access the accessibilityPanel data directly from the template file.
+        // TODO: We should find a better way to save the data in the interview.
         const interviewWithPanel = interview as UserInterviewAttributes & {
-            accessibilityPanel?: {
-                selectedLocation?: 'both' | 'first' | 'second';
-                selectedTravelTime?: '15' | '30' | '45';
-                selectedMode?: 'walking' | 'cycling' | 'transit';
-            };
+            accessibilityPanel?: AccessibilityPanelAttrs;
         };
         const selectedLocation: 'both' | 'first' | 'second' =
             interviewWithPanel?.accessibilityPanel?.selectedLocation ?? 'both';
@@ -54,30 +53,25 @@ export const comparisonMap: InfoMapWidgetConfig = {
             interviewWithPanel?.accessibilityPanel?.selectedTravelTime ?? '30';
         const selectedMode: 'walking' | 'cycling' | 'transit' =
             interviewWithPanel?.accessibilityPanel?.selectedMode ?? 'transit';
-        let addressIndex = 0; // Track index of processed addresses (used for icon selection and color palette)
-        let validAddressPosition = 0; // Track position among all valid addresses (0 = first, 1 = second, etc.)
 
         // Loop through all addresses and process the ones that are valid for the selected location, travel time, and mode
-        for (let i = 0; i < addresses.length; i++) {
-            const address = addresses[i];
+        for (let addressIndex = 0; addressIndex < addresses.length; addressIndex++) {
+            const address = addresses[addressIndex];
             if (!address.geography || address.geography.geometry?.type !== 'Point') {
                 continue;
             }
 
             // Filter addresses based on selectedLocation:
-            // - 'first': only process the first valid address (validAddressPosition === 0)
-            // - 'second': only process the second valid address (validAddressPosition === 1)
+            // - 'first': only process the first valid address (addressIndex === 0)
+            // - 'second': only process the second valid address (addressIndex === 1)
             // - 'both': process all valid addresses
             const shouldProcessAddress =
                 selectedLocation === 'both' ||
-                (selectedLocation === 'first' && validAddressPosition === 0) ||
-                (selectedLocation === 'second' && validAddressPosition === 1);
-
-            // Always increment validAddressPosition to track position among valid addresses
-            validAddressPosition++;
+                (selectedLocation === 'first' && addressIndex === 0) ||
+                (selectedLocation === 'second' && addressIndex === 1);
 
             if (!shouldProcessAddress) {
-                // Skip this address - don't increment addressIndex since we're not processing it
+                // Skip this address
                 continue;
             }
 
@@ -111,19 +105,19 @@ export const comparisonMap: InfoMapWidgetConfig = {
                 | 'duration45Minutes';
             const accessibilityMap = address.accessibilityMapsByMode?.[selectedMode]?.[durationProperty];
 
-            // Add the accesibility map polygons for the selected travel time and mode
+            // Add the accessibility map polygons for the selected travel time and mode
+            // Use addressIndex to determine color: house #1 (index 0) gets colorPalette[0], house #2 (index 1) gets colorPalette[1]
             if (accessibilityMap) {
                 const accessibilityMapPolygon = {
                     ...accessibilityMap,
                     properties: {
                         ...(accessibilityMap.properties || {}),
-                        strokeColor: colorPalette[addressIndex % colorPalette.length],
-                        fillColor: colorPalette[addressIndex % colorPalette.length]
+                        strokeColor: colorPalette[addressIndex],
+                        fillColor: colorPalette[addressIndex]
                     }
                 };
                 polygonGeographies.push(accessibilityMapPolygon);
             }
-            addressIndex++;
         }
 
         const visitedPlaces = getDestinationsArray(interview);
