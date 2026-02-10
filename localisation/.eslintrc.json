@@ -1,6 +1,7 @@
 {
     "extends": "../evolution/configs/base.eslintrc.json",
     "rules": {
-        "@typescript-eslint/no-unused-vars": ["warn", { "vars": "all", "args": "after-used", "argsIgnorePattern": "^_", "ignoreRestSiblings": false }]
+        "@typescript-eslint/no-unused-vars": ["warn", { "vars": "all", "args": "after-used", "argsIgnorePattern": "^_", "ignoreRestSiblings": false }],
+        "n/no-process-exit": "off" // Tasks need to use process.exit(), throw, as suggested, keeps the process running
     }
 }
