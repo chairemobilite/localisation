@@ -15,6 +15,8 @@ import {
 } from './routingAndAccessibility';
 import { getDestinationsArray, getVehiclesArray } from '../common/customHelpers';
 import { carCostAverageCaa } from './carcost';
+import { predictCarOwnership } from './carownership';
+import { getPersonsArray } from 'evolution-common/lib/services/odSurvey/helpers';
 
 const calculateMonthlyHousingCost = (address: Address): number | null => {
     switch (address.ownership) {
@@ -171,11 +173,30 @@ const calculatePercentageIncomeForHousingAndTransport = ({
 };
 
 // Calculate the monthly car cost for the interview. Will return null if there is missing information or any unknown category/engine
-const calculateMonthlyCarCost = (_address: Address, interview: InterviewAttributes): number | null => {
+const calculateMonthlyCarCost = async (address: Address, interview: InterviewAttributes): Promise<number | null> => {
     // FIXME Should we differentiate between no cars or missing information on car number?
     const vehicles = getVehiclesArray(interview);
+    const persons = getPersonsArray({ interview });
+    const householdSize = Object.values(persons).length;
+    const numberPermits = Object.values(persons).filter((person) => person.drivingLicenseOwnership === 'yes').length;
+    const income = getResponse(interview, 'household.income');
+    const AVERAGE_CAR_COST_ANNUAL = 9000; // TODO: Get a good value for this. This is a placeholder for now.
+
     try {
-        let totalCarCostAnnual = 0;
+        // Predict the number of cars owned by the household
+        const numberOfCarsPredicted = await predictCarOwnership({
+            geography: address.geography,
+            householdSize,
+            numberPermits,
+            income
+        });
+
+        // Define variables to store the total annual car cost, average annual car cost, and monthly car cost
+        let totalCarCostAnnual = 0; // This is the total annual car cost for all current vehicles
+        let averageCarCostAnnual = 0; // This is the average annual car cost for all current vehicles
+        let monthlyCarsCost = 0; // This is the monthly car cost for all predicted cars
+
+        // Calculate the total annual car cost for all current vehicles
         for (let i = 0; i < vehicles.length; i++) {
             const vehicle = vehicles[i];
             if (!vehicle.category || !vehicle.engineType) {
@@ -187,7 +208,22 @@ const calculateMonthlyCarCost = (_address: Address, interview: InterviewAttribut
             // FIXME This will throw an error if category or engine type are not found, See if we want to catch and act on that information. Now it just fails and return null
             totalCarCostAnnual += carCostAverageCaa(vehicle.category, vehicle.engineType);
         }
-        return totalCarCostAnnual / 12; // Return monthly cost
+
+        // We want the average annual car cost across all current vehicles,
+        // then convert that average to a monthly value.
+        if (vehicles.length === 0) {
+            // No current vehicles: use the average car cost annual
+            averageCarCostAnnual = AVERAGE_CAR_COST_ANNUAL;
+        } else {
+            // There are current vehicles: use the average car cost annual
+            averageCarCostAnnual = totalCarCostAnnual / vehicles.length;
+        }
+
+        // Calculate the monthly car cost for all predicted cars
+        monthlyCarsCost = numberOfCarsPredicted * (averageCarCostAnnual / 12);
+
+        // Return monthly car cost
+        return monthlyCarsCost;
     } catch (error) {
         console.error('Error calculating monthly car cost', error instanceof Error ? error.message : error);
         return null;
@@ -200,12 +236,15 @@ const calculateMonthlyCarCost = (_address: Address, interview: InterviewAttribut
  * @param interview The complete interview object
  * @returns
  */
-export const calculateMonthlyCost = (address: Address, interview: InterviewAttributes): CalculationResults => {
+export const calculateMonthlyCost = async (
+    address: Address,
+    interview: InterviewAttributes
+): Promise<CalculationResults> => {
     // Calculate the housing cost
     const monthlyHousingCost = calculateMonthlyHousingCost(address);
 
     // Calculate the cost of car ownership associated with this address (for now it does not depend on the address, but leave it here for future extensions)
-    const monthlyCarCost = calculateMonthlyCarCost(address, interview);
+    const monthlyCarCost = await calculateMonthlyCarCost(address, interview);
 
     // Calculate the percentage of income spent on housing and transport
     const housingAndTransportCostPercentageOfIncome =
