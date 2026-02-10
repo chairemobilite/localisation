@@ -41,7 +41,7 @@ export default [
                 const addresses = getAddressesArray(interview);
                 for (let i = 0; i < addresses.length; i++) {
                     const address = addresses[i];
-                    const calculationResults = calculateMonthlyCost(address, interview);
+                    const calculationResults = await calculateMonthlyCost(address, interview);
                     updatedValues[`addresses.${address._uuid}.monthlyCost`] = calculationResults;
                     if (registerUpdateOperation) {
                         if (address.geography && address.geography.geometry?.type === 'Point') {

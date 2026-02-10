@@ -95,7 +95,7 @@ export async function predictCarOwnership(data: {
     //    "I don't know": 10,
     //    "I prefer not to answer": 9,
     //}
-    const incomeLevel = 2;
+    const incomeLevel = 8;
 
     // TODO ensure that numberPermits is not higher than householdSize
 
