@@ -54,7 +54,7 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
         walking: mockAccessibilityMap,
         cycling: mockAccessibilityMap,
         driving: mockAccessibilityMap
-    }
+    };
     const mockRoutingTimeDistances = {
         'destination-uuid-1': {
             _uuid: 'destination-uuid-1',
@@ -164,7 +164,7 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
                 }
             };
 
-            mockCalculateMonthlyCost.mockReturnValue({
+            mockCalculateMonthlyCost.mockResolvedValue({
                 housingCostMonthly: 1200,
                 housingAndTransportCostPercentageOfIncome: null,
                 carCostMonthly: 350,
@@ -220,7 +220,7 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
                 }
             };
 
-            mockCalculateMonthlyCost.mockReturnValue({
+            mockCalculateMonthlyCost.mockResolvedValue({
                 housingCostMonthly: 2244.81,
                 housingAndTransportCostPercentageOfIncome: null,
                 carCostMonthly: 450,
@@ -291,13 +291,13 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
             };
 
             mockCalculateMonthlyCost
-                .mockReturnValueOnce({
+                .mockResolvedValueOnce({
                     housingCostMonthly: 1200,
                     housingAndTransportCostPercentageOfIncome: null,
                     carCostMonthly: 300,
                     totalCostMonthly: 1500
                 })
-                .mockReturnValueOnce({
+                .mockResolvedValueOnce({
                     housingCostMonthly: 1650,
                     housingAndTransportCostPercentageOfIncome: null,
                     carCostMonthly: 400,
@@ -373,13 +373,13 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
             };
 
             mockCalculateMonthlyCost
-                .mockReturnValueOnce({
+                .mockResolvedValueOnce({
                     housingCostMonthly: 1200,
                     housingAndTransportCostPercentageOfIncome: null,
                     carCostMonthly: 310,
                     totalCostMonthly: 1510
                 })
-                .mockReturnValueOnce({
+                .mockResolvedValueOnce({
                     housingCostMonthly: null,
                     housingAndTransportCostPercentageOfIncome: null,
                     carCostMonthly: null,
@@ -436,7 +436,7 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
                 }
             };
 
-            mockCalculateMonthlyCost.mockReturnValue({
+            mockCalculateMonthlyCost.mockResolvedValue({
                 housingCostMonthly: 2244.81,
                 housingAndTransportCostPercentageOfIncome: null,
                 carCostMonthly: 450,
@@ -533,7 +533,7 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
                 areUtilitiesIncluded: true
             };
 
-            mockCalculateMonthlyCost.mockReturnValue({
+            mockCalculateMonthlyCost.mockResolvedValue({
                 housingCostMonthly: 1200,
                 housingAndTransportCostPercentageOfIncome: null,
                 carCostMonthly: 250,
@@ -609,13 +609,13 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
             };
 
             mockCalculateMonthlyCost
-                .mockReturnValueOnce({
+                .mockResolvedValueOnce({
                     housingCostMonthly: 1200,
                     housingAndTransportCostPercentageOfIncome: null,
                     carCostMonthly: 330,
                     totalCostMonthly: 1530
                 })
-                .mockReturnValueOnce({
+                .mockResolvedValueOnce({
                     housingCostMonthly: null,
                     housingAndTransportCostPercentageOfIncome: null,
                     carCostMonthly: null,
@@ -658,13 +658,13 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
             };
 
             mockCalculateMonthlyCost
-                .mockReturnValueOnce({
+                .mockResolvedValueOnce({
                     housingCostMonthly: 1200,
                     housingAndTransportCostPercentageOfIncome: null,
                     carCostMonthly: 290,
                     totalCostMonthly: 1490
                 })
-                .mockReturnValueOnce({
+                .mockResolvedValueOnce({
                     housingCostMonthly: 1100,
                     housingAndTransportCostPercentageOfIncome: null,
                     carCostMonthly: 270,
@@ -714,7 +714,7 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
                 }
             };
 
-            mockCalculateMonthlyCost.mockReturnValue({
+            mockCalculateMonthlyCost.mockResolvedValue({
                 housingCostMonthly: 1200,
                 housingAndTransportCostPercentageOfIncome: null,
                 carCostMonthly: null,
@@ -766,7 +766,7 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
                 }
             };
 
-            mockCalculateMonthlyCost.mockReturnValue({
+            mockCalculateMonthlyCost.mockResolvedValue({
                 housingCostMonthly: 1200,
                 housingAndTransportCostPercentageOfIncome: null,
                 carCostMonthly: 320,

@@ -6,6 +6,7 @@ import type {
     CalculationResults,
     RoutingByModeDistanceAndTime
 } from '../common/types';
+import { CarCategory, CarEngine } from '../common/types';
 import { mortgageMonthlyPayment } from './mortgage';
 import { getResponse } from 'evolution-common/lib/utils/helpers';
 import {
@@ -178,10 +179,12 @@ const calculateMonthlyCarCost = async (address: Address, interview: InterviewAtt
     const vehicles = getVehiclesArray(interview);
     const persons = getPersonsArray({ interview });
     const householdSize: number = Object.values(persons).length;
-    const numberPermits: number =
-        Object.values(persons).filter((person) => person.drivingLicenseOwnership === 'yes').length;
+    const numberPermits: number = Object.values(persons).filter(
+        (person) => person.drivingLicenseOwnership === 'yes'
+    ).length;
     const income: string = String(getResponse(interview, 'household.income'));
-    const AVERAGE_CAR_COST_ANNUAL = 9000; // TODO: Get a good value for this. This is a placeholder for now.
+    // This is the average annual car cost for a gas-powered passenger car from the CAA table.
+    const AVERAGE_CAR_COST_ANNUAL = carCostAverageCaa(CarCategory.PassengerCar, CarEngine.Gas);
 
     try {
         // Predict the number of cars owned by the household
