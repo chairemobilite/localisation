@@ -86,11 +86,11 @@ describe('predictCarOwnership with returned values', () => {
             },
             householdSize: 7,
             numberPermits: 7,
-            income: '060000_069999',
+            income: '210000_999999',
         };
 
-        const result1 = await predictCarOwnership(data);
-        const result2 = await predictCarOwnership(data2);
+        const result1 = await predictCarOwnership(data); // Should return 1
+        const result2 = await predictCarOwnership(data2); // Should return 3
 
         expect(result1).not.toBe(result2);
     });
