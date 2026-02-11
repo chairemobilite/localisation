@@ -14,8 +14,8 @@ import {
     getRoutingFromAddressToDestination
 } from './routingAndAccessibility';
 import { getDestinationsArray, getVehiclesArray } from '../common/customHelpers';
-import { carCostAverageCaa } from './carcost';
-import { predictCarOwnership } from './carownership';
+import { carCostAverageCaa } from './carCost';
+import { predictCarOwnership } from './carOwnership';
 import { getPersonsArray } from 'evolution-common/lib/services/odSurvey/helpers';
 
 const calculateMonthlyHousingCost = (address: Address): number | null => {

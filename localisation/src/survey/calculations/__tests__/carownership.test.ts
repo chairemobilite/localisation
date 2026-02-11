@@ -1,4 +1,4 @@
-import { predictCarOwnership } from '../carownership';
+import { predictCarOwnership } from '../carOwnership';
 
 import zonesQueries from 'chaire-lib-backend/lib/models/db/zones.db.queries';
 
