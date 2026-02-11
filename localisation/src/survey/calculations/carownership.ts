@@ -8,6 +8,8 @@
 import * as ort from 'onnxruntime-node';
 import path from 'path';
 
+import zonesQueries from 'chaire-lib-backend/lib/models/db/zones.db.queries';
+
 const MODEL_FILENAME = path.resolve(__dirname, '../../../models/xgb_car_ownership_model.onnx');
 
 // Load session as a Singleton so that we don't have to lead it each time we run the function
@@ -33,23 +35,30 @@ interface ProximityIndexes {
     idx_prox_transit: ort.Tensor;
 }
 
-async function getProximityIndexes(geography: GeoJSON.Feature<GeoJSON.Point>): Promise<ProximityIndexes> {
-    // TODO: Implement actual proximity lookup based on coordinates
-    // const [lng, lat] = geography.geometry.coordinates;
+async function getProximityIndexes(geography: GeoJSON.Feature<GeoJSON.Point>): Promise<ProximityIndexes | null> {
+    // We assume there is only one data source for the zones, and that they all have the indexes as data.
+    const zones = await zonesQueries.getZonesContaining(geography);
+
+    if (zones.length === 0) {
+        return null;
+    }
+
+    // TODO: Check if it is possible for a point to return more than one zone. For now, we assume no and we just take the first one.
+    const zoneData = zones[0].data;
 
     const tensor = (value: number) => new ort.Tensor('float32', Float32Array.from([value]), [1, 1]);
 
     return {
-        idx_prox_emp: tensor(1.0),
-        idx_prox_pharma: tensor(1.0),
-        idx_prox_garderie: tensor(1.0),
-        idx_prox_sante: tensor(1.0),
-        idx_prox_epicerie: tensor(1.0),
-        idx_prox_educpri: tensor(1.0),
-        idx_prox_educsec: tensor(1.0),
-        idx_prox_bibl: tensor(1.0),
-        idx_prox_parcs: tensor(1.0),
-        idx_prox_transit: tensor(1.0)
+        idx_prox_emp: tensor(Number(zoneData.prox_idx_emp ?? 0)),
+        idx_prox_pharma: tensor(Number(zoneData.prox_idx_pharma ?? 0)),
+        idx_prox_garderie: tensor(Number(zoneData.prox_idx_childcare ?? 0)),
+        idx_prox_sante: tensor(Number(zoneData.prox_idx_health ?? 0)),
+        idx_prox_epicerie: tensor(Number(zoneData.prox_idx_grocery ?? 0)),
+        idx_prox_educpri: tensor(Number(zoneData.prox_idx_educpri ?? 0)),
+        idx_prox_educsec: tensor(Number(zoneData.prox_idx_educsec ?? 0)),
+        idx_prox_bibl: tensor(Number(zoneData.prox_idx_lib ?? 0)),
+        idx_prox_parcs: tensor(Number(zoneData.prox_idx_parks ?? 0)),
+        idx_prox_transit: tensor(Number(zoneData.prox_idx_transit ?? 0))
     };
 }
 
@@ -61,6 +70,10 @@ export async function predictCarOwnership(data: {
 }): Promise<number> {
     // Fetch proximity indexes
     const proximityIndexes = await getProximityIndexes(data.geography);
+
+    if (proximityIndexes === null) {
+        throw new Error('Input point is not within any of the imported zones.');
+    }
 
     // TODO
     // Map income to income range of the model
