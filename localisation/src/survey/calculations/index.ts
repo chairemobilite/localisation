@@ -177,9 +177,10 @@ const calculateMonthlyCarCost = async (address: Address, interview: InterviewAtt
     // FIXME Should we differentiate between no cars or missing information on car number?
     const vehicles = getVehiclesArray(interview);
     const persons = getPersonsArray({ interview });
-    const householdSize = Object.values(persons).length;
-    const numberPermits = Object.values(persons).filter((person) => person.drivingLicenseOwnership === 'yes').length;
-    const income = getResponse(interview, 'household.income');
+    const householdSize: number = Object.values(persons).length;
+    const numberPermits: number =
+        Object.values(persons).filter((person) => person.drivingLicenseOwnership === 'yes').length;
+    const income: string = String(getResponse(interview, 'household.income'));
     const AVERAGE_CAR_COST_ANNUAL = 9000; // TODO: Get a good value for this. This is a placeholder for now.
 
     try {

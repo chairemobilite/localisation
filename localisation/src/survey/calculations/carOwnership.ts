@@ -35,6 +35,61 @@ interface ProximityIndexes {
     idx_prox_transit: ort.Tensor;
 }
 
+// Mapping of income choices to model levels
+export const INCOME_CHOICE_TO_MODEL_LEVEL: Record<string, number> = {
+    '000000_009999': 1, // Less than $10,000
+    '010000_019999': 1, // $10,000 to $19,999
+    '020000_029999': 1, // $20,000 to $29,999
+    '030000_039999': 2, // $30,000 to $39,999
+    '040000_049999': 2, // $40,000 to $49,999
+    '050000_059999': 2, // $50,000 to $59,999
+    '060000_069999': 3, // $60,000 to $69,999
+    '070000_079999': 3, // $70,000 to $79,999
+    '080000_089999': 3, // $80,000 to $89,999
+    '090000_099999': 4, // $90,000 to $99,999
+    '100000_119999': 4, // $100,000 to $119,999
+    '120000_149999': 5, // $120,000 to $149,999
+    '150000_179999': 6, // $150,000 to $179,999
+    '180000_209999': 7, // $180,000 to $209,999
+    '210000_999999': 8, // $210,000 and more
+    dontKnow: 10, // I don't know
+    refusal: 9 // I prefer not to answer
+};
+
+// Map income to model income level
+export function mapIncomeToModelIncomeLevel(income: string): number {
+    const trimmedIncome = income.trim();
+    const mappedLevel = INCOME_CHOICE_TO_MODEL_LEVEL[trimmedIncome];
+    if (mappedLevel !== undefined) {
+        return mappedLevel;
+    }
+
+    // Fallback to support direct numeric income values if ever provided.
+    const numericIncome = Number(trimmedIncome);
+    if (Number.isFinite(numericIncome)) {
+        if (numericIncome < 30000) {
+            return 1;
+        } else if (numericIncome < 60000) {
+            return 2;
+        } else if (numericIncome < 90000) {
+            return 3;
+        } else if (numericIncome < 120000) {
+            return 4;
+        } else if (numericIncome < 150000) {
+            return 5;
+        } else if (numericIncome < 180000) {
+            return 6;
+        } else if (numericIncome < 210000) {
+            return 7;
+        }
+        return 8;
+    }
+
+    // Unknown format: treat as "don't know" instead of failing.
+    console.error('Unknown income format:', income);
+    return 10;
+}
+
 async function getProximityIndexes(geography: GeoJSON.Feature<GeoJSON.Point>): Promise<ProximityIndexes | null> {
     // We assume there is only one data source for the zones, and that they all have the indexes as data.
     const zones = await zonesQueries.getZonesContaining(geography);
@@ -66,7 +121,7 @@ export async function predictCarOwnership(data: {
     geography: GeoJSON.Feature<GeoJSON.Point>;
     householdSize: number;
     numberPermits: number;
-    income: number;
+    income: string;
 }): Promise<number> {
     // Fetch proximity indexes
     const proximityIndexes = await getProximityIndexes(data.geography);
@@ -75,29 +130,13 @@ export async function predictCarOwnership(data: {
         throw new Error('Input point is not within any of the imported zones.');
     }
 
-    // TODO
-    // Map income to income range of the model
-    // This is what was used for the model:
-    //     income_mapping = {
-    //    "Less than $10,000": 1,
-    //    "$10,000 to $19,999": 1,
-    //    "$20,000 to $29,999": 1,
-    //    "$30,000 to $39,999": 2,
-    //    "$40,000 to $49,999": 2,
-    //    "$50,000 to $59,999": 2,
-    //    "$60,000 to $69,999": 3,
-    //    "$70,000 to $79,999": 3,
-    //    "$80,000 to $89,999": 3,
-    //    "$90,000 to $99,999": 4,
-    //    "$100,000 to $149,999": 5,
-    //    "$150,000 to $199,999": 6,
-    //    "$200,000 and more": 8,
-    //    "I don't know": 10,
-    //    "I prefer not to answer": 9,
-    //}
-    const incomeLevel = 8;
+    // Map income to model income level
+    const incomeLevel = mapIncomeToModelIncomeLevel(data.income);
 
-    // TODO ensure that numberPermits is not higher than householdSize
+    // Ensure that numberPermits is not higher than householdSize
+    if (data.numberPermits > data.householdSize) {
+        throw new Error('Number of permits is higher than household size');
+    }
 
     const session = await getSession();
 
