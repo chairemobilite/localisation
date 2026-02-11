@@ -10,12 +10,17 @@ import { calculateAccessibilityAndRouting, calculateMonthlyCost } from '../index
 import { Address, AddressAccessibilityMapsDurations, Destination, RoutingByModeDistanceAndTime } from '../../common/types';
 import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { mortgageMonthlyPayment } from '../mortgage';
+import { predictCarOwnership } from '../carOwnership';
 import { getAccessibilityMapFromAddressForSimpleModes, getAccessibilityMapFromAddressForTransit, getRoutingFromAddressToDestination } from '../routingAndAccessibility';
 
 jest.mock('../mortgage', () => ({
-        mortgageMonthlyPayment: jest.fn()
+    mortgageMonthlyPayment: jest.fn()
 }));
 const mockMortgageMonthlyPayment = mortgageMonthlyPayment as jest.MockedFunction<typeof mortgageMonthlyPayment>;
+jest.mock('../carOwnership', () => ({
+    predictCarOwnership: jest.fn()
+}));
+const mockPredictCarOwnership = predictCarOwnership as jest.MockedFunction<typeof predictCarOwnership>;
 // Mock the getAccessibilityMapFromAddress function
 jest.mock('../routingAndAccessibility', () => ({
     getAccessibilityMapFromAddressForTransit: jest.fn(),
@@ -49,10 +54,12 @@ describe('calculateMonthlyCost', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
+        // Keep tests deterministic: by default, assume no predicted cars.
+        mockPredictCarOwnership.mockResolvedValue(0);
     });
 
     describe('Rent scenarios', () => {
-        it('should calculate monthly cost for rent with utilities included', () => {
+        it('should calculate monthly cost for rent with utilities included', async () => {
             const address: Address = {
                 _sequence: 1,
                 _uuid: 'address-1',
@@ -61,12 +68,12 @@ describe('calculateMonthlyCost', () => {
                 areUtilitiesIncluded: true
             };
 
-            const result = calculateMonthlyCost(address, mockInterview);
+            const result = await calculateMonthlyCost(address, mockInterview);
 
             expect(result.housingCostMonthly).toBe(1200);
         });
 
-        it('should calculate monthly cost for rent with utilities not included', () => {
+        it('should calculate monthly cost for rent with utilities not included', async () => {
             const address: Address = {
                 _sequence: 1,
                 _uuid: 'address-1',
@@ -76,12 +83,12 @@ describe('calculateMonthlyCost', () => {
                 utilitiesMonthly: 150
             };
 
-            const result = calculateMonthlyCost(address, mockInterview);
+            const result = await calculateMonthlyCost(address, mockInterview);
 
             expect(result.housingCostMonthly).toBe(1350);
         });
 
-        it('should return null for rent when rent amount is missing', () => {
+        it('should return null for rent when rent amount is missing', async () => {
             const address: Address = {
                 _sequence: 1,
                 _uuid: 'address-1',
@@ -89,12 +96,12 @@ describe('calculateMonthlyCost', () => {
                 areUtilitiesIncluded: true
             };
 
-            const result = calculateMonthlyCost(address, mockInterview);
+            const result = await calculateMonthlyCost(address, mockInterview);
 
             expect(result.housingCostMonthly).toBeNull();
         });
 
-        it('should return null for rent when utilities are not included but utilities amount is missing', () => {
+        it('should return null for rent when utilities are not included but utilities amount is missing', async () => {
             const address: Address = {
                 _sequence: 1,
                 _uuid: 'address-1',
@@ -103,14 +110,14 @@ describe('calculateMonthlyCost', () => {
                 areUtilitiesIncluded: false
             };
 
-            const result = calculateMonthlyCost(address, mockInterview);
+            const result = await calculateMonthlyCost(address, mockInterview);
 
             expect(result.housingCostMonthly).toBeNull();
         });
     });
 
     describe('Buy/Mortgage scenarios', () => {
-        it('should calculate monthly cost for owned home with mortgage', () => {
+        it('should calculate monthly cost for owned home with mortgage', async () => {
             const address: Address = {
                 _sequence: 1,
                 _uuid: 'address-1',
@@ -123,7 +130,7 @@ describe('calculateMonthlyCost', () => {
             };
             mockMortgageMonthlyPayment.mockReturnValueOnce(1000); // Mocked mortgage payment
 
-            const result = calculateMonthlyCost(address, mockInterview);
+            const result = await calculateMonthlyCost(address, mockInterview);
 
             // Expected: mortgage payment: 1000
             // Plus taxes: 3600/12 = 300
@@ -133,7 +140,7 @@ describe('calculateMonthlyCost', () => {
             expect(mockMortgageMonthlyPayment).toHaveBeenCalledWith(300000, 0.05, 300);
         });
 
-        it('should calculate monthly cost for owned home without taxes', () => {
+        it('should calculate monthly cost for owned home without taxes', async () => {
             const address: Address = {
                 _sequence: 1,
                 _uuid: 'address-1',
@@ -146,14 +153,14 @@ describe('calculateMonthlyCost', () => {
 
             mockMortgageMonthlyPayment.mockReturnValueOnce(1000); // Mocked mortgage payment
 
-            const result = calculateMonthlyCost(address, mockInterview);
+            const result = await calculateMonthlyCost(address, mockInterview);
 
             // Expected: mortgage payment + utilities (no taxes)
             expect(result.housingCostMonthly).toEqual(1200);
             expect(mockMortgageMonthlyPayment).toHaveBeenCalledWith(300000, 0.05, 300);
         });
 
-        it('should calculate monthly cost for owned home without utilities', () => {
+        it('should calculate monthly cost for owned home without utilities', async () => {
             const address: Address = {
                 _sequence: 1,
                 _uuid: 'address-1',
@@ -166,14 +173,14 @@ describe('calculateMonthlyCost', () => {
 
             mockMortgageMonthlyPayment.mockReturnValueOnce(1000); // Mocked mortgage payment
 
-            const result = calculateMonthlyCost(address, mockInterview);
+            const result = await calculateMonthlyCost(address, mockInterview);
 
             // Expected: mortgage payment + taxes/12
             expect(result.housingCostMonthly).toEqual(1300);
             expect(mockMortgageMonthlyPayment).toHaveBeenCalledWith(300000, 0.05, 300);
         });
 
-        it('should calculate monthly cost for owned home with 0 mortgage', () => {
+        it('should calculate monthly cost for owned home with 0 mortgage', async () => {
             const address: Address = {
                 _sequence: 1,
                 _uuid: 'address-1',
@@ -185,7 +192,7 @@ describe('calculateMonthlyCost', () => {
                 utilitiesMonthly: 200
             };
 
-            const result = calculateMonthlyCost(address, mockInterview);
+            const result = await calculateMonthlyCost(address, mockInterview);
 
             // Expected: mortgage payment: 0
             // Plus taxes: 3600/12 = 300
@@ -195,7 +202,7 @@ describe('calculateMonthlyCost', () => {
             expect(mockMortgageMonthlyPayment).not.toHaveBeenCalled();
         });
 
-        it('should return null when mortgage amount is missing', () => {
+        it('should return null when mortgage amount is missing', async () => {
             const address: Address = {
                 _sequence: 1,
                 _uuid: 'address-1',
@@ -204,13 +211,13 @@ describe('calculateMonthlyCost', () => {
                 amortizationPeriodInYears: '25'
             };
 
-            const result = calculateMonthlyCost(address, mockInterview);
+            const result = await calculateMonthlyCost(address, mockInterview);
 
             expect(result.housingCostMonthly).toBeNull();
             expect(mockMortgageMonthlyPayment).not.toHaveBeenCalled();
         });
 
-        it('should return null when interest rate is missing', () => {
+        it('should return null when interest rate is missing', async () => {
             const address: Address = {
                 _sequence: 1,
                 _uuid: 'address-1',
@@ -219,13 +226,13 @@ describe('calculateMonthlyCost', () => {
                 amortizationPeriodInYears: '25'
             };
 
-            const result = calculateMonthlyCost(address, mockInterview);
+            const result = await calculateMonthlyCost(address, mockInterview);
 
             expect(result.housingCostMonthly).toBeNull();
             expect(mockMortgageMonthlyPayment).not.toHaveBeenCalled();
         });
 
-        it('should return null when amortization period is missing', () => {
+        it('should return null when amortization period is missing', async () => {
             const address: Address = {
                 _sequence: 1,
                 _uuid: 'address-1',
@@ -234,13 +241,13 @@ describe('calculateMonthlyCost', () => {
                 interestRate: 5
             };
 
-            const result = calculateMonthlyCost(address, mockInterview);
+            const result = await calculateMonthlyCost(address, mockInterview);
 
             expect(result.housingCostMonthly).toBeNull();
             expect(mockMortgageMonthlyPayment).not.toHaveBeenCalled();
         });
 
-        it('should return null when amortization period is invalid', () => {
+        it('should return null when amortization period is invalid', async () => {
             const address: Address = {
                 _sequence: 1,
                 _uuid: 'address-1',
@@ -250,7 +257,7 @@ describe('calculateMonthlyCost', () => {
                 amortizationPeriodInYears: 'invalid' as any
             };
 
-            const result = calculateMonthlyCost(address, mockInterview);
+            const result = await calculateMonthlyCost(address, mockInterview);
 
             expect(result.housingCostMonthly).toBeNull();
             expect(mockMortgageMonthlyPayment).not.toHaveBeenCalled();
@@ -258,30 +265,30 @@ describe('calculateMonthlyCost', () => {
     });
 
     describe('Edge cases and error scenarios', () => {
-        it('should return null for unknown ownership type', () => {
+        it('should return null for unknown ownership type', async () => {
             const address: Address = {
                 _sequence: 1,
                 _uuid: 'address-1',
                 ownership: 'lease' as any
             };
 
-            const result = calculateMonthlyCost(address, mockInterview);
+            const result = await calculateMonthlyCost(address, mockInterview);
 
             expect(result.housingCostMonthly).toBeNull();
         });
 
-        it('should return null for missing ownership type', () => {
+        it('should return null for missing ownership type', async () => {
             const address: Address = {
                 _sequence: 1,
                 _uuid: 'address-1'
             };
 
-            const result = calculateMonthlyCost(address, mockInterview);
+            const result = await calculateMonthlyCost(address, mockInterview);
 
             expect(result.housingCostMonthly).toBeNull();
         });
 
-        it('should handle zero interest rate mortgage', () => {
+        it('should handle zero interest rate mortgage', async () => {
             const address: Address = {
                 _sequence: 1,
                 _uuid: 'address-1',
@@ -293,7 +300,7 @@ describe('calculateMonthlyCost', () => {
 
             mockMortgageMonthlyPayment.mockReturnValueOnce(1000); // Mocked mortgage payment
 
-            const result = calculateMonthlyCost(address, mockInterview);
+            const result = await calculateMonthlyCost(address, mockInterview);
 
             // Expected: mortgage payment only
             expect(result.housingCostMonthly).toEqual(1000);
@@ -305,7 +312,7 @@ describe('calculateMonthlyCost', () => {
         it.each([
             { income: 60000, description: 'number' },
             { income: '60000', description: 'numeric string' }
-        ])('should return correct percentage for numeric income ($description)', ({ income }) => {
+        ])('should return correct percentage for numeric income ($description)', async ({ income }) => {
             const interview = _cloneDeep(mockInterview);
             interview.response.household = { income } as any;
 
@@ -318,11 +325,11 @@ describe('calculateMonthlyCost', () => {
             };
 
             // (1200 * 12) / 60000 * 100 = 24
-            const result = calculateMonthlyCost(address, interview);
+            const result = await calculateMonthlyCost(address, interview);
             expect(result.housingAndTransportCostPercentageOfIncome).toBe(24);
         });
 
-        it('should return correct percentage for income range string', () => {
+        it('should return correct percentage for income range string', async () => {
             const interview = _cloneDeep(mockInterview);
             interview.response.household = { income: '050000_059999' } as any;
             // Make sure there are no vehicles influencing transport cost
@@ -339,7 +346,7 @@ describe('calculateMonthlyCost', () => {
             // averageAnnualIncome = (50000 + 59999) / 2 = 54999.5
             // annualCost = 2000 * 12 = 24000
             // percentage = 24000 / 54999.5 * 100 = 43.6 -> rounded to 0 decimals => 44
-            const result = calculateMonthlyCost(address, interview);
+            const result = await calculateMonthlyCost(address, interview);
             expect(result.housingAndTransportCostPercentageOfIncome).toBe(44);
         });
 
@@ -348,7 +355,7 @@ describe('calculateMonthlyCost', () => {
             { household: { income: 0 }, description: 'when income is 0 to avoid division by zero' },
             { household: { income: 'dontKnow' }, description: 'for special income value dontKnow' },
             { household: { income: 'refusal' }, description: 'for special income value refusal' }
-        ])('should return null $description', ({ household }) => {
+        ])('should return null $description', async ({ household }) => {
             const interview = _cloneDeep(mockInterview);
             interview.response.household = household as any;
 
@@ -360,11 +367,11 @@ describe('calculateMonthlyCost', () => {
                 areUtilitiesIncluded: true
             };
 
-            const result = calculateMonthlyCost(address, interview);
+            const result = await calculateMonthlyCost(address, interview);
             expect(result.housingAndTransportCostPercentageOfIncome).toBeNull();
         });
 
-        it('should use minimum value for open-ended upper bracket to avoid underestimating percentage', () => {
+        it('should use minimum value for open-ended upper bracket to avoid underestimating percentage', async () => {
             const interview = _cloneDeep(mockInterview);
             // Open-ended bracket: "$210,000 and more" (210000_999999)
             interview.response.household = { income: '210000_999999' } as any;
@@ -386,13 +393,13 @@ describe('calculateMonthlyCost', () => {
             //   percentage = 24000 / 210000 * 100 = 11.4 -> rounded to 0 decimals => 11
             // This gives a more conservative (higher) estimate that doesn't underestimate
             // the percentage for someone earning, say, $220,000
-            const result = calculateMonthlyCost(address, interview);
+            const result = await calculateMonthlyCost(address, interview);
             expect(result.housingAndTransportCostPercentageOfIncome).toBe(11);
         });
     });
 
     describe('Vehicle cost calculation', () => {
-        it('should return carCostMonthly as 0 when there are no vehicles', () => {
+        it('should return carCostMonthly as 0 when there are no vehicles', async () => {
             const address: Address = {
                 _sequence: 1,
                 _uuid: 'address-1',
@@ -404,14 +411,14 @@ describe('calculateMonthlyCost', () => {
             const interviewNoVehicles = _cloneDeep(mockInterview);
             interviewNoVehicles.response.cars = {};
 
-            const result = calculateMonthlyCost(address, interviewNoVehicles);
+            const result = await calculateMonthlyCost(address, interviewNoVehicles);
 
             expect(result.carCostMonthly).toBe(0);
             expect(result.housingCostMonthly).toBe(1200);
             expect(result.totalCostMonthly).toBe(1200);
         });
 
-        it('should return carCostMonthly as 0 when vehicles field is undefined', () => {
+        it('should return carCostMonthly as 0 when vehicles field is undefined', async () => {
             const address: Address = {
                 _sequence: 1,
                 _uuid: 'address-1',
@@ -423,14 +430,14 @@ describe('calculateMonthlyCost', () => {
             const interviewUndefinedVehicles = _cloneDeep(mockInterview);
             // Don't set cars field at all
 
-            const result = calculateMonthlyCost(address, interviewUndefinedVehicles);
+            const result = await calculateMonthlyCost(address, interviewUndefinedVehicles);
 
             expect(result.carCostMonthly).toBe(0);
             expect(result.housingCostMonthly).toBe(1200);
             expect(result.totalCostMonthly).toBe(1200);
         });
 
-        it('should calculate carCostMonthly correctly for one vehicle', () => {
+        it('should calculate carCostMonthly correctly for one vehicle', async () => {
             const address: Address = {
                 _sequence: 1,
                 _uuid: 'address-1',
@@ -448,8 +455,9 @@ describe('calculateMonthlyCost', () => {
                     engineType: 'electric' as any
                 }
             };
+            mockPredictCarOwnership.mockResolvedValueOnce(1);
 
-            const result = calculateMonthlyCost(address, interviewOneVehicle);
+            const result = await calculateMonthlyCost(address, interviewOneVehicle);
 
             // Average CAA cost for passenger car electric is ~5947.69/year = ~495.64/month
             expect(result.carCostMonthly).toBeGreaterThan(490);
@@ -459,7 +467,7 @@ describe('calculateMonthlyCost', () => {
             expect(result.totalCostMonthly).toBeLessThan(1700);
         });
 
-        it('should calculate carCostMonthly correctly for three vehicles', () => {
+        it('should calculate carCostMonthly correctly for three vehicles', async () => {
             const address: Address = {
                 _sequence: 1,
                 _uuid: 'address-1',
@@ -489,8 +497,9 @@ describe('calculateMonthlyCost', () => {
                     engineType: 'electric' as any
                 }
             };
+            mockPredictCarOwnership.mockResolvedValueOnce(3);
 
-            const result = calculateMonthlyCost(address, interviewThreeVehicles);
+            const result = await calculateMonthlyCost(address, interviewThreeVehicles);
 
             // Sum of costs: passengerCar/gas (~9399) + suv/hybrid (~7831) + pickup/electric (~10440) = ~27670/year = ~2305/month
             expect(result.carCostMonthly).not.toBeNull();
@@ -501,7 +510,7 @@ describe('calculateMonthlyCost', () => {
             expect(result.totalCostMonthly).toBeLessThan(3900);
         });
 
-        it('should return null carCostMonthly when vehicle has missing category', () => {
+        it('should return null carCostMonthly when vehicle has missing category', async () => {
             const address: Address = {
                 _sequence: 1,
                 _uuid: 'address-1',
@@ -520,14 +529,14 @@ describe('calculateMonthlyCost', () => {
                 }
             };
 
-            const result = calculateMonthlyCost(address, interviewMissingCategory);
+            const result = await calculateMonthlyCost(address, interviewMissingCategory);
 
             expect(result.carCostMonthly).toBeNull();
             expect(result.housingCostMonthly).toBe(1200);
             expect(result.totalCostMonthly).toBeNull();
         });
 
-        it('should return null carCostMonthly when vehicle has missing engineType', () => {
+        it('should return null carCostMonthly when vehicle has missing engineType', async () => {
             const address: Address = {
                 _sequence: 1,
                 _uuid: 'address-1',
@@ -546,14 +555,14 @@ describe('calculateMonthlyCost', () => {
                 }
             };
 
-            const result = calculateMonthlyCost(address, interviewMissingEngine);
+            const result = await calculateMonthlyCost(address, interviewMissingEngine);
 
             expect(result.carCostMonthly).toBeNull();
             expect(result.housingCostMonthly).toBe(1200);
             expect(result.totalCostMonthly).toBeNull();
         });
 
-        it('should return null carCostMonthly when vehicle has unknown category', () => {
+        it('should return null carCostMonthly when vehicle has unknown category', async () => {
             const address: Address = {
                 _sequence: 1,
                 _uuid: 'address-1',
@@ -572,14 +581,14 @@ describe('calculateMonthlyCost', () => {
                 }
             };
 
-            const result = calculateMonthlyCost(address, interviewUnknownCategory);
+            const result = await calculateMonthlyCost(address, interviewUnknownCategory);
 
             expect(result.carCostMonthly).toBeNull();
             expect(result.housingCostMonthly).toBe(1200);
             expect(result.totalCostMonthly).toBeNull();
         });
 
-        it('should return null carCostMonthly when vehicle has unknown engineType', () => {
+        it('should return null carCostMonthly when vehicle has unknown engineType', async () => {
             const address: Address = {
                 _sequence: 1,
                 _uuid: 'address-1',
@@ -598,14 +607,14 @@ describe('calculateMonthlyCost', () => {
                 }
             };
 
-            const result = calculateMonthlyCost(address, interviewUnknownEngine);
+            const result = await calculateMonthlyCost(address, interviewUnknownEngine);
 
             expect(result.carCostMonthly).toBeNull();
             expect(result.housingCostMonthly).toBe(1200);
             expect(result.totalCostMonthly).toBeNull();
         });
 
-        it('should return null carCostMonthly when vehicle combination is not available', () => {
+        it('should return null carCostMonthly when vehicle combination is not available', async () => {
             const address: Address = {
                 _sequence: 1,
                 _uuid: 'address-1',
@@ -624,14 +633,14 @@ describe('calculateMonthlyCost', () => {
                 }
             };
 
-            const result = calculateMonthlyCost(address, interviewInvalidCombo);
+            const result = await calculateMonthlyCost(address, interviewInvalidCombo);
 
             expect(result.carCostMonthly).toBeNull();
             expect(result.housingCostMonthly).toBe(1200);
             expect(result.totalCostMonthly).toBeNull();
         });
 
-        it('should return null carCostMonthly when one vehicle out of many has missing data', () => {
+        it('should return null carCostMonthly when one vehicle out of many has missing data', async () => {
             const address: Address = {
                 _sequence: 1,
                 _uuid: 'address-1',
@@ -662,14 +671,14 @@ describe('calculateMonthlyCost', () => {
                 }
             };
 
-            const result = calculateMonthlyCost(address, interviewMixedVehicles);
+            const result = await calculateMonthlyCost(address, interviewMixedVehicles);
 
             expect(result.carCostMonthly).toBeNull();
             expect(result.housingCostMonthly).toBe(1200);
             expect(result.totalCostMonthly).toBeNull();
         });
 
-        it('should handle vehicles with nicknames', () => {
+        it('should handle vehicles with nicknames', async () => {
             const address: Address = {
                 _sequence: 1,
                 _uuid: 'address-1',
@@ -688,8 +697,9 @@ describe('calculateMonthlyCost', () => {
                     engineType: 'electric' as any
                 }
             };
+            mockPredictCarOwnership.mockResolvedValueOnce(1);
 
-            const result = calculateMonthlyCost(address, interviewWithNickname);
+            const result = await calculateMonthlyCost(address, interviewWithNickname);
 
             expect(result.carCostMonthly).toBeGreaterThan(490);
             expect(result.carCostMonthly).toBeLessThan(500);
@@ -742,7 +752,7 @@ describe('calculateAccessibilityAndRouting', () => {
                 durationSeconds: 15 * 60,
                 areaSqM: 4000000
             }
-        }, 
+        },
         duration30Minutes:{
             type: 'Feature',
             geometry: {
@@ -792,7 +802,7 @@ describe('calculateAccessibilityAndRouting', () => {
         cycling: mockAccessibilityMapOneMode,
         driving: mockAccessibilityMapOneMode,
         transit: mockAccessibilityMapOneMode
-    }
+    };
 
     const mockDestination1: Destination = {
         _sequence: 1,
@@ -825,7 +835,7 @@ describe('calculateAccessibilityAndRouting', () => {
     const mockInterviewDestinations = {
         'destination-1': mockDestination1,
         'destination-2': mockDestination2
-    }
+    };
 
     const mockRoutingResult1: RoutingByModeDistanceAndTime = {
         _uuid: 'destination-1',

@@ -18,13 +18,16 @@ const mockedIndexes = {
 jest.mock('chaire-lib-backend/lib/models/db/zones.db.queries', () => ({
     getZonesContaining: jest.fn()
 }));
-const mockGetZonesContaining = zonesQueries.getZonesContaining as jest.MockedFunction<any>;
+const mockGetZonesContaining = zonesQueries.getZonesContaining as jest.MockedFunction<
+    typeof zonesQueries.getZonesContaining
+>;
 
 
 describe('predictCarOwnership with returned values', () => {
     beforeEach(() => {
         jest.clearAllMocks();
-        mockGetZonesContaining.mockResolvedValue([{data: mockedIndexes}]);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        mockGetZonesContaining.mockResolvedValue([{ data: mockedIndexes }] as any);
     });
 
     it('should return a number prediction', async () => {
@@ -36,7 +39,7 @@ describe('predictCarOwnership with returned values', () => {
             },
             householdSize: 3,
             numberPermits: 2,
-            income: 75000,
+            income: '060000_069999',
         });
 
         expect(typeof result).toBe('number');
@@ -53,7 +56,7 @@ describe('predictCarOwnership with returned values', () => {
             },
             householdSize: 2,
             numberPermits: 1,
-            income: 50000,
+            income: '030000_039999',
         };
 
         const result1 = await predictCarOwnership(data);
@@ -72,7 +75,7 @@ describe('predictCarOwnership with returned values', () => {
             },
             householdSize: 2,
             numberPermits: 1,
-            income: 50000,
+            income: '030000_039999',
         };
 
         const data2 = {
@@ -83,7 +86,7 @@ describe('predictCarOwnership with returned values', () => {
             },
             householdSize: 7,
             numberPermits: 7,
-            income: 50000,
+            income: '060000_069999',
         };
 
         const result1 = await predictCarOwnership(data);
@@ -108,7 +111,7 @@ describe('predictCarOwnership with thrown errors', () => {
             },
             householdSize: 2,
             numberPermits: 1,
-            income: 50000,
+            income: '030000_039999',
         };
 
         await expect(predictCarOwnership(data)).rejects.toThrow('Input point is not within any of the imported zones.');
