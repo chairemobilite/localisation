@@ -9,6 +9,7 @@ import * as ort from 'onnxruntime-node';
 import path from 'path';
 
 import zonesQueries from 'chaire-lib-backend/lib/models/db/zones.db.queries';
+import * as Status from 'chaire-lib-common/lib/utils/Status';
 
 const MODEL_FILENAME = path.resolve(__dirname, '../../../models/xgb_car_ownership_model.onnx');
 
@@ -122,41 +123,46 @@ export async function predictCarOwnership(data: {
     householdSize: number;
     numberPermits: number;
     income: string;
-}): Promise<number> {
-    // Fetch proximity indexes
-    const proximityIndexes = await getProximityIndexes(data.geography);
+}): Promise<Status.Status<number>> {
+    try {
+        // Fetch proximity indexes
+        const proximityIndexes = await getProximityIndexes(data.geography);
 
-    if (proximityIndexes === null) {
-        throw new Error('Input point is not within any of the imported zones.');
+        if (proximityIndexes === null) {
+            return Status.createError('Input point is not within any of the imported zones.');
+        }
+
+        // Map income to model income level
+        const incomeLevel = mapIncomeToModelIncomeLevel(data.income);
+
+        // Ensure that numberPermits is not higher than householdSize
+        if (data.numberPermits > data.householdSize) {
+            return Status.createError('Number of permits is higher than household size');
+        }
+
+        const session = await getSession();
+
+        const inputs: Record<string, ort.Tensor> = {
+            perslogi: new ort.Tensor('float32', Float32Array.from([data.householdSize]), [1, 1]),
+            nbPermis: new ort.Tensor('float32', Float32Array.from([data.numberPermits]), [1, 1]),
+            revenu: new ort.Tensor('string', [String(incomeLevel)], [1, 1]),
+            ...proximityIndexes
+        };
+
+        const results = await session.run(inputs);
+
+        if (!results.label?.data?.length) {
+            return Status.createError('Car Ownership Model returned invalid label');
+        }
+
+        const carPrediction = Number(results.label.data[0]);
+        if (Number.isNaN(carPrediction)) {
+            return Status.createError(`Invalid car prediction value: ${results.label.data[0]}`);
+        }
+
+        return Status.createOk(carPrediction);
+    } catch (error) {
+        console.error('Error running car ownership prediction:', error);
+        return Status.createError('An error occurred while predicting car ownership');
     }
-
-    // Map income to model income level
-    const incomeLevel = mapIncomeToModelIncomeLevel(data.income);
-
-    // Ensure that numberPermits is not higher than householdSize
-    if (data.numberPermits > data.householdSize) {
-        throw new Error('Number of permits is higher than household size');
-    }
-
-    const session = await getSession();
-
-    const inputs: Record<string, ort.Tensor> = {
-        perslogi: new ort.Tensor('float32', Float32Array.from([data.householdSize]), [1, 1]),
-        nbPermis: new ort.Tensor('float32', Float32Array.from([data.numberPermits]), [1, 1]),
-        revenu: new ort.Tensor('string', [String(incomeLevel)], [1, 1]),
-        ...proximityIndexes
-    };
-
-    const results = await session.run(inputs);
-
-    if (!results.label?.data?.length) {
-        throw new Error('Car Ownership Model returned invalid label');
-    }
-
-    const carPrediction = Number(results.label.data[0]);
-    if (Number.isNaN(carPrediction)) {
-        throw new Error(`Invalid car prediction value: ${results.label.data[0]}`);
-    }
-
-    return carPrediction;
 }

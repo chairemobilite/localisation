@@ -3,7 +3,7 @@ import config from 'chaire-lib-common/lib/config/shared/project.config';
 import type {
     Address,
     AddressAccessibilityMapsDurations,
-    CalculationResults,
+    CostsCalculationResults,
     RoutingByModeDistanceAndTime
 } from '../common/types';
 import { CarCategory, CarEngine } from '../common/types';
@@ -18,6 +18,7 @@ import { getDestinationsArray, getVehiclesArray } from '../common/customHelpers'
 import { carCostAverageCaa } from './carCost';
 import { predictCarOwnership } from './carOwnership';
 import { getPersonsArray } from 'evolution-common/lib/services/odSurvey/helpers';
+import * as Status from 'chaire-lib-common/lib/utils/Status';
 
 const calculateMonthlyHousingCost = (address: Address): number | null => {
     switch (address.ownership) {
@@ -174,7 +175,14 @@ const calculatePercentageIncomeForHousingAndTransport = ({
 };
 
 // Calculate the monthly car cost for the interview. Will return null if there is missing information or any unknown category/engine
-const calculateMonthlyCarCost = async (address: Address, interview: InterviewAttributes): Promise<number | null> => {
+const calculateMonthlyCarCost = async (
+    address: Address,
+    interview: InterviewAttributes
+): Promise<{
+    monthlyCarCost: number | null;
+    currentNumberOfVehicles: number;
+    predictedNumberOfVehicles: number | null;
+}> => {
     // FIXME Should we differentiate between no cars or missing information on car number?
     const vehicles = getVehiclesArray(interview);
     const persons = getPersonsArray({ interview });
@@ -186,20 +194,27 @@ const calculateMonthlyCarCost = async (address: Address, interview: InterviewAtt
     // This is the average annual car cost for a gas-powered passenger car from the CAA table.
     const AVERAGE_CAR_COST_ANNUAL = carCostAverageCaa(CarCategory.PassengerCar, CarEngine.Gas);
 
+    // Predict the number of cars owned by the household
+    const numberOfCarsPredictedStatus = await predictCarOwnership({
+        geography: address.geography,
+        householdSize,
+        numberPermits,
+        income
+    });
+
+    // Define variables to store the total annual car cost, average annual car cost, and monthly car cost
+    let totalCarCostAnnual = 0; // This is the total annual car cost for all current vehicles
+    let averageCarCostAnnual = 0; // This is the average annual car cost for all current vehicles
+    let monthlyCarsCost = 0; // This is the monthly car cost for all predicted cars
+
+    if (Status.isStatusError(numberOfCarsPredictedStatus)) {
+        console.error('Error predicting number of cars owned:', numberOfCarsPredictedStatus.error);
+    }
+    const numberOfCarsPredicted = Status.isStatusOk(numberOfCarsPredictedStatus)
+        ? Status.unwrap(numberOfCarsPredictedStatus)
+        : null;
+
     try {
-        // Predict the number of cars owned by the household
-        const numberOfCarsPredicted = await predictCarOwnership({
-            geography: address.geography,
-            householdSize,
-            numberPermits,
-            income
-        });
-
-        // Define variables to store the total annual car cost, average annual car cost, and monthly car cost
-        let totalCarCostAnnual = 0; // This is the total annual car cost for all current vehicles
-        let averageCarCostAnnual = 0; // This is the average annual car cost for all current vehicles
-        let monthlyCarsCost = 0; // This is the monthly car cost for all predicted cars
-
         // Calculate the total annual car cost for all current vehicles
         for (let i = 0; i < vehicles.length; i++) {
             const vehicle = vehicles[i];
@@ -223,14 +238,24 @@ const calculateMonthlyCarCost = async (address: Address, interview: InterviewAtt
             averageCarCostAnnual = totalCarCostAnnual / vehicles.length;
         }
 
+        const evaluatedCarNumber = numberOfCarsPredicted !== null ? numberOfCarsPredicted : vehicles.length; // Fallback to current number of cars if prediction fails
+
         // Calculate the monthly car cost for all predicted cars
-        monthlyCarsCost = numberOfCarsPredicted * (averageCarCostAnnual / 12);
+        monthlyCarsCost = evaluatedCarNumber * (averageCarCostAnnual / 12);
 
         // Return monthly car cost
-        return monthlyCarsCost;
+        return {
+            monthlyCarCost: monthlyCarsCost,
+            currentNumberOfVehicles: vehicles.length,
+            predictedNumberOfVehicles: numberOfCarsPredicted
+        };
     } catch (error) {
         console.error('Error calculating monthly car cost', error instanceof Error ? error.message : error);
-        return null;
+        return {
+            monthlyCarCost: null,
+            currentNumberOfVehicles: vehicles.length,
+            predictedNumberOfVehicles: numberOfCarsPredicted
+        };
     }
 };
 
@@ -243,12 +268,15 @@ const calculateMonthlyCarCost = async (address: Address, interview: InterviewAtt
 export const calculateMonthlyCost = async (
     address: Address,
     interview: InterviewAttributes
-): Promise<CalculationResults> => {
+): Promise<CostsCalculationResults> => {
     // Calculate the housing cost
     const monthlyHousingCost = calculateMonthlyHousingCost(address);
 
     // Calculate the cost of car ownership associated with this address (for now it does not depend on the address, but leave it here for future extensions)
-    const monthlyCarCost = await calculateMonthlyCarCost(address, interview);
+    const { monthlyCarCost, currentNumberOfVehicles, predictedNumberOfVehicles } = await calculateMonthlyCarCost(
+        address,
+        interview
+    );
 
     // Calculate the percentage of income spent on housing and transport
     const housingAndTransportCostPercentageOfIncome =
@@ -270,7 +298,9 @@ export const calculateMonthlyCost = async (
         housingCostMonthly: monthlyHousingCost,
         carCostMonthly: monthlyCarCost,
         housingAndTransportCostPercentageOfIncome,
-        totalCostMonthly: totalMonthlyCost
+        totalCostMonthly: totalMonthlyCost,
+        currentNumberOfVehicles,
+        predictedNumberOfVehicles
     };
 };
 

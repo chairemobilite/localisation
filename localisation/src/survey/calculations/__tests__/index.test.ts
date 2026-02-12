@@ -6,6 +6,7 @@
  */
 import _cloneDeep from 'lodash/cloneDeep';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
+import * as Status from 'chaire-lib-common/lib/utils/Status';
 import { calculateAccessibilityAndRouting, calculateMonthlyCost } from '../index';
 import { Address, AddressAccessibilityMapsDurations, Destination, RoutingByModeDistanceAndTime } from '../../common/types';
 import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
@@ -55,7 +56,7 @@ describe('calculateMonthlyCost', () => {
     beforeEach(() => {
         jest.clearAllMocks();
         // Keep tests deterministic: by default, assume no predicted cars.
-        mockPredictCarOwnership.mockResolvedValue(0);
+        mockPredictCarOwnership.mockResolvedValue(Status.createOk(0));
     });
 
     describe('Rent scenarios', () => {
@@ -416,6 +417,8 @@ describe('calculateMonthlyCost', () => {
             expect(result.carCostMonthly).toBe(0);
             expect(result.housingCostMonthly).toBe(1200);
             expect(result.totalCostMonthly).toBe(1200);
+            expect(result.currentNumberOfVehicles).toBe(0);
+            expect(result.predictedNumberOfVehicles).toBe(0);
         });
 
         it('should return carCostMonthly as 0 when vehicles field is undefined', async () => {
@@ -435,6 +438,8 @@ describe('calculateMonthlyCost', () => {
             expect(result.carCostMonthly).toBe(0);
             expect(result.housingCostMonthly).toBe(1200);
             expect(result.totalCostMonthly).toBe(1200);
+            expect(result.currentNumberOfVehicles).toBe(0);
+            expect(result.predictedNumberOfVehicles).toBe(0);
         });
 
         it('should calculate carCostMonthly correctly for one vehicle', async () => {
@@ -455,7 +460,7 @@ describe('calculateMonthlyCost', () => {
                     engineType: 'electric' as any
                 }
             };
-            mockPredictCarOwnership.mockResolvedValueOnce(1);
+            mockPredictCarOwnership.mockResolvedValueOnce(Status.createOk(1));
 
             const result = await calculateMonthlyCost(address, interviewOneVehicle);
 
@@ -465,6 +470,8 @@ describe('calculateMonthlyCost', () => {
             expect(result.housingCostMonthly).toBe(1200);
             expect(result.totalCostMonthly).toBeGreaterThan(1690);
             expect(result.totalCostMonthly).toBeLessThan(1700);
+            expect(result.currentNumberOfVehicles).toBe(1);
+            expect(result.predictedNumberOfVehicles).toBe(1);
         });
 
         it('should calculate carCostMonthly correctly for three vehicles', async () => {
@@ -497,7 +504,7 @@ describe('calculateMonthlyCost', () => {
                     engineType: 'electric' as any
                 }
             };
-            mockPredictCarOwnership.mockResolvedValueOnce(3);
+            mockPredictCarOwnership.mockResolvedValueOnce(Status.createOk(3));
 
             const result = await calculateMonthlyCost(address, interviewThreeVehicles);
 
@@ -508,6 +515,8 @@ describe('calculateMonthlyCost', () => {
             expect(result.housingCostMonthly).toBe(1500);
             expect(result.totalCostMonthly).toBeGreaterThan(3700);
             expect(result.totalCostMonthly).toBeLessThan(3900);
+            expect(result.currentNumberOfVehicles).toBe(3);
+            expect(result.predictedNumberOfVehicles).toBe(3);
         });
 
         it('should return null carCostMonthly when vehicle has missing category', async () => {
@@ -534,6 +543,8 @@ describe('calculateMonthlyCost', () => {
             expect(result.carCostMonthly).toBeNull();
             expect(result.housingCostMonthly).toBe(1200);
             expect(result.totalCostMonthly).toBeNull();
+            expect(result.currentNumberOfVehicles).toBe(1);
+            expect(result.predictedNumberOfVehicles).toBe(0);
         });
 
         it('should return null carCostMonthly when vehicle has missing engineType', async () => {
@@ -560,6 +571,8 @@ describe('calculateMonthlyCost', () => {
             expect(result.carCostMonthly).toBeNull();
             expect(result.housingCostMonthly).toBe(1200);
             expect(result.totalCostMonthly).toBeNull();
+            expect(result.currentNumberOfVehicles).toBe(1);
+            expect(result.predictedNumberOfVehicles).toBe(0);
         });
 
         it('should return null carCostMonthly when vehicle has unknown category', async () => {
@@ -586,6 +599,8 @@ describe('calculateMonthlyCost', () => {
             expect(result.carCostMonthly).toBeNull();
             expect(result.housingCostMonthly).toBe(1200);
             expect(result.totalCostMonthly).toBeNull();
+            expect(result.currentNumberOfVehicles).toBe(1);
+            expect(result.predictedNumberOfVehicles).toBe(0);
         });
 
         it('should return null carCostMonthly when vehicle has unknown engineType', async () => {
@@ -612,6 +627,8 @@ describe('calculateMonthlyCost', () => {
             expect(result.carCostMonthly).toBeNull();
             expect(result.housingCostMonthly).toBe(1200);
             expect(result.totalCostMonthly).toBeNull();
+            expect(result.currentNumberOfVehicles).toBe(1);
+            expect(result.predictedNumberOfVehicles).toBe(0);
         });
 
         it('should return null carCostMonthly when vehicle combination is not available', async () => {
@@ -638,6 +655,8 @@ describe('calculateMonthlyCost', () => {
             expect(result.carCostMonthly).toBeNull();
             expect(result.housingCostMonthly).toBe(1200);
             expect(result.totalCostMonthly).toBeNull();
+            expect(result.currentNumberOfVehicles).toBe(1);
+            expect(result.predictedNumberOfVehicles).toBe(0);
         });
 
         it('should return null carCostMonthly when one vehicle out of many has missing data', async () => {
@@ -676,6 +695,8 @@ describe('calculateMonthlyCost', () => {
             expect(result.carCostMonthly).toBeNull();
             expect(result.housingCostMonthly).toBe(1200);
             expect(result.totalCostMonthly).toBeNull();
+            expect(result.currentNumberOfVehicles).toBe(3);
+            expect(result.predictedNumberOfVehicles).toBe(0);
         });
 
         it('should handle vehicles with nicknames', async () => {
@@ -697,7 +718,7 @@ describe('calculateMonthlyCost', () => {
                     engineType: 'electric' as any
                 }
             };
-            mockPredictCarOwnership.mockResolvedValueOnce(1);
+            mockPredictCarOwnership.mockResolvedValueOnce(Status.createOk(1));
 
             const result = await calculateMonthlyCost(address, interviewWithNickname);
 
@@ -706,6 +727,85 @@ describe('calculateMonthlyCost', () => {
             expect(result.housingCostMonthly).toBe(1200);
             expect(result.totalCostMonthly).toBeGreaterThan(1690);
             expect(result.totalCostMonthly).toBeLessThan(1700);
+            expect(result.currentNumberOfVehicles).toBe(1);
+            expect(result.predictedNumberOfVehicles).toBe(1);
+        });
+
+        it('should calculate carCostMonthly with prediction and average cost when it differs from current vehicle count', async () => {
+            const address: Address = {
+                _sequence: 1,
+                _uuid: 'address-1',
+                ownership: 'rent',
+                rentMonthly: 1500,
+                areUtilitiesIncluded: true
+            };
+
+            // Household has 3 cars
+            const interviewThreeVehicles = _cloneDeep(mockInterview);
+            interviewThreeVehicles.response.cars = {
+                'car-1': {
+                    _sequence: 1,
+                    _uuid: 'car-1',
+                    category: 'passengerCar' as any,
+                    engineType: 'gas' as any
+                },
+                'car-2': {
+                    _sequence: 2,
+                    _uuid: 'car-2',
+                    category: 'suv' as any,
+                    engineType: 'hybrid' as any
+                },
+                'car-3': {
+                    _sequence: 3,
+                    _uuid: 'car-3',
+                    category: 'pickup' as any,
+                    engineType: 'electric' as any
+                }
+            };
+            // Predict 1 car
+            mockPredictCarOwnership.mockResolvedValueOnce(Status.createOk(1));
+
+            const result = await calculateMonthlyCost(address, interviewThreeVehicles);
+
+            // Sum of costs: passengerCar/gas (~9399) + suv/hybrid (~7831) + pickup/electric (~10440) = ~27670/year = ~2305/month, for one vehicle / 3 = ~768/month
+            expect(result.carCostMonthly).not.toBeNull();
+            expect(result.carCostMonthly).toBeGreaterThan(760);
+            expect(result.carCostMonthly).toBeLessThan(770);
+            expect(result.housingCostMonthly).toBe(1500);
+            expect(result.totalCostMonthly).toBeGreaterThan(2260);
+            expect(result.totalCostMonthly).toBeLessThan(2270);
+            expect(result.currentNumberOfVehicles).toBe(3);
+            expect(result.predictedNumberOfVehicles).toBe(1);
+        });
+
+        it('should calculate carCostMonthly with default average if car predicted, but no current car', async () => {
+            const address: Address = {
+                _sequence: 1,
+                _uuid: 'address-1',
+                ownership: 'rent',
+                rentMonthly: 1500,
+                areUtilitiesIncluded: true
+            };
+
+            // Household has no cars currently
+            const interviewNoVehicles = _cloneDeep(mockInterview);
+            interviewNoVehicles.response.cars = {
+        
+            };
+            // Predict 1 car
+            mockPredictCarOwnership.mockResolvedValueOnce(Status.createOk(1));
+
+            const result = await calculateMonthlyCost(address, interviewNoVehicles);
+
+            // average is 9399.17$/year (passengerCar/gas) = 783,25$/month
+            expect(result.carCostMonthly).not.toBeNull();
+            expect(result.carCostMonthly).toBeGreaterThan(780);
+            expect(result.carCostMonthly).toBeLessThan(790);
+            expect(result.housingCostMonthly).toBe(1500);
+            expect(result.totalCostMonthly).toBeGreaterThan(2280);
+            expect(result.totalCostMonthly).toBeLessThan(2290);
+            expect(result.currentNumberOfVehicles).toBe(0);
+            expect(result.predictedNumberOfVehicles).toBe(1);
         });
     });
 });
