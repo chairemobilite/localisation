@@ -11,6 +11,11 @@ locationComparison.title: Housing comparison tool
 locationComparison.address: For {{address}}
 locationComparison.defaultAddressName: 'house #{{number}}'
 locationComparison.costsTitle: Costs
+locationComparison.descriptionTop: >-
+    We estimated the average transportation cost and the number of vehicles based
+    on household location, size, income, and number of driver’s licenses.
+locationComparison.descriptionBottom: The estimated number of vehicles may differ
+    from the current situation.
 locationComparison.costsMonthly: Monthly
 locationComparison.costsAnnual: Annual
 locationComparison.costs25years: 25-years

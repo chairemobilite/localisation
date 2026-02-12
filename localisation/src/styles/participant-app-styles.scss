@@ -160,6 +160,7 @@ $ItemColor: #D9D9D9;
         grid-template-areas:
             "costs-section-title costs-section-title costs-section-title costs-section-title"
             "button-group-costs button-group-costs button-group-costs button-group-costs"
+            "address-name-1 address-name-1 address-name-2 address-name-2"
             "housing-cost-item-1 transport-cost-item-1 housing-cost-item-2 transport-cost-item-2"
             "total-cost-item-1 total-cost-item-1 total-cost-item-2 total-cost-item-2"
             "note-costs-item-1 note-costs-item-1 note-costs-item-2 note-costs-item-2";
@@ -182,6 +183,18 @@ $ItemColor: #D9D9D9;
     /* Grid areas */
     #costs-section-title {
         grid-area: costs-section-title;
+    }
+
+    #address-name-1 {
+        grid-area: address-name-1;
+        font-weight: 700;
+        color: black;
+    }
+
+    #address-name-2 {
+        grid-area: address-name-2;
+        font-weight: 700;
+        color: black;
     }
 
     #housing-cost-item-1 {
@@ -371,6 +384,12 @@ $ItemColor: #D9D9D9;
 
         h2 {
             grid-column: span 2;
+        }
+
+        .location-comparison-description {
+            grid-column: span 2;
+            font-weight: 400;
+            font-size: 1.1rem;
         }
     }
 
