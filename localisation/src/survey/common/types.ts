@@ -26,7 +26,7 @@ export type Address = {
     taxesYearly?: number;
     // Monthly utilities cost
     utilitiesMonthly?: number;
-    monthlyCost?: CalculationResults;
+    monthlyCost?: CostsCalculationResults;
     accessibilityMapsByMode?:
         | {
               walking: AddressAccessibilityMapsDurations | null;
@@ -104,7 +104,7 @@ export type Vehicle = {
     engineType?: CarEngine;
 };
 
-export type CalculationResults = {
+export type CostsCalculationResults = {
     /** Monthly cost for housing. Can be null if there is missing information */
     housingCostMonthly: number | null;
     /** Percentage of income spent on housing and transport. Can be null if there is missing information */
@@ -113,6 +113,10 @@ export type CalculationResults = {
     carCostMonthly: number | null;
     /** Precomputed total, only if both housing and car costs are available, null otherwise */
     totalCostMonthly: number | null;
+    /** Current number of vehicles in the household. Can be null if there is missing information */
+    currentNumberOfVehicles: number | null;
+    /** Predicted number of vehicles in the household. Can be null if it was not possible to predict */
+    predictedNumberOfVehicles: number | null;
 };
 
 // Type for the destination result object in the results template

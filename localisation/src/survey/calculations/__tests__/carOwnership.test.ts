@@ -1,6 +1,7 @@
 import { predictCarOwnership } from '../carOwnership';
 
 import zonesQueries from 'chaire-lib-backend/lib/models/db/zones.db.queries';
+import * as Status from 'chaire-lib-common/lib/utils/Status';
 
 const mockedIndexes = {
     prox_idx_emp: 1,
@@ -42,9 +43,9 @@ describe('predictCarOwnership with returned values', () => {
             income: '060000_069999',
         });
 
-        expect(typeof result).toBe('number');
-        expect(Number.isInteger(result)).toBe(true);
-        expect(result).toBeGreaterThanOrEqual(0);
+        expect(Status.isStatusOk(result)).toBe(true);
+        expect(Number.isInteger(Status.unwrap(result))).toBe(true);
+        expect(Status.unwrap(result)).toBeGreaterThanOrEqual(0);
     });
 
     it('should return consistent results for same inputs', async () => {
@@ -62,7 +63,9 @@ describe('predictCarOwnership with returned values', () => {
         const result1 = await predictCarOwnership(data);
         const result2 = await predictCarOwnership(data);
 
-        expect(result1).toBe(result2);
+        expect(Status.isStatusOk(result1)).toBe(true);
+        expect(Status.isStatusOk(result2)).toBe(true);
+        expect(Status.unwrap(result1)).toBe(Status.unwrap(result2));
     });
 
     it('should return different results for vastly different inputs', async () => {
@@ -92,7 +95,9 @@ describe('predictCarOwnership with returned values', () => {
         const result1 = await predictCarOwnership(data); // Should return 1
         const result2 = await predictCarOwnership(data2); // Should return 3
 
-        expect(result1).not.toBe(result2);
+        expect(Status.isStatusOk(result1)).toBe(true);
+        expect(Status.isStatusOk(result2)).toBe(true);
+        expect(Status.unwrap(result1)).not.toBe(Status.unwrap(result2));
     });
 });
 
@@ -102,7 +107,7 @@ describe('predictCarOwnership with thrown errors', () => {
         mockGetZonesContaining.mockResolvedValue([]);
     });
 
-    it('should throw if getProximityIndexes returns empty array', async () => {
+    it('should return error status if getProximityIndexes returns empty array', async () => {
         const data = {
             geography: {
                 type: 'Feature' as const,
@@ -114,6 +119,8 @@ describe('predictCarOwnership with thrown errors', () => {
             income: '030000_039999',
         };
 
-        await expect(predictCarOwnership(data)).rejects.toThrow('Input point is not within any of the imported zones.');
+        const result = await predictCarOwnership(data);
+        expect(Status.isStatusError(result)).toBe(true);
+        expect((result as Status.StatusError).error).toEqual('Input point is not within any of the imported zones.');
     });
 });
