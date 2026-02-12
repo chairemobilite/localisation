@@ -1,9 +1,9 @@
 module.exports = {
-    projectShortname: `localisation`,
+    projectShortname: 'localisation',
     projectDirectory: `${__dirname}/runtime`,
     logoPaths: {
-        fr: `/dist/images/localisation_fr.png`,
-        en: `/dist/images/localisation_en.png`
+        fr: '/dist/images/logo_localisation.png',
+        en: '/dist/images/logo_localisation.png'
     },
     startButtonColor: 'turquoise', // styles for turquoise buttons are in the project's styles.scss file
     interviewableMinimumAge: 5,
@@ -56,13 +56,13 @@ module.exports = {
         en: 'en-CA'
     },
     languageNames: {
-        fr: "Français",
-        en: "English"
+        fr: 'Français',
+        en: 'English'
     },
     title: {
-        fr: "Localisation",
-        en: "Localisation"
+        fr: 'Localisation',
+        en: 'Localisation'
     },
-    defaultLocale: "fr",
+    defaultLocale: 'fr',
     timezone: 'America/Montreal',
 };
