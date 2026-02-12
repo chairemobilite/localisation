@@ -673,13 +673,16 @@ export const LocalisationResultsSection: React.FC<SectionProps> = (props: Sectio
                 {/* Location names section that is sticky */}
                 <section id="location-names-section">
                     <h2>{t('results:locationComparison.title')}</h2>
-                    <div>{firstAddress.name}</div>
-                    <div>{secondAddress.name}</div>
+                    <div className="location-comparison-description">
+                        <div>{t('results:locationComparison.descriptionTop')}</div>
+                        <div>{t('results:locationComparison.descriptionBottom')}</div>
+                    </div>
                 </section>
 
                 {/* Costs Section */}
                 <section id="costs-section">
                     <h3 id="costs-section-title">{t('results:locationComparison.costsTitle')}</h3>
+
                     <div id="button-group-costs" className="button-group">
                         <button
                             className={costPeriod === 'monthly' ? 'active' : 'inactive'}
@@ -702,6 +705,10 @@ export const LocalisationResultsSection: React.FC<SectionProps> = (props: Sectio
                             {t('results:locationComparison.costs25years')}
                         </button> */}
                     </div>
+
+                    {/* Address names */}
+                    <div id="address-name-1">{firstAddress.name}</div>
+                    <div id="address-name-2">{secondAddress.name}</div>
 
                     <CostItem
                         id="housing-cost-item-1"

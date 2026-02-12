@@ -11,6 +11,11 @@ locationComparison.title: Comparateur de logement
 locationComparison.address: Pour {{address}}
 locationComparison.defaultAddressName: 'logement #{{number}}'
 locationComparison.costsTitle: Coûts
+locationComparison.descriptionTop: >-
+    Nous avons estimé le coût moyen du transport et le nombre de véhicules selon l’emplacement,
+    la taille, le revenu et le nombre de permis du ménage.
+locationComparison.descriptionBottom: Le nombre de véhicules estimé peut différer
+    de la situation actuelle.
 locationComparison.costsMonthly: Mensuel
 locationComparison.costsAnnual: Annuel
 locationComparison.costs25years: 25 ans
