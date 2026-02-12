@@ -326,6 +326,8 @@ type AddressInfo = {
     displayName: string; // Name without "For " prefix
     hasAccessibilityResults: boolean; // Whether this address has accessibility results to show yet
     hasRoutingResults: boolean; // Whether this address has routing results to show yet
+    predictedVehicleCount: number | null;
+    currentVehicleCount: number;
 };
 
 // Helper function to get address and destination information for any address
@@ -382,7 +384,9 @@ const getAddressesInfo = ({
             routingTimeDistances: routingTimeDistances as RoutingTimeDistances,
             displayName,
             hasAccessibilityResults,
-            hasRoutingResults
+            hasRoutingResults,
+            currentVehicleCount: address?.monthlyCost?.currentNumberOfVehicles || 0,
+            predictedVehicleCount: address?.monthlyCost?.predictedNumberOfVehicles ?? null
         };
     };
 
@@ -773,8 +777,20 @@ export const LocalisationResultsSection: React.FC<SectionProps> = (props: Sectio
                     />
 
                     {/* TODO: Add costs warning when it is implemented */}
-                    {/* <div id="note-costs-item-1">{firstAddressCostsWarning}</div>
-                    <div id="note-costs-item-2">{secondAddressCostsWarning}</div> */}
+                    {firstAddress.predictedVehicleCount !== null && (
+                        <div id="note-costs-item-1">
+                            {t('results:locationComparison.predictedVehicles', {
+                                predictedCarNumber: firstAddress.predictedVehicleCount
+                            })}
+                        </div>
+                    )}
+                    {secondAddress.predictedVehicleCount !== null && (
+                        <div id="note-costs-item-2">
+                            {t('results:locationComparison.predictedVehicles', {
+                                predictedCarNumber: secondAddress.predictedVehicleCount
+                            })}
+                        </div>
+                    )}
                 </section>
 
                 {/* TODO: Add environment section when it is implemented */}
