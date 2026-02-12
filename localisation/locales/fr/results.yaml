@@ -29,6 +29,8 @@ locationComparison.tooMuchSpendingWarning: >-
 locationComparison.tooManyCarsWarning: >-
     Notre modèle estime que les ménages dans cette situation possèdent {{numberOfCars}}
     voitures.
+locationComparison.predictedVehicles: Le nombre de véhicules estimé pour ce domicile
+    est de {{predictedCarNumber}}
 locationComparison.environmentTitle: Environnement
 locationComparison.environmentPointsOfInterest: Points d'intérêt
 locationComparison.environmentCo2: CO2

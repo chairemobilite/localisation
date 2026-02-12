@@ -28,6 +28,8 @@ locationComparison.tooMuchSpendingWarning: >-
     and transportation.
 locationComparison.tooManyCarsWarning: >-
     Our model estimates that households in this situation have {{numberOfCars}} cars.
+locationComparison.predictedVehicles: The estimated number of vehicles for this home
+    is {{predictedCarNumber}}
 locationComparison.environmentTitle: Environment
 locationComparison.environmentPointsOfInterest: Points of interest
 locationComparison.environmentCo2: CO2
