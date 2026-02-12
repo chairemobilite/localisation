@@ -10,7 +10,7 @@ import path from 'path';
 
 import zonesQueries from 'chaire-lib-backend/lib/models/db/zones.db.queries';
 
-const MODEL_FILENAME = path.resolve(__dirname, '../../../models/xgb_car_ownership_model.onnx');
+const MODEL_FILENAME = path.resolve(__dirname, '../../models/xgb_car_ownership_model.onnx');
 
 // Load session as a Singleton so that we don't have to lead it each time we run the function
 let session: ort.InferenceSession | null = null;
