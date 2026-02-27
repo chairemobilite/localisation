@@ -313,6 +313,30 @@ const FrequentDestinationColumn: React.FC<FrequentDestinationColumnProps> = ({ t
     </section>
 );
 
+type PoisCount = {
+    primarySchools: number;
+    secondarySchools: number;
+    universities: number;
+    hospitals: number;
+    dayCares: number;
+    restaurants: number;
+    groceries: number;
+    shopping: number;
+};
+
+type PoisCountByTime = {
+    duration15Minutes?: PoisCount;
+    duration30Minutes?: PoisCount;
+    duration45Minutes?: PoisCount;
+};
+
+type PoisCountByMode = {
+    walking: PoisCountByTime;
+    cycling: PoisCountByTime;
+    driving: PoisCountByTime;
+    transit: PoisCountByTime;
+};
+
 // Type for address information returned by the helper function
 type AddressInfo = {
     address: Address | undefined;
@@ -328,6 +352,36 @@ type AddressInfo = {
     hasRoutingResults: boolean; // Whether this address has routing results to show yet
     predictedVehicleCount: number | null;
     currentVehicleCount: number;
+    accessiblePois: PoisCountByMode | undefined;
+};
+
+const getDisplayedCategoriesFromRawCategories = (
+    accessiblePlacesCountByCategory?: Record<string, number>,
+    accessiblePlacesCountByDetailedCategory?: Record<string, number>
+): PoisCount | undefined => {
+    if (accessiblePlacesCountByCategory === undefined || accessiblePlacesCountByDetailedCategory === undefined) {
+        return undefined;
+    }
+
+    const primarySchools = accessiblePlacesCountByDetailedCategory['school_primary'] ?? 0;
+    const secondarySchools = accessiblePlacesCountByDetailedCategory['school_secondary'] ?? 0;
+    const universities = accessiblePlacesCountByDetailedCategory['school_university'] ?? 0;
+    const hospitals = accessiblePlacesCountByDetailedCategory['healthcare_hospital'] ?? 0;
+    const dayCares = accessiblePlacesCountByDetailedCategory['school_kindergarten'] ?? 0;
+    const restaurants = accessiblePlacesCountByCategory['restaurant'] ?? 0;
+    const groceries = accessiblePlacesCountByDetailedCategory['shop_supermarket'] ?? 0;
+    const shopping = (accessiblePlacesCountByCategory['shop'] ?? 0) - groceries;
+
+    return {
+        primarySchools,
+        secondarySchools,
+        universities,
+        hospitals,
+        dayCares,
+        restaurants,
+        groceries,
+        shopping
+    };
 };
 
 // Helper function to get address and destination information for any address
@@ -371,6 +425,27 @@ const getAddressesInfo = ({
             address?.name ?? translation('results:locationComparison.defaultAddressName', { number: addressNumber });
         // These values are false if the results are still calculating, for an existing address. True for undefined addresses to not show a loading state if there is nothing to load
         const hasAccessibilityResults = address === undefined || address.accessibilityMapsByMode !== 'calculating';
+
+        let accessiblePois: PoisCountByMode | undefined = undefined;
+        if (address !== undefined && address.accessibilityMapsByMode !== 'calculating') {
+            accessiblePois = Object.fromEntries(
+                ['walking', 'cycling', 'driving', 'transit'].map((mode) => [
+                    mode,
+                    Object.fromEntries(
+                        ['duration15Minutes', 'duration30Minutes', 'duration45Minutes'].map((duration) => [
+                            duration,
+                            getDisplayedCategoriesFromRawCategories(
+                                address.accessibilityMapsByMode?.[mode]?.[duration]?.properties
+                                    ?.accessiblePlacesCountByCategory,
+                                address.accessibilityMapsByMode?.[mode]?.[duration]?.properties
+                                    ?.accessiblePlacesCountByDetailedCategory
+                            )
+                        ])
+                    ) as PoisCountByTime
+                ])
+            ) as PoisCountByMode;
+        }
+
         const hasRoutingResults = address === undefined || address.routingTimeDistances !== 'calculating';
 
         return {
@@ -386,7 +461,8 @@ const getAddressesInfo = ({
             hasAccessibilityResults,
             hasRoutingResults,
             currentVehicleCount: address?.monthlyCost?.currentNumberOfVehicles || 0,
-            predictedVehicleCount: address?.monthlyCost?.predictedNumberOfVehicles ?? null
+            predictedVehicleCount: address?.monthlyCost?.predictedNumberOfVehicles ?? null,
+            accessiblePois
         };
     };
 
