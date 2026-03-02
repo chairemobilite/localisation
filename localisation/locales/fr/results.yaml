@@ -31,8 +31,24 @@ locationComparison.tooManyCarsWarning: >-
     voitures.
 locationComparison.predictedVehicles: Le nombre de véhicules estimé pour ce domicile
     est de {{predictedCarNumber}}
+locationComparison.pointsOfInterestTitle: Points d'intérêt
+locationComparison.daycares: Garderies
+locationComparison.daycares_one: Garderie
+locationComparison.primarySchools: Écoles primaires
+locationComparison.primarySchools_one: École primaire
+locationComparison.secondarySchools: Écoles secondaires
+locationComparison.secondarySchools_one: École secondaire
+locationComparison.universities: Universités
+locationComparison.universities_one: Université
+locationComparison.hospitals: Hôpitaux
+locationComparison.hospitals_one: Hôpital
+locationComparison.restaurants: Restaurants
+locationComparison.restaurants_one: Restaurant
+locationComparison.groceryStores: Épiceries
+locationComparison.groceryStores_one: Épicerie
+locationComparison.shops: Magasins
+locationComparison.shops_one: Magasin
 locationComparison.environmentTitle: Environnement
-locationComparison.environmentPointsOfInterest: Points d'intérêt
 locationComparison.environmentCo2: CO2
 locationComparison.environmentCo2Value: '{{value}} tonnes'
 locationComparison.frequentDestinationsTitle: Destinations fréquentes
