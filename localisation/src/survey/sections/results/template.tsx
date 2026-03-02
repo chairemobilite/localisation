@@ -253,22 +253,22 @@ const TotalCostItem: React.FC<TotalCostItemProps & { translation: TFunction }> =
     );
 };
 
-// Environment item type (for POI/CO2)
-// type EnvironmentItemProps = {
-//     id: string; // e.g., "point-interest-item-1"
-//     label: string; // e.g., "Points of interest" or "CO2"
-//     icon: React.ReactNode; // Emoji or icon
-//     value: string; // Display value
-// };
+// Single value item type (for POI/CO2)
+type SingleValueItemProps = {
+    id: string; // e.g., "point-interest-item-1"
+    label: string; // e.g., "Points of interest" or "CO2"
+    icon: React.ReactNode; // Emoji or icon
+    value: string; // Display value
+};
 
-//Environment item component (for POI/CO2)
-// const EnvironmentItem: React.FC<EnvironmentItemProps> = ({ id, label, icon, value }) => (
-//     <div id={id} className="value-item">
-//         <div>{label}</div>
-//         <div>{icon}</div>
-//         <div>{value}</div>
-//     </div>
-// );
+//Single value item component (for POI/CO2)
+const SingleValueItem: React.FC<SingleValueItemProps> = ({ id, label, icon, value }) => (
+    <div id={id} className="value-item">
+        <div>{label}</div>
+        <div>{icon}</div>
+        <div>{value}</div>
+    </div>
+);
 
 // Frequent destination card component
 type FrequentDestinationCardProps = {
@@ -300,27 +300,31 @@ type FrequentDestinationColumnProps = {
     hasResult: boolean;
 };
 
-const FrequentDestinationColumn: React.FC<FrequentDestinationColumnProps> = ({ title, rows, hasResult }) => (
-    <section className="frequent-destinations-section-container">
-        <h4>{title}</h4>
-        {!hasResult && <LoadingPage />}
-        {rows.map((row) => (
-            <FrequentDestinationCard
-                key={`${row.homeAddressUuid}-${row.destinationAddressUuid}-${row.mode}`}
-                result={row}
-            />
-        ))}
-    </section>
-);
+const FrequentDestinationColumn: React.FC<FrequentDestinationColumnProps> = ({ title, rows, hasResult }) => {
+    const { t } = useTranslation();
+
+    return (
+        <section className="frequent-destinations-section-container">
+            <h4>{title}</h4>
+            {!hasResult && <LoadingPage message={t('main:loadingMessage')} />}
+            {rows.map((row) => (
+                <FrequentDestinationCard
+                    key={`${row.homeAddressUuid}-${row.destinationAddressUuid}-${row.mode}`}
+                    result={row}
+                />
+            ))}
+        </section>
+    );
+};
 
 type PoisCount = {
     primarySchools: number;
     secondarySchools: number;
     universities: number;
     hospitals: number;
-    dayCares: number;
+    daycares: number;
     restaurants: number;
-    groceries: number;
+    groceryStores: number;
     shopping: number;
 };
 
@@ -355,6 +359,7 @@ type AddressInfo = {
     accessiblePois: PoisCountByMode | undefined;
 };
 
+// Helper function to get displayed points of interest categories
 const getDisplayedCategoriesFromRawCategories = (
     accessiblePlacesCountByCategory?: Record<string, number>,
     accessiblePlacesCountByDetailedCategory?: Record<string, number>
@@ -367,19 +372,19 @@ const getDisplayedCategoriesFromRawCategories = (
     const secondarySchools = accessiblePlacesCountByDetailedCategory['school_secondary'] ?? 0;
     const universities = accessiblePlacesCountByDetailedCategory['school_university'] ?? 0;
     const hospitals = accessiblePlacesCountByDetailedCategory['healthcare_hospital'] ?? 0;
-    const dayCares = accessiblePlacesCountByDetailedCategory['school_kindergarten'] ?? 0;
+    const daycares = accessiblePlacesCountByDetailedCategory['school_kindergarten'] ?? 0;
     const restaurants = accessiblePlacesCountByCategory['restaurant'] ?? 0;
-    const groceries = accessiblePlacesCountByDetailedCategory['shop_supermarket'] ?? 0;
-    const shopping = (accessiblePlacesCountByCategory['shop'] ?? 0) - groceries;
+    const groceryStores = accessiblePlacesCountByDetailedCategory['shop_supermarket'] ?? 0;
+    const shopping = (accessiblePlacesCountByCategory['shop'] ?? 0) - groceryStores;
 
     return {
         primarySchools,
         secondarySchools,
         universities,
         hospitals,
-        dayCares,
+        daycares,
         restaurants,
-        groceries,
+        groceryStores,
         shopping
     };
 };
@@ -426,6 +431,7 @@ const getAddressesInfo = ({
         // These values are false if the results are still calculating, for an existing address. True for undefined addresses to not show a loading state if there is nothing to load
         const hasAccessibilityResults = address === undefined || address.accessibilityMapsByMode !== 'calculating';
 
+        // Get accessible points of interest for the address
         let accessiblePois: PoisCountByMode | undefined = undefined;
         if (address !== undefined && address.accessibilityMapsByMode !== 'calculating') {
             accessiblePois = Object.fromEntries(
@@ -547,7 +553,7 @@ const AccessibilityPanel: React.FC<AccessibilityPanelProps> = ({
                     {isMinimized ? '+' : '−'}
                 </button>
             </div>
-            {!isMinimized && !hasAllAccessibilityResults && <LoadingPage />}
+            {!isMinimized && !hasAllAccessibilityResults && <LoadingPage message={t('main:loadingMessage')} />}
             {!isMinimized && hasAllAccessibilityResults && (
                 <>
                     {/* Locations section */}
@@ -695,7 +701,7 @@ export const LocalisationResultsSection: React.FC<SectionProps> = (props: Sectio
 
     // Return the loading page if the interview is not preloaded
     if (!preloaded) {
-        return <LoadingPage />;
+        return <LoadingPage message={t('main:loadingMessage')} />;
     }
 
     // Get address and destination information for both addresses
@@ -703,6 +709,81 @@ export const LocalisationResultsSection: React.FC<SectionProps> = (props: Sectio
         interview: props.interview,
         translation: t
     });
+
+    // Helper to get the selected travel time key
+    let selectedTravelTimeKey: keyof PoisCountByTime;
+    switch (selectedTravelTime) {
+    case '15':
+        selectedTravelTimeKey = 'duration15Minutes';
+        break;
+    case '30':
+        selectedTravelTimeKey = 'duration30Minutes';
+        break;
+    case '45':
+    default:
+        selectedTravelTimeKey = 'duration45Minutes';
+        break;
+    }
+
+    // Helper to get the points of interest counts for an address
+    const getPoisCountsForAddress = (address: AddressInfo): PoisCount | undefined =>
+        address.accessiblePois?.[selectedMode]?.[selectedTravelTimeKey];
+
+    const firstAddressPois = getPoisCountsForAddress(firstAddress);
+    const secondAddressPois = getPoisCountsForAddress(secondAddress);
+
+    // Helper function to format the points of interest value
+    const formatPoisValue = (count: number | undefined): string =>
+        count === undefined ? t('results:notApplicable') : count.toString();
+
+    // Helper to choose the correct label key depending on the count
+    // If the value is 0 or 1, use the *_one key, otherwise use the base key
+    const getPoiLabelKey = (baseKey: string, count: number | undefined): string =>
+        count === undefined || count > 1 ? baseKey : `${baseKey}_one`;
+
+    // Points of interest categories mapping with icon paths from the application
+    const poiCategories: { key: keyof PoisCount; labelKey: string; iconPath: string }[] = [
+        {
+            key: 'daycares',
+            labelKey: 'results:locationComparison.daycares',
+            iconPath: '/dist/icons/activities/home/home_secondary.svg'
+        },
+        {
+            key: 'primarySchools',
+            labelKey: 'results:locationComparison.primarySchools',
+            iconPath: '/dist/icons/activities/school/school_building_large.svg'
+        },
+        {
+            key: 'secondarySchools',
+            labelKey: 'results:locationComparison.secondarySchools',
+            iconPath: '/dist/icons/activities/school/school_building_large.svg'
+        },
+        {
+            key: 'universities',
+            labelKey: 'results:locationComparison.universities',
+            iconPath: '/dist/icons/activities/school/graduation_cap.svg'
+        },
+        {
+            key: 'hospitals',
+            labelKey: 'results:locationComparison.hospitals',
+            iconPath: '/dist/icons/activities/other/medical_cross.svg'
+        },
+        {
+            key: 'restaurants',
+            labelKey: 'results:locationComparison.restaurants',
+            iconPath: '/dist/icons/activities/other/restaurant.svg'
+        },
+        {
+            key: 'groceryStores',
+            labelKey: 'results:locationComparison.groceryStores',
+            iconPath: '/dist/icons/activities/shopping/shopping_basket.svg'
+        },
+        {
+            key: 'shopping',
+            labelKey: 'results:locationComparison.shops',
+            iconPath: '/dist/icons/activities/shopping/shopping_cart.svg'
+        }
+    ];
 
     // Prepare required data
     surveyHelper.devLog('%c rendering section ' + props.shortname, 'background: rgba(0,0,255,0.1);');
@@ -869,26 +950,63 @@ export const LocalisationResultsSection: React.FC<SectionProps> = (props: Sectio
                     )}
                 </section>
 
-                {/* TODO: Add environment section when it is implemented */}
-                {/* Environment Section */}
-                {/* <section id="environment-section">
-                    <h3 id="environment-section-title">{t('results:locationComparison.environmentTitle')}</h3>
+                {/* Points of interest Section */}
+                {/* TODO: The icon are not displayed in black, but we need to modify Evolution-frontend to display them in black */}
+                <section id="points-of-interest-section">
+                    <h3 id="points-of-interest-section-title">
+                        {t('results:locationComparison.pointsOfInterestTitle')}
+                    </h3>
 
-                    <EnvironmentItem
-                        id="point-interest-item-1"
-                        label={t('results:locationComparison.environmentPointsOfInterest')}
-                        icon="📍"
-                        value={firstAddressPointsOfInterest}
-                    />
-                    <EnvironmentItem id="environment-item-1" label={t('results:locationComparison.environmentCo2')} icon="🌱" value={firstAddressCo2} />
-                    <EnvironmentItem
-                        id="point-interest-item-2"
-                        label={t('results:locationComparison.environmentPointsOfInterest')}
-                        icon="📍"
-                        value={secondAddressPointsOfInterest}
-                    />
-                    <EnvironmentItem id="environment-item-2" label={t('results:locationComparison.environmentCo2')} icon="🌱" value={secondAddressCo2} />
-                </section> */}
+                    {/* First address points of interest */}
+                    <div id="points-of-interest-address-name-1">{firstAddress.name}</div>
+                    {!firstAddress.hasAccessibilityResults ? (
+                        <div id="points-of-interest-loading-first" className="points-of-interest-loading-cell">
+                            <LoadingPage message={t('main:loadingMessage')} />
+                        </div>
+                    ) : (
+                        // The order of the items are set in the grid areas of the SCSS file for the points of interest section
+                        poiCategories.map((category, index) => {
+                            const count = firstAddressPois?.[category.key];
+                            const labelKey = getPoiLabelKey(category.labelKey, count);
+                            return (
+                                <SingleValueItem
+                                    key={`poi-first-${index}`}
+                                    id={`poi-first-${index}`}
+                                    label={t(labelKey)}
+                                    icon={
+                                        <img className="poi-icon" src={category.iconPath} alt="" aria-hidden="true" />
+                                    }
+                                    value={formatPoisValue(count)}
+                                />
+                            );
+                        })
+                    )}
+
+                    {/* Second address points of interest */}
+                    <div id="points-of-interest-address-name-2">{secondAddress.name}</div>
+                    {!secondAddress.hasAccessibilityResults ? (
+                        <div id="points-of-interest-loading-second" className="points-of-interest-loading-cell">
+                            <LoadingPage message={t('main:loadingMessage')} />
+                        </div>
+                    ) : (
+                        // The order of the items are set in the grid areas of the SCSS file for the points of interest section
+                        poiCategories.map((category, index) => {
+                            const count = secondAddressPois?.[category.key];
+                            const labelKey = getPoiLabelKey(category.labelKey, count);
+                            return (
+                                <SingleValueItem
+                                    key={`poi-second-${index}`}
+                                    id={`poi-second-${index}`}
+                                    label={t(labelKey)}
+                                    icon={
+                                        <img className="poi-icon" src={category.iconPath} alt="" aria-hidden="true" />
+                                    }
+                                    value={formatPoisValue(count)}
+                                />
+                            );
+                        })
+                    )}
+                </section>
 
                 {/* Frequent Destinations Section */}
                 <section id="frequent-destinations-section">

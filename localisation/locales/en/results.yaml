@@ -30,8 +30,24 @@ locationComparison.tooManyCarsWarning: >-
     Our model estimates that households in this situation have {{numberOfCars}} cars.
 locationComparison.predictedVehicles: The estimated number of vehicles for this home
     is {{predictedCarNumber}}
+locationComparison.pointsOfInterestTitle: Points of interest
+locationComparison.daycares: Daycares
+locationComparison.daycares_one: Daycare
+locationComparison.primarySchools: Primary schools
+locationComparison.primarySchools_one: Primary school
+locationComparison.secondarySchools: Secondary schools
+locationComparison.secondarySchools_one: Secondary school
+locationComparison.universities: Universities
+locationComparison.universities_one: University
+locationComparison.hospitals: Hospitals
+locationComparison.hospitals_one: Hospital
+locationComparison.restaurants: Restaurants
+locationComparison.restaurants_one: Restaurant
+locationComparison.groceryStores: Grocery stores
+locationComparison.groceryStores_one: Grocery store
+locationComparison.shops: Shops
+locationComparison.shops_one: Shop
 locationComparison.environmentTitle: Environment
-locationComparison.environmentPointsOfInterest: Points of interest
 locationComparison.environmentCo2: CO2
 locationComparison.environmentCo2Value: '{{value}} tons'
 locationComparison.frequentDestinationsTitle: Frequent Destinations
