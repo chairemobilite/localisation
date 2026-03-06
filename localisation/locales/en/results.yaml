@@ -22,6 +22,7 @@ locationComparison.costs25years: 25-years
 locationComparison.costsHousing: Housing
 locationComparison.costsTransport: Transport
 locationComparison.costsTotal: Total
+locationComparison.timeTotal: Public transport time to frequent destinations
 locationComparison.costsPercentageOfIncome: ({{percentageOfIncome}}% of gross income)
 locationComparison.tooMuchSpendingWarning: >-
     Note that it is not recommended to spend more than 45% of gross income on housing
@@ -70,3 +71,11 @@ accessibilityPanel.45min: 45 min.
 accessibilityPanel.modeOfTransportTitle: Mode of transport
 accessibilityPanel.collapse: Collapse the panel
 accessibilityPanel.expand: Expand the panel
+timeFormat.lessThanOneMin: < 1 min
+timeFormat.minutes: '{{count}} min'
+timeFormat.hours: '{{hours}} h'
+timeFormat.hoursMinutes: '{{hours}} h {{minutes}} min'
+timeFormat.oneDay: 1 day
+timeFormat.days: '{{count}} days'
+timeFormat.oneDayHours: 1 day {{hours}} h
+timeFormat.daysHours: '{{days}} days {{hours}} h'

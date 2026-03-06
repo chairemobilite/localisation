@@ -22,6 +22,7 @@ locationComparison.costs25years: 25 ans
 locationComparison.costsHousing: Logement
 locationComparison.costsTransport: Transports
 locationComparison.costsTotal: Total
+locationComparison.timeTotal: Temps de transport en commun vers les destinations fréquentes
 locationComparison.costsPercentageOfIncome: ({{percentageOfIncome}}% du revenu brut)
 locationComparison.tooMuchSpendingWarning: >-
     Il est à noter qu'il n'est pas recommandé de consacrer plus de 45 % de son revenu
@@ -71,3 +72,11 @@ accessibilityPanel.45min: 45 min.
 accessibilityPanel.modeOfTransportTitle: Mode de transport
 accessibilityPanel.collapse: Réduire la fenêtre
 accessibilityPanel.expand: Agrandir la fenêtre
+timeFormat.lessThanOneMin: < 1 min
+timeFormat.minutes: '{{count}} min'
+timeFormat.hours: '{{hours}} h'
+timeFormat.hoursMinutes: '{{hours}} h {{minutes}} min'
+timeFormat.oneDay: 1 jour
+timeFormat.days: '{{count}} jours'
+timeFormat.oneDayHours: 1 jour {{hours}} h
+timeFormat.daysHours: '{{days}} jours {{hours}} h'
