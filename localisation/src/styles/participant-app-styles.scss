@@ -164,6 +164,7 @@ $ItemColor: #D9D9D9;
             "address-name-1 address-name-1 address-name-2 address-name-2"
             "housing-cost-item-1 transport-cost-item-1 housing-cost-item-2 transport-cost-item-2"
             "total-cost-item-1 total-cost-item-1 total-cost-item-2 total-cost-item-2"
+            "total-time-item-1 total-time-item-1 total-time-item-2 total-time-item-2"
             "note-costs-item-1 note-costs-item-1 note-costs-item-2 note-costs-item-2";
         gap: 1.5rem;
         @include vertical-separator;
@@ -246,6 +247,14 @@ $ItemColor: #D9D9D9;
 
     #total-cost-item-2 {
         grid-area: total-cost-item-2;
+    }
+
+    #total-time-item-1 {
+        grid-area: total-time-item-1;
+    }
+
+    #total-time-item-2 {
+        grid-area: total-time-item-2;
     }
 
     #note-costs-item-1 {
@@ -390,6 +399,7 @@ $ItemColor: #D9D9D9;
         border-radius: 1.5rem;
         padding: 1rem;
         text-align: center;
+        color: black;
 
         // SVG icons
         svg {
