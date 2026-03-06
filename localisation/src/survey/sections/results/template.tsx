@@ -46,6 +46,7 @@ const adjustCostByPeriod = ({
     return period === 'annual' ? value * 12 : value;
 };
 
+// TODO: Add currency symbol based on the language
 // Helper function to format currency values
 const formatCurrency = ({ value }: { value: number | string | undefined | null }): string => {
     if (value === undefined || value === null || value === 'N/A') {
@@ -62,13 +63,41 @@ const formatCurrency = ({ value }: { value: number | string | undefined | null }
     return `${formatted} $`;
 };
 
-// Helper function to format time from seconds to minutes
-const formatTime = ({ seconds }: { seconds: number | undefined | null }): string => {
+// Helper function to format time (minutes under 1 h, hours + minutes above, days when 24 h+)
+const formatTime = ({
+    seconds
+}: {
+    seconds: number | undefined | null;
+}): string => {
+    const { t } = useTranslation();
     if (seconds === undefined || seconds === null || isNaN(seconds)) {
-        return 'N/A';
+        return t('results:notApplicable');
     }
-    const minutes = Math.round(seconds / 60);
-    return `${minutes} min.`;
+    const totalMinutes = Math.round(seconds / 60);
+    if (totalMinutes < 1) {
+        return t('results:timeFormat.lessThanOneMin');
+    }
+    if (totalMinutes < 60) {
+        return t('results:timeFormat.minutes', { count: totalMinutes });
+    }
+    const totalHours = Math.floor(totalMinutes / 60);
+    const mins = totalMinutes % 60;
+    if (totalHours < 24) {
+        if (mins === 0) {
+            return t('results:timeFormat.hours', { hours: totalHours });
+        }
+        return t('results:timeFormat.hoursMinutes', { hours: totalHours, minutes: mins });
+    }
+    const days = Math.floor(totalHours / 24);
+    const hours = totalHours % 24;
+    if (hours === 0) {
+        return days === 1
+            ? t('results:timeFormat.oneDay')
+            : t('results:timeFormat.days', { count: days });
+    }
+    return days === 1
+        ? t('results:timeFormat.oneDayHours', { hours })
+        : t('results:timeFormat.daysHours', { days, hours });
 };
 
 // Helper function to format distance from meters to kilometers
@@ -224,7 +253,7 @@ const CostItem: React.FC<CostItemProps> = ({ id, label, icon, value }) => (
     <div id={id} className="value-item">
         <div>{label}</div>
         {icon}
-        <div>{formatCurrency({ value })}</div>
+        <div className="strong">{formatCurrency({ value })}</div>
     </div>
 );
 
@@ -236,19 +265,34 @@ type TotalCostItemProps = {
 };
 
 // Total cost item component
-const TotalCostItem: React.FC<TotalCostItemProps & { translation: TFunction }> = ({
-    id,
-    totalCost,
-    percentageOfIncome,
-    translation
-}) => {
+const TotalCostItem: React.FC<TotalCostItemProps> = ({ id, totalCost, percentageOfIncome }) => {
+    const { t } = useTranslation();
+
     return (
         <div id={id} className="value-item">
-            <div>{translation('results:locationComparison.costsTotal')}</div>
-            <div>{formatCurrency({ value: totalCost })}</div>
+            <div>{t('results:locationComparison.costsTotal')}</div>
+            <div className="strong">{formatCurrency({ value: totalCost })}</div>
             {percentageOfIncome !== undefined && percentageOfIncome !== null && (
-                <div>{translation('results:locationComparison.costsPercentageOfIncome', { percentageOfIncome })}</div>
+                <div>{t('results:locationComparison.costsPercentageOfIncome', { percentageOfIncome })}</div>
             )}
+        </div>
+    );
+};
+
+// Total time item type
+type TotalTimeItemProps = {
+    id: string; // e.g., "total-time-item-1"
+    totalSeconds: number | undefined; // Total time value
+};
+
+// Total cost item component
+const TotalTimeItem: React.FC<TotalTimeItemProps> = ({ id, totalSeconds }) => {
+    const { t } = useTranslation();
+
+    return (
+        <div id={id} className="value-item">
+            <div>{t('results:locationComparison.timeTotal')}</div>
+            <div className="strong">{formatTime({ seconds: totalSeconds })}</div>
         </div>
     );
 };
@@ -266,7 +310,7 @@ const SingleValueItem: React.FC<SingleValueItemProps> = ({ id, label, icon, valu
     <div id={id} className="value-item">
         <div>{label}</div>
         <div>{icon}</div>
-        <div>{value}</div>
+        <div className="strong">{value}</div>
     </div>
 );
 
@@ -285,9 +329,9 @@ const FrequentDestinationCard: React.FC<FrequentDestinationCardProps> = ({ resul
                 {modeSvg}
                 <span>{t(`results:modeNames.${result.mode}`)}</span>
             </div>
-            <div>
-                {formatTime({ seconds: result.travelTimeSeconds })} ({formatDistance({ meters: result.distanceMeters })}
-                )
+            <div className="strong">
+                {formatTime({ seconds: result.travelTimeSeconds })} (
+                {formatDistance({ meters: result.distanceMeters })})
             </div>
         </div>
     );
@@ -483,16 +527,16 @@ const getAddressesInfo = ({
     // Note: We need to check if the address UUIDs are defined to avoid errors
     const allFrequentDestinations: DestinationResult[] = [
         ...(firstAddressInfo.uuid &&
-        firstAddressInfo.routingTimeDistances &&
-        firstAddressInfo.routingTimeDistances !== 'calculating'
+            firstAddressInfo.routingTimeDistances &&
+            firstAddressInfo.routingTimeDistances !== 'calculating'
             ? buildFrequentDestinations({
                 routingTimeDistances: firstAddressInfo.routingTimeDistances,
                 homeAddressUuid: firstAddressInfo.uuid
             })
             : []),
         ...(secondAddressInfo.uuid &&
-        secondAddressInfo.routingTimeDistances &&
-        secondAddressInfo.routingTimeDistances !== 'calculating'
+            secondAddressInfo.routingTimeDistances &&
+            secondAddressInfo.routingTimeDistances !== 'calculating'
             ? buildFrequentDestinations({
                 routingTimeDistances: secondAddressInfo.routingTimeDistances,
                 homeAddressUuid: secondAddressInfo.uuid
@@ -713,16 +757,16 @@ export const LocalisationResultsSection: React.FC<SectionProps> = (props: Sectio
     // Helper to get the selected travel time key
     let selectedTravelTimeKey: keyof PoisCountByTime;
     switch (selectedTravelTime) {
-    case '15':
-        selectedTravelTimeKey = 'duration15Minutes';
-        break;
-    case '30':
-        selectedTravelTimeKey = 'duration30Minutes';
-        break;
-    case '45':
-    default:
-        selectedTravelTimeKey = 'duration45Minutes';
-        break;
+        case '15':
+            selectedTravelTimeKey = 'duration15Minutes';
+            break;
+        case '30':
+            selectedTravelTimeKey = 'duration30Minutes';
+            break;
+        case '45':
+        default:
+            selectedTravelTimeKey = 'duration45Minutes';
+            break;
     }
 
     // Helper to get the points of interest counts for an address
@@ -911,7 +955,6 @@ export const LocalisationResultsSection: React.FC<SectionProps> = (props: Sectio
                             translation: t
                         })}
                     />
-
                     <TotalCostItem
                         id="total-cost-item-1"
                         totalCost={adjustCostByPeriod({
@@ -920,7 +963,6 @@ export const LocalisationResultsSection: React.FC<SectionProps> = (props: Sectio
                             translation: t
                         })}
                         percentageOfIncome={firstAddress.housingAndTransportCostPercentageOfIncome}
-                        translation={t}
                     />
                     <TotalCostItem
                         id="total-cost-item-2"
@@ -930,8 +972,10 @@ export const LocalisationResultsSection: React.FC<SectionProps> = (props: Sectio
                             translation: t
                         })}
                         percentageOfIncome={secondAddress.housingAndTransportCostPercentageOfIncome}
-                        translation={t}
                     />
+                    {/* TODO: Add total time items when it is implemented */}
+                    <TotalTimeItem id="total-time-item-1" totalSeconds={250000} />
+                    <TotalTimeItem id="total-time-item-2" totalSeconds={14350} />
 
                     {/* TODO: Add costs warning when it is implemented */}
                     {firstAddress.predictedVehicleCount !== null && (
