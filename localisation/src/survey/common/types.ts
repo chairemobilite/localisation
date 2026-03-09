@@ -36,6 +36,9 @@ export type Address = {
           }
         | null
         | 'calculating';
+    // Total transit travel time to frequent destinations (in seconds), aggregated by period
+    frequentDestinationsTransitTimeMonthlySeconds?: number | null | 'calculating';
+    frequentDestinationsTransitTimeAnnualSeconds?: number | null | 'calculating';
     routingTimeDistances?:
         | {
               [destinationUuid: string]: RoutingByModeDistanceAndTime | null;

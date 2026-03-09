@@ -1,6 +1,10 @@
 import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { getAddressesArray } from '../common/customHelpers';
-import { calculateAccessibilityAndRouting, calculateMonthlyCost } from '../calculations';
+import {
+    calculateAccessibilityAndRouting,
+    calculateMonthlyCost,
+    getFrequentDestinationsTransitTotalTime
+} from '../calculations';
 import { Address } from '../common/types';
 
 // FIXME Add callbacks to invalidate results when geographies change and calculate results only on demand
@@ -27,10 +31,27 @@ export default [
                             accessibilityAndRouting.accessibilityMapsByMode;
                         updatedValues[`addresses.${address._uuid}.routingTimeDistances`] =
                             accessibilityAndRouting.routingTimeDistances;
+                        const monthlyTransitTimeSeconds = getFrequentDestinationsTransitTotalTime({
+                            routingTimeDistances: accessibilityAndRouting.routingTimeDistances,
+                            interview,
+                            period: 'monthly'
+                        });
+                        const annualTransitTimeSeconds = getFrequentDestinationsTransitTotalTime({
+                            routingTimeDistances: accessibilityAndRouting.routingTimeDistances,
+                            interview,
+                            period: 'annual'
+                        });
+                        updatedValues[`addresses.${address._uuid}.frequentDestinationsTransitTimeMonthlySeconds`] =
+                            monthlyTransitTimeSeconds;
+                        updatedValues[`addresses.${address._uuid}.frequentDestinationsTransitTimeAnnualSeconds`] =
+                            annualTransitTimeSeconds;
                     } catch (error) {
                         console.error('error calculating accessibility and routing for address', address._uuid, error);
                         updatedValues[`addresses.${address._uuid}.accessibilityMapsByMode`] = null;
                         updatedValues[`addresses.${address._uuid}.routingTimeDistances`] = null;
+                        updatedValues[`addresses.${address._uuid}.frequentDestinationsTransitTimeMonthlySeconds`] =
+                            null;
+                        updatedValues[`addresses.${address._uuid}.frequentDestinationsTransitTimeAnnualSeconds`] = null;
                     }
 
                     return updatedValues;
@@ -56,6 +77,10 @@ export default [
                             });
                             updatedValues[`addresses.${address._uuid}.accessibilityMapsByMode`] = 'calculating';
                             updatedValues[`addresses.${address._uuid}.routingTimeDistances`] = 'calculating';
+                            updatedValues[`addresses.${address._uuid}.frequentDestinationsTransitTimeMonthlySeconds`] =
+                                'calculating';
+                            updatedValues[`addresses.${address._uuid}.frequentDestinationsTransitTimeAnnualSeconds`] =
+                                'calculating';
                         } else {
                             console.warn(
                                 'Address does not have valid geography, skipping accessibility and routing calculations for address',

@@ -1,17 +1,13 @@
 import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
-import type {
-    Address,
-    AddressAccessibilityMapsDurations,
-    CostsCalculationResults,
-    RoutingByModeDistanceAndTime
-} from '../common/types';
+import type { Address, CostsCalculationResults, RoutingByModeDistanceAndTime } from '../common/types';
 import { CarCategory, CarEngine } from '../common/types';
 import { mortgageMonthlyPayment } from './mortgage';
 import { getResponse } from 'evolution-common/lib/utils/helpers';
 import {
     getAccessibilityMapFromAddressForSimpleModes,
     getAccessibilityMapFromAddressForTransit,
+    getFrequentDestinationsTransitTotalTime,
     getRoutingFromAddressToDestination
 } from './routingAndAccessibility';
 import { getDestinationsArray, getVehiclesArray } from '../common/customHelpers';
@@ -362,3 +358,5 @@ export const calculateAccessibilityAndRouting = async (
         routingTimeDistances
     };
 };
+
+export { getFrequentDestinationsTransitTotalTime };
