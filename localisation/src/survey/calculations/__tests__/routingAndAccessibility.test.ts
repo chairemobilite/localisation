@@ -5,11 +5,11 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { getAccessibilityMapFromAddressForSimpleModes, getAccessibilityMapFromAddressForTransit, getRoutingFromAddressToDestination } from '../routingAndAccessibility';
-import type { Address, Destination } from '../../common/types';
+import { getAccessibilityMapFromAddressForSimpleModes, getAccessibilityMapFromAddressForTransit, getRoutingFromAddressToDestination, getFrequentDestinationsTransitTotalTime } from '../routingAndAccessibility';
+import type { Address, Destination, RoutingByModeDistanceAndTime } from '../../common/types';
+import { UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import * as routing from 'evolution-backend/lib/services/routing';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
-import _ from 'lodash';
 import type { AccessibilityMapPolygonProperties } from 'evolution-backend/lib/services/routing/types';
 
 // Mock the routing module
@@ -262,6 +262,166 @@ describe('getAccessibilityMapFromAddressForTransit', () => {
         const result = await getAccessibilityMapFromAddressForTransit(address);
 
         expect(result).toEqual(expected);
+    });
+});
+
+describe('getFrequentDestinationsTransitTotalTime', () => {
+    const baseInterview: Omit<UserInterviewAttributes, 'response'> = {
+        id: 1,
+        uuid: 'interview-uuid',
+        participant_id: 1,
+        is_completed: false,
+        validations: {},
+        is_valid: true
+    };
+
+    const createInterview = (destinations: { [uuid: string]: Destination }): UserInterviewAttributes => ({
+        ...baseInterview,
+        response: {
+            destinations
+        } as any
+    });
+
+    const createRouting = (overrides: Partial<RoutingByModeDistanceAndTime> = {}): RoutingByModeDistanceAndTime => ({
+        _uuid: 'dest',
+        _sequence: 1,
+        resultsByMode: {
+            walking: null,
+            cycling: null,
+            driving: null,
+            transit: {
+                _uuid: 'transit',
+                _sequence: 0,
+                distanceMeters: 1000,
+                travelTimeSeconds: 600
+            }
+        },
+        ...overrides
+    });
+
+    it('computes monthly and annual total transit time with round trips', () => {
+        const destinations: { [uuid: string]: Destination } = {
+            'dest-1': { _sequence: 1, _uuid: 'dest-1', frequencyWeekly: '5' },
+            'dest-2': { _sequence: 2, _uuid: 'dest-2', frequencyWeekly: '3' }
+        };
+        const interview = createInterview(destinations);
+
+        const routingTimeDistances: Address['routingTimeDistances'] = {
+            'dest-1': createRouting({
+                _uuid: 'dest-1',
+                resultsByMode: {
+                    walking: null,
+                    cycling: null,
+                    driving: null,
+                    transit: {
+                        _uuid: 'transit',
+                        _sequence: 0,
+                        distanceMeters: 1000,
+                        travelTimeSeconds: 600
+                    }
+                }
+            }),
+            'dest-2': createRouting({
+                _uuid: 'dest-2',
+                _sequence: 2,
+                resultsByMode: {
+                    walking: null,
+                    cycling: null,
+                    driving: null,
+                    transit: {
+                        _uuid: 'transit',
+                        _sequence: 0,
+                        distanceMeters: 2000,
+                        travelTimeSeconds: 900
+                    }
+                }
+            })
+        };
+
+        // Weekly: (5 * 600 * 2) + (3 * 900 * 2)
+        const weekly = 5 * 600 * 2 + 3 * 900 * 2;
+        const expectedAnnual = weekly * 52;
+        const expectedMonthly = (weekly * 52) / 12;
+
+        const annual = getFrequentDestinationsTransitTotalTime({
+            routingTimeDistances,
+            interview,
+            period: 'annual'
+        });
+        const monthly = getFrequentDestinationsTransitTotalTime({
+            routingTimeDistances,
+            interview,
+            period: 'monthly'
+        });
+
+        expect(annual).toBe(expectedAnnual);
+        expect(monthly).toBeCloseTo(expectedMonthly);
+    });
+
+    it('ignores destinations without routing or transit result', () => {
+        const destinations: { [uuid: string]: Destination } = {
+            'dest-1': { _sequence: 1, _uuid: 'dest-1', frequencyWeekly: '5' },
+            'dest-2': { _sequence: 2, _uuid: 'dest-2', frequencyWeekly: '4' }
+        };
+        const interview = createInterview(destinations);
+
+        const routingTimeDistances: Address['routingTimeDistances'] = {
+            'dest-1': createRouting(),
+            // dest-2 missing routing entirely
+            'dest-2': null
+        };
+
+        const weekly = 5 * 600 * 2;
+        const expectedAnnual = weekly * 52;
+
+        const annual = getFrequentDestinationsTransitTotalTime({
+            routingTimeDistances,
+            interview,
+            period: 'annual'
+        });
+
+        expect(annual).toBe(expectedAnnual);
+    });
+
+    it('returns null when all destinations are invalid or have non-positive frequency', () => {
+        const destinations: { [uuid: string]: Destination } = {
+            'dest-1': { _sequence: 1, _uuid: 'dest-1', frequencyWeekly: '0' },
+            'dest-2': { _sequence: 2, _uuid: 'dest-2', frequencyWeekly: undefined }
+        };
+        const interview = createInterview(destinations);
+
+        const routingTimeDistances: Address['routingTimeDistances'] = {
+            'dest-1': createRouting(),
+            'dest-2': createRouting({ _uuid: 'dest-2', _sequence: 2 })
+        };
+
+        const result = getFrequentDestinationsTransitTotalTime({
+            routingTimeDistances,
+            interview,
+            period: 'monthly'
+        });
+
+        expect(result).toBeNull();
+    });
+
+    it('returns null when routing results are null or calculating', () => {
+        const interview = createInterview({});
+
+        expect(
+            getFrequentDestinationsTransitTotalTime({
+                routingTimeDistances: null,
+                interview,
+                period: 'monthly'
+            })
+        ).toBeNull();
+
+        expect(
+            getFrequentDestinationsTransitTotalTime({
+                routingTimeDistances: 'calculating',
+                interview,
+                period: 'annual'
+            })
+        ).toBeNull();
     });
 });
 
