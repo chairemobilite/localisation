@@ -6,11 +6,13 @@ import type {
     Destination,
     AddressAccessibilityMapsDurations
 } from '../common/types';
+import { getDestinationsArray } from '../common/customHelpers';
 import type { RoutingOrTransitMode } from 'chaire-lib-common/lib/config/routingModes';
 import type {
     AccessibilityMapCalculationParameter,
     AccessibilityMapPolygonProperties
 } from 'evolution-backend/lib/services/routing/types';
+import { type UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types/Data';
 
 const getAccessibilityMapFromAddress = async ({
     address,
@@ -189,4 +191,79 @@ export const getRoutingFromAddressToDestination = async (
         console.error('Error getting routing from address to destination', error);
         return null;
     }
+};
+
+/**
+ * Compute the total transit travel time to frequent destinations for a given set of
+ * routing results and an interview.
+ *
+ * The calculation uses:
+ * - the transit routing results stored on the address (`routingTimeDistances`)
+ * - the weekly visit frequency for each destination (`frequencyWeekly`)
+ *
+ * It first aggregates a weekly total (seconds per week), then converts it to the
+ * requested period (monthly or annual).
+ *
+ * @param routingTimeDistances Routing results by destination for the address
+ * @param interview Interview containing the destinations and their weekly frequencies
+ * @param period 'monthly' or 'annual' aggregation
+ * @returns Total transit travel time in **seconds** for the given period, or null when unavailable
+ */
+export const getFrequentDestinationsTransitTotalTime = ({
+    routingTimeDistances,
+    interview,
+    period
+}: {
+    routingTimeDistances: Address['routingTimeDistances'];
+    interview: { response: unknown };
+    period: 'monthly' | 'annual';
+}): number | null => {
+    // If routing results are not available yet, return null
+    if (!routingTimeDistances || routingTimeDistances === 'calculating') {
+        return null;
+    }
+
+    const destinations = getDestinationsArray(interview as UserInterviewAttributes);
+
+    // First aggregate a weekly total in seconds
+    let weeklyTotalSeconds = 0;
+
+    // FIXME: We should send a better message to the user if no routing results are found for any destination.
+    for (const destination of destinations) {
+        const routingForDestination = routingTimeDistances[destination._uuid];
+        if (!routingForDestination) {
+            console.error('No routing results found for destination', destination._uuid);
+            continue;
+        }
+
+        const transitResult = routingForDestination.resultsByMode?.transit;
+        if (!transitResult || typeof transitResult.travelTimeSeconds !== 'number') {
+            console.error('No transit travel time seconds found for destination', destination._uuid);
+            continue;
+        }
+
+        const weeklyFrequency = Number(destination.frequencyWeekly);
+        if (!isFinite(weeklyFrequency) || weeklyFrequency <= 0) {
+            console.error('Invalid weekly frequency for destination', destination._uuid);
+            continue;
+        }
+
+        // Weekly total for this destination: visits per week * two-way transit time
+        // FIXME: We should use a better formula to compute the total transit time,
+        // FIXME: taking into account the path of the trip.
+        weeklyTotalSeconds += weeklyFrequency * transitResult.travelTimeSeconds * 2;
+    }
+
+    if (weeklyTotalSeconds <= 0) {
+        return null;
+    }
+
+    // Convert from weekly to the requested period
+    if (period === 'annual') {
+        // 52 weeks per year
+        return weeklyTotalSeconds * 52;
+    }
+
+    // Monthly: derive from annual to keep consistency with the annual figure
+    return (weeklyTotalSeconds * 52) / 12;
 };

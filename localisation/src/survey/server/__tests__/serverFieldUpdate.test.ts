@@ -13,7 +13,8 @@ import * as calculations from '../../calculations';
 // Mock the calculations module
 jest.mock('../../calculations', () => ({
     calculateMonthlyCost: jest.fn(),
-    calculateAccessibilityAndRouting: jest.fn()
+    calculateAccessibilityAndRouting: jest.fn(),
+    getFrequentDestinationsTransitTotalTime: jest.fn()
 }));
 
 const mockCalculateMonthlyCost = calculations.calculateMonthlyCost as jest.MockedFunction<
@@ -22,9 +23,13 @@ const mockCalculateMonthlyCost = calculations.calculateMonthlyCost as jest.Mocke
 const mockCalculateAccessibilityAndRouting = calculations.calculateAccessibilityAndRouting as jest.MockedFunction<
     typeof calculations.calculateAccessibilityAndRouting
 >;
+const mockGetFrequentDestinationsTransitTotalTime =
+    calculations.getFrequentDestinationsTransitTotalTime as jest.MockedFunction<
+        typeof calculations.getFrequentDestinationsTransitTotalTime
+    >;
 
 describe('serverFieldUpdate - _sections._actions callback', () => {
-    const sectionsActionsCallback = serverFieldUpdate.find(callback => callback.field === '_sections._actions')!;
+    const sectionsActionsCallback = serverFieldUpdate.find((callback) => callback.field === '_sections._actions')!;
     const registerUpdateOperationMock = jest.fn();
 
     const mockAccessibilityMap: AddressAccessibilityMapsDurations = {
@@ -125,6 +130,9 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
             accessibilityMapsByMode: mockAccessibilityMapsByModeResult,
             routingTimeDistances: mockRoutingTimeDistances
         });
+        mockGetFrequentDestinationsTransitTotalTime
+            .mockReturnValueOnce(1000)
+            .mockReturnValueOnce(2000);
     });
 
     const createMockInterview = (addresses: { [uuid: string]: Address } = {}): UserInterviewAttributes => ({
@@ -189,6 +197,8 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
             });
             expect('addresses.address-1.accessibilityMapsByMode' in result).toBe(true);
             expect(result['addresses.address-1.accessibilityMapsByMode']).toEqual('calculating');
+            expect(result['addresses.address-1.frequentDestinationsTransitTimeMonthlySeconds']).toEqual('calculating');
+            expect(result['addresses.address-1.frequentDestinationsTransitTimeAnnualSeconds']).toEqual('calculating');
             expect(mockCalculateMonthlyCost).toHaveBeenCalledWith(address, interview);
             expect(registerUpdateOperationMock).toHaveBeenCalledWith({
                 opName: `addressCalculations${address._uuid}`,
@@ -199,7 +209,15 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
             // Get the the 'operation' part of the argument passed to the registered operation and execute it to check if it returns the expected accessibility and routing results
             const registeredOperation = registerUpdateOperationMock.mock.calls[0][0].operation;
             const accessibilityAndRoutingResult = await registeredOperation(() => false);
-            expect(accessibilityAndRoutingResult['addresses.address-1.accessibilityMapsByMode']).toEqual(mockAccessibilityMapsByModeResult);
+            expect(accessibilityAndRoutingResult['addresses.address-1.accessibilityMapsByMode']).toEqual(
+                mockAccessibilityMapsByModeResult
+            );
+            expect(
+                accessibilityAndRoutingResult['addresses.address-1.frequentDestinationsTransitTimeMonthlySeconds']
+            ).toEqual(1000);
+            expect(
+                accessibilityAndRoutingResult['addresses.address-1.frequentDestinationsTransitTimeAnnualSeconds']
+            ).toEqual(2000);
             expect(mockCalculateAccessibilityAndRouting).toHaveBeenCalledWith(address, interview);
 
         });
