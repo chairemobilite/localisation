@@ -5,13 +5,13 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { getAccessibilityMapFromAddressForSimpleModes, getAccessibilityMapFromAddressForTransit, getRoutingFromAddressToDestination, getFrequentDestinationsTransitTotalTime } from '../routingAndAccessibility';
-import type { Address, Destination, RoutingByModeDistanceAndTime } from '../../common/types';
 import { UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import * as routing from 'evolution-backend/lib/services/routing';
-import config from 'chaire-lib-common/lib/config/shared/project.config';
 import type { AccessibilityMapPolygonProperties } from 'evolution-backend/lib/services/routing/types';
-
+import config from 'chaire-lib-common/lib/config/shared/project.config';
+import { getAccessibilityMapFromAddressForSimpleModes, getAccessibilityMapFromAddressForTransit, getRoutingFromAddressToDestination, getFrequentDestinationsTransitTotalTime } from '../routingAndAccessibility';
+import type { Address, Destination, RoutingByModeDistanceAndTime } from '../../common/types';
+import { DEPARTURE_TIMES_KEYS} from '../../common/resultsConstants'
 // Mock the routing module
 jest.mock('evolution-backend/lib/services/routing', () => ({
     getTransitAccessibilityMap: jest.fn(),
@@ -108,7 +108,8 @@ describe('getAccessibilityMapFromAddressForTransit', () => {
         jest.clearAllMocks();
         // Set up default config scenario
         config.trRoutingScenarios = {
-            SE: mockScenario
+            week: mockScenario,
+            weekend: mockScenario
         } as any;
     });
 
@@ -133,11 +134,18 @@ describe('getAccessibilityMapFromAddressForTransit', () => {
 
             const result = await getAccessibilityMapFromAddressForTransit(address);
 
-            expect(result).toEqual({
-                duration15Minutes: mockPolygons.features[0],
-                duration30Minutes: mockPolygons.features[1],
-                duration45Minutes: mockPolygons.features[2]
-            });
+            const expectedResult = Object.fromEntries(
+                DEPARTURE_TIMES_KEYS.map((departure) => [
+                    departure,
+                    {
+                        duration15Minutes: mockPolygons.features[0],
+                        duration30Minutes: mockPolygons.features[1],
+                        duration45Minutes: mockPolygons.features[2]
+                    }
+                ])
+            );
+
+            expect(result).toEqual(expectedResult);
             expect(mockGetTransitAccessibilityMap).toHaveBeenCalledWith({
                 point: mockGeography,
                 numberOfPolygons: 3,
@@ -156,7 +164,9 @@ describe('getAccessibilityMapFromAddressForTransit', () => {
     ])('error handling - $description', async ({ address }: { address: Address }) => {
         const result = await getAccessibilityMapFromAddressForTransit(address);
 
-        expect(result).toBeNull();
+        DEPARTURE_TIMES_KEYS.forEach((departure) => {
+            expect(result?.[departure]).toBeNull();
+        });
         expect(mockGetTransitAccessibilityMap).not.toHaveBeenCalled();
     });
 
@@ -166,7 +176,7 @@ describe('getAccessibilityMapFromAddressForTransit', () => {
             setupConfig: () => { delete config.trRoutingScenarios; }
         },
         {
-            description: 'SE scenario is undefined in config',
+            description: 'week scenario is undefined in config',
             setupConfig: () => { config.trRoutingScenarios = {} as any; }
         }
     ])('error handling - missing scenario configuration - should return null when $description', async ({ setupConfig }) => {
@@ -180,7 +190,9 @@ describe('getAccessibilityMapFromAddressForTransit', () => {
 
         const result = await getAccessibilityMapFromAddressForTransit(address);
 
-        expect(result).toBeNull();
+        DEPARTURE_TIMES_KEYS.forEach((departure) => {
+            expect(result?.[departure]).toBeNull();
+        });
         expect(mockGetTransitAccessibilityMap).not.toHaveBeenCalled();
     });
 
@@ -218,7 +230,9 @@ describe('getAccessibilityMapFromAddressForTransit', () => {
 
         const result = await getAccessibilityMapFromAddressForTransit(address);
 
-        expect(result).toBeNull();
+        DEPARTURE_TIMES_KEYS.forEach((departure) => {
+            expect(result?.[departure]).toBeNull();
+        });
         expect(mockGetTransitAccessibilityMap).toHaveBeenCalled();
     });
 
@@ -226,20 +240,26 @@ describe('getAccessibilityMapFromAddressForTransit', () => {
         {
             description: 'empty polygon collection',
             polygonFeatures: [],
-            expected: {
-                duration15Minutes: null,
-                duration30Minutes: null,
-                duration45Minutes: null
-            }
+            expected: Object.fromEntries(DEPARTURE_TIMES_KEYS.map((departure) => [
+                departure,
+                {
+                    duration15Minutes: null,
+                    duration30Minutes: null,
+                    duration45Minutes: null
+                }
+            ])) 
         },
         {
             description: 'missing polygons in result (no 30 minutes)',
             polygonFeatures: [mockPolygons.features[0], mockPolygons.features[2]],
-            expected: {
-                duration15Minutes: mockPolygons.features[0],
-                duration30Minutes: null,
-                duration45Minutes: mockPolygons.features[2]
-            }
+            expected: Object.fromEntries(DEPARTURE_TIMES_KEYS.map((departure) => [
+                departure,
+                {
+                    duration15Minutes: mockPolygons.features[0],
+                    duration30Minutes: null,
+                    duration45Minutes: mockPolygons.features[2]
+                }
+            ]))  
         }
     ])('different polygon results - should handle $description', async ({ polygonFeatures, expected }) => {
         const address: Address = {
@@ -496,23 +516,40 @@ describe('getAccessibilityMapFromAddressForSimpleModes', () => {
 
             const result = await getAccessibilityMapFromAddressForSimpleModes(address);
 
-            expect(result).toEqual({
-                walking: {
-                    duration15Minutes: mockWalkingPolygons.features[0],
-                    duration30Minutes: mockWalkingPolygons.features[1],
-                    duration45Minutes: mockWalkingPolygons.features[2]
-                },
-                cycling: {
-                    duration15Minutes: mockCyclingPolygons.features[0],
-                    duration30Minutes: mockCyclingPolygons.features[1],
-                    duration45Minutes: mockCyclingPolygons.features[2]
-                },
-                driving: {
-                    duration15Minutes: mockDrivingPolygons.features[0],
-                    duration30Minutes: mockDrivingPolygons.features[1],
-                    duration45Minutes: mockDrivingPolygons.features[2]
-                }
-            });
+            const expectedResult = {
+                walking: Object.fromEntries(
+                    DEPARTURE_TIMES_KEYS.map((departure) => [
+                        departure,
+                        {
+                            duration15Minutes: mockWalkingPolygons.features[0],
+                            duration30Minutes: mockWalkingPolygons.features[1],
+                            duration45Minutes: mockWalkingPolygons.features[2]
+                        }
+                    ])
+                ),
+                cycling: Object.fromEntries(
+                    DEPARTURE_TIMES_KEYS.map((departure) => [
+                        departure,
+                        {
+                            duration15Minutes: mockCyclingPolygons.features[0],
+                            duration30Minutes: mockCyclingPolygons.features[1],
+                            duration45Minutes: mockCyclingPolygons.features[2]
+                        }
+                    ])
+                ),
+                driving: Object.fromEntries(
+                    DEPARTURE_TIMES_KEYS.map((departure) => [
+                        departure,
+                        {
+                            duration15Minutes: mockDrivingPolygons.features[0],
+                            duration30Minutes: mockDrivingPolygons.features[1],
+                            duration45Minutes: mockDrivingPolygons.features[2]
+                        }
+                    ])
+                )
+            };
+
+            expect(result).toEqual(expectedResult);
             // Test call for walking mode
             expect(mockGetTransitAccessibilityMap).toHaveBeenCalledWith({
                 point: mockGeography,
@@ -554,11 +591,19 @@ describe('getAccessibilityMapFromAddressForSimpleModes', () => {
     ])('error handling - $description', async ({ address }: { address: Address }) => {
         const result = await getAccessibilityMapFromAddressForSimpleModes(address);
 
-        expect(result).toEqual({
-            walking: null,
-            cycling: null,
-            driving: null
-        });
+        const expectedResult = Object.fromEntries(
+            ['walking', 'cycling', 'driving'].map((mode) => [
+                mode,
+                Object.fromEntries(
+                    DEPARTURE_TIMES_KEYS.map((departure) => [
+                        departure,
+                        null
+                    ])
+                )
+            ])
+        );
+
+        expect(result).toEqual(expectedResult);
         expect(mockGetTransitAccessibilityMap).not.toHaveBeenCalled();
     });
 
@@ -568,7 +613,7 @@ describe('getAccessibilityMapFromAddressForSimpleModes', () => {
             setupConfig: () => { delete config.emptyScenarioForSimpleModes; }
         },
         {
-            description: 'SE scenario is undefined in config',
+            description: 'week scenario is undefined in config',
             setupConfig: () => { config.emptyScenarioForSimpleModes = undefined; }
         }
     ])('error handling - missing scenario configuration - should return null when $description', async ({ setupConfig }) => {
@@ -582,11 +627,19 @@ describe('getAccessibilityMapFromAddressForSimpleModes', () => {
 
         const result = await getAccessibilityMapFromAddressForSimpleModes(address);
 
-        expect(result).toEqual({
-            walking: null,
-            cycling: null,
-            driving: null
-        });
+        const expectedResult = Object.fromEntries(
+            ['walking', 'cycling', 'driving'].map((mode) => [
+                mode,
+                Object.fromEntries(
+                    DEPARTURE_TIMES_KEYS.map((departure) => [
+                        departure,
+                        null
+                    ])
+                )
+            ])
+        );
+
+        expect(result).toEqual(expectedResult);
         expect(mockGetTransitAccessibilityMap).not.toHaveBeenCalled();
     });
 
@@ -624,11 +677,19 @@ describe('getAccessibilityMapFromAddressForSimpleModes', () => {
 
         const result = await getAccessibilityMapFromAddressForSimpleModes(address);
 
-        expect(result).toEqual({
-            walking: null,
-            cycling: null,
-            driving: null
-        });
+        const expectedResult = Object.fromEntries(
+            ['walking', 'cycling', 'driving'].map((mode) => [
+                mode,
+                Object.fromEntries(
+                    DEPARTURE_TIMES_KEYS.map((departure) => [
+                        departure,
+                        null
+                    ])
+                )
+            ])
+        );
+
+        expect(result).toEqual(expectedResult);
         expect(mockGetTransitAccessibilityMap).toHaveBeenCalled();
         expect(mockGetTransitAccessibilityMap).toHaveBeenCalledTimes(3);
     });
@@ -637,19 +698,16 @@ describe('getAccessibilityMapFromAddressForSimpleModes', () => {
         {
             description: 'empty polygon collection',
             polygonFeatures: [[], [], []],
-            expected: [{
-                duration15Minutes: null,
-                duration30Minutes: null,
-                duration45Minutes: null
-            }, {
-                duration15Minutes: null,
-                duration30Minutes: null,
-                duration45Minutes: null
-            }, {
-                duration15Minutes: null,
-                duration30Minutes: null,
-                duration45Minutes: null
-            }]
+            expected: Array(3).fill(
+                Object.fromEntries(DEPARTURE_TIMES_KEYS.map((departure) => [
+                    departure,
+                    {
+                        duration15Minutes: null,
+                        duration30Minutes: null,
+                        duration45Minutes: null
+                    }
+                ]))
+            )
         },
         {
             description: 'missing polygons in result (no 30 minutes for driving and walking, no 15 minutes for cycling)',
@@ -658,19 +716,32 @@ describe('getAccessibilityMapFromAddressForSimpleModes', () => {
                 [mockCyclingPolygons.features[1], mockCyclingPolygons.features[2]],
                 [mockDrivingPolygons.features[0], mockDrivingPolygons.features[2]]
             ],
-            expected: [{
-                duration15Minutes: mockWalkingPolygons.features[0],
-                duration30Minutes: null,
-                duration45Minutes: mockWalkingPolygons.features[2]
-            }, {
-                duration15Minutes: null,
-                duration30Minutes: mockCyclingPolygons.features[1],
-                duration45Minutes: mockCyclingPolygons.features[2]
-            }, {
-                duration15Minutes: mockDrivingPolygons.features[0],
-                duration30Minutes: null,
-                duration45Minutes: mockDrivingPolygons.features[2]
-            }]
+            expected: [
+                Object.fromEntries(DEPARTURE_TIMES_KEYS.map((departure) => [
+                    departure,
+                    {
+                        duration15Minutes: mockWalkingPolygons.features[0],
+                        duration30Minutes: null,
+                        duration45Minutes: mockWalkingPolygons.features[2]
+                    }
+                ])),
+                Object.fromEntries(DEPARTURE_TIMES_KEYS.map((departure) => [
+                    departure,
+                    {
+                        duration15Minutes: null,
+                        duration30Minutes: mockCyclingPolygons.features[1],
+                        duration45Minutes: mockCyclingPolygons.features[2]
+                    }
+                ])),
+                Object.fromEntries(DEPARTURE_TIMES_KEYS.map((departure) => [
+                    departure,
+                    {
+                        duration15Minutes: mockDrivingPolygons.features[0],
+                        duration30Minutes: null,
+                        duration45Minutes: mockDrivingPolygons.features[2]
+                    }
+                ]))
+            ]
         }
     ])('different polygon results - should handle $description', async ({ polygonFeatures, expected }) => {
         const address: Address = {
@@ -738,7 +809,7 @@ describe('getRoutingFromAddressToDestination', () => {
     beforeEach(() => {
         jest.clearAllMocks();
         config.trRoutingScenarios = {
-            SE: mockScenario
+            week: mockScenario
         } as any;
     });
 
@@ -1003,7 +1074,7 @@ describe('getRoutingFromAddressToDestination', () => {
             expect(mockCalculateTimeDistanceByMode).not.toHaveBeenCalled();
         });
 
-        it('should return null when SE scenario is undefined in config', async () => {
+        it('should return null when the week scenario is undefined in config', async () => {
             config.trRoutingScenarios = {} as any;
 
             const address: Address = {

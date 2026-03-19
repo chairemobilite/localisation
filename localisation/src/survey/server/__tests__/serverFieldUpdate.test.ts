@@ -7,8 +7,9 @@
 
 import serverFieldUpdate from '../serverFieldUpdate';
 import { UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
-import { Address, AddressAccessibilityMapsDurations } from '../../common/types';
+import { Address, AddressAccessibilityMapsDurations, AccessibilityMapsByDeparture } from '../../common/types';
 import * as calculations from '../../calculations';
+import { DEPARTURE_TIMES_KEYS} from '../../common/resultsConstants'
 
 // Mock the calculations module
 jest.mock('../../calculations', () => ({
@@ -54,12 +55,21 @@ describe('serverFieldUpdate - _sections._actions callback', () => {
         },
         duration45Minutes: null
     };
+
+    const mockAccessibilityMapOneMode: AccessibilityMapsByDeparture = Object.fromEntries(
+        DEPARTURE_TIMES_KEYS.map((departure) => [
+            departure,
+            mockAccessibilityMap
+        ])
+    ) as AccessibilityMapsByDeparture;
+
     const mockAccessibilityMapsByModeResult = {
-        transit: mockAccessibilityMap,
-        walking: mockAccessibilityMap,
-        cycling: mockAccessibilityMap,
-        driving: mockAccessibilityMap
+        transit: mockAccessibilityMapOneMode,
+        walking: mockAccessibilityMapOneMode,
+        cycling: mockAccessibilityMapOneMode,
+        driving: mockAccessibilityMapOneMode
     };
+
     const mockRoutingTimeDistances = {
         'destination-uuid-1': {
             _uuid: 'destination-uuid-1',

@@ -1,4 +1,5 @@
 import type { AccessibilityMapPolygonProperties } from 'evolution-backend/lib/services/routing/types';
+import { DEPARTURE_TIMES_KEYS } from './resultsConstants';
 
 /**
  * Type for housing locations
@@ -29,10 +30,10 @@ export type Address = {
     monthlyCost?: CostsCalculationResults;
     accessibilityMapsByMode?:
         | {
-              walking: AddressAccessibilityMapsDurations | null;
-              cycling: AddressAccessibilityMapsDurations | null;
-              driving: AddressAccessibilityMapsDurations | null;
-              transit: AddressAccessibilityMapsDurations | null;
+              walking: AccessibilityMapsByDeparture | null;
+              cycling: AccessibilityMapsByDeparture | null;
+              driving: AccessibilityMapsByDeparture | null;
+              transit: AccessibilityMapsByDeparture | null;
           }
         | null
         | 'calculating';
@@ -45,6 +46,10 @@ export type Address = {
           }
         | null
         | 'calculating';
+};
+
+export type AccessibilityMapsByDeparture = {
+    [key in DepartureTimes]: AddressAccessibilityMapsDurations | null;
 };
 
 export type AddressAccessibilityMapsDurations = {
@@ -131,6 +136,8 @@ export type DestinationResult = {
     travelTimeSeconds?: number;
 };
 
+export type DepartureTimes = (typeof DEPARTURE_TIMES_KEYS)[number];
+
 /**
  * Accessibility panel attributes for filtering and displaying accessibility maps.
  * All properties are optional to allow for partial data during runtime.
@@ -138,5 +145,6 @@ export type DestinationResult = {
 export type AccessibilityPanelAttrs = {
     selectedLocation?: 'both' | 'first' | 'second';
     selectedTravelTime?: '15' | '30' | '45';
+    selectedDeparture?: DepartureTimes;
     selectedMode?: 'walking' | 'cycling' | 'transit';
 };

@@ -15,7 +15,8 @@ import LoadingPage from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
 import { SectionProps, useSectionTemplate } from 'evolution-frontend/lib/components/hooks/useSectionTemplate';
 import { getAddressesArray, getDestinationsArray } from '../../common/customHelpers';
 import type { UserRuntimeInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
-import type { AccessibilityPanelAttrs } from '../../common/types';
+import type { AccessibilityPanelAttrs, DepartureTimes } from '../../common/types';
+import { DEPARTURE_TIMES_KEYS } from '../../common/resultsConstants';
 
 // Modified interview attributes with accessibility panel
 type ModifiedInterviewAttributes = UserRuntimeInterviewAttributes & {
@@ -388,11 +389,15 @@ type PoisCountByTime = {
     duration45Minutes?: PoisCount;
 };
 
+type PoisCountByDeparture = {
+    [key in DepartureTimes]: PoisCountByTime;
+};
+
 type PoisCountByMode = {
-    walking: PoisCountByTime;
-    cycling: PoisCountByTime;
-    driving: PoisCountByTime;
-    transit: PoisCountByTime;
+    walking: PoisCountByDeparture;
+    cycling: PoisCountByDeparture;
+    driving: PoisCountByDeparture;
+    transit: PoisCountByDeparture;
 };
 
 // Type for address information returned by the helper function
@@ -489,21 +494,30 @@ const getAddressesInfo = ({
 
         // Get accessible points of interest for the address
         let accessiblePois: PoisCountByMode | undefined = undefined;
+        const modeMappings = ['walking', 'cycling', 'driving', 'transit'];
+        const departureMappings = DEPARTURE_TIMES_KEYS;
+        const durationMappings = ['duration15Minutes', 'duration30Minutes', 'duration45Minutes'];
+
         if (address !== undefined && address.accessibilityMapsByMode !== 'calculating') {
             accessiblePois = Object.fromEntries(
-                ['walking', 'cycling', 'driving', 'transit'].map((mode) => [
+                modeMappings.map((mode) => [
                     mode,
                     Object.fromEntries(
-                        ['duration15Minutes', 'duration30Minutes', 'duration45Minutes'].map((duration) => [
-                            duration,
-                            getDisplayedCategoriesFromRawCategories(
-                                address.accessibilityMapsByMode?.[mode]?.[duration]?.properties
-                                    ?.accessiblePlacesCountByCategory,
-                                address.accessibilityMapsByMode?.[mode]?.[duration]?.properties
-                                    ?.accessiblePlacesCountByDetailedCategory
-                            )
+                        departureMappings.map((departure) => [
+                            departure,
+                            Object.fromEntries(
+                                durationMappings.map((duration) => [
+                                    duration,
+                                    getDisplayedCategoriesFromRawCategories(
+                                        address.accessibilityMapsByMode?.[mode]?.[departure]?.[duration]?.properties
+                                            ?.accessiblePlacesCountByCategory,
+                                        address.accessibilityMapsByMode?.[mode]?.[departure]?.[duration]?.properties
+                                            ?.accessiblePlacesCountByDetailedCategory
+                                    )
+                                ])
+                            ) as PoisCountByTime
                         ])
-                    ) as PoisCountByTime
+                    ) as PoisCountByDeparture
                 ])
             ) as PoisCountByMode;
         }
@@ -576,6 +590,8 @@ type AccessibilityPanelProps = {
     setSelectedLocation: (location: 'both' | 'first' | 'second') => void;
     selectedTravelTime: '15' | '30' | '45';
     setSelectedTravelTime: (time: '15' | '30' | '45') => void;
+    selectedDeparture: DepartureTimes;
+    setSelectedDeparture: (departure: DepartureTimes) => void;
     selectedMode: 'walking' | 'cycling' | 'transit';
     setSelectedMode: (mode: 'walking' | 'cycling' | 'transit') => void;
     hasAllAccessibilityResults: boolean; // Whether both addresses have accessibility results to show yet
@@ -587,6 +603,8 @@ const AccessibilityPanel: React.FC<AccessibilityPanelProps> = ({
     setSelectedLocation,
     selectedTravelTime,
     setSelectedTravelTime,
+    selectedDeparture,
+    setSelectedDeparture,
     selectedMode,
     setSelectedMode,
     hasAllAccessibilityResults
@@ -615,6 +633,7 @@ const AccessibilityPanel: React.FC<AccessibilityPanelProps> = ({
             {!isMinimized && !hasAllAccessibilityResults && <LoadingPage message={t('main:loadingMessage')} />}
             {!isMinimized && hasAllAccessibilityResults && (
                 <>
+                    {/* TODO: Turn these sections into separate components */}
                     {/* Locations section */}
                     <section>
                         <h3>{t('results:accessibilityPanel.locationsTitle')}</h3>
@@ -677,6 +696,124 @@ const AccessibilityPanel: React.FC<AccessibilityPanelProps> = ({
                         </div>
                     </section>
 
+                    {/* Departure time section */}
+                    <section>
+                        <h3>{t('results:accessibilityPanel.departureTitle')}</h3>
+                        {selectedMode !== 'transit' && (
+                            <h4 className="_yellow">{t('results:accessibilityPanel.noTransitWarningMessage')}</h4>
+                        )}
+                        <div>{t('results:accessibilityPanel.week')}</div>
+                        <div id="button-group-departure-time-week" className="button-group">
+                            <button
+                                className={
+                                    selectedDeparture === 'eightAmWeek' && selectedMode === 'transit'
+                                        ? 'active'
+                                        : 'inactive'
+                                }
+                                type="button"
+                                aria-pressed={selectedDeparture === 'eightAmWeek'}
+                                onClick={() => setSelectedDeparture('eightAmWeek')}
+                                disabled={selectedMode !== 'transit'}
+                            >
+                                {t('results:accessibilityPanel.8am')}
+                            </button>
+                            <button
+                                className={
+                                    selectedDeparture === 'twelvePmWeek' && selectedMode === 'transit'
+                                        ? 'active'
+                                        : 'inactive'
+                                }
+                                type="button"
+                                aria-pressed={selectedDeparture === 'twelvePmWeek'}
+                                onClick={() => setSelectedDeparture('twelvePmWeek')}
+                                disabled={selectedMode !== 'transit'}
+                            >
+                                {t('results:accessibilityPanel.12pm')}
+                            </button>
+                            <button
+                                className={
+                                    selectedDeparture === 'fivePmWeek' && selectedMode === 'transit'
+                                        ? 'active'
+                                        : 'inactive'
+                                }
+                                type="button"
+                                aria-pressed={selectedDeparture === 'fivePmWeek'}
+                                onClick={() => setSelectedDeparture('fivePmWeek')}
+                                disabled={selectedMode !== 'transit'}
+                            >
+                                {t('results:accessibilityPanel.5pm')}
+                            </button>
+                            <button
+                                className={
+                                    selectedDeparture === 'tenPmWeek' && selectedMode === 'transit'
+                                        ? 'active'
+                                        : 'inactive'
+                                }
+                                type="button"
+                                aria-pressed={selectedDeparture === 'tenPmWeek'}
+                                onClick={() => setSelectedDeparture('tenPmWeek')}
+                                disabled={selectedMode !== 'transit'}
+                            >
+                                {t('results:accessibilityPanel.10pm')}
+                            </button>
+                        </div>
+                        <div>{t('results:accessibilityPanel.weekend')}</div>
+                        <div id="button-group-departure-time-weekend" className="button-group">
+                            <button
+                                className={
+                                    selectedDeparture === 'eightAmWeekend' && selectedMode === 'transit'
+                                        ? 'active'
+                                        : 'inactive'
+                                }
+                                type="button"
+                                aria-pressed={selectedDeparture === 'eightAmWeekend'}
+                                onClick={() => setSelectedDeparture('eightAmWeekend')}
+                                disabled={selectedMode !== 'transit'}
+                            >
+                                {t('results:accessibilityPanel.8am')}
+                            </button>
+                            <button
+                                className={
+                                    selectedDeparture === 'twelvePmWeekend' && selectedMode === 'transit'
+                                        ? 'active'
+                                        : 'inactive'
+                                }
+                                type="button"
+                                aria-pressed={selectedDeparture === 'twelvePmWeekend'}
+                                onClick={() => setSelectedDeparture('twelvePmWeekend')}
+                                disabled={selectedMode !== 'transit'}
+                            >
+                                {t('results:accessibilityPanel.12pm')}
+                            </button>
+                            <button
+                                className={
+                                    selectedDeparture === 'fivePmWeekend' && selectedMode === 'transit'
+                                        ? 'active'
+                                        : 'inactive'
+                                }
+                                type="button"
+                                aria-pressed={selectedDeparture === 'fivePmWeekend'}
+                                onClick={() => setSelectedDeparture('fivePmWeekend')}
+                                disabled={selectedMode !== 'transit'}
+                            >
+                                {t('results:accessibilityPanel.5pm')}
+                            </button>
+                            <button
+                                className={
+                                    selectedDeparture === 'tenPmWeekend' && selectedMode === 'transit'
+                                        ? 'active'
+                                        : 'inactive'
+                                }
+                                type="button"
+                                aria-pressed={selectedDeparture === 'tenPmWeekend'}
+                                onClick={() => setSelectedDeparture('tenPmWeekend')}
+                                disabled={selectedMode !== 'transit'}
+                            >
+                                {t('results:accessibilityPanel.10pm')}
+                            </button>
+                        </div>
+                    </section>
+
                     {/* Mode of transport section */}
                     <section>
                         <h3>{t('results:accessibilityPanel.modeOfTransportTitle')}</h3>
@@ -726,6 +863,7 @@ export const LocalisationResultsSection: React.FC<SectionProps> = (props: Sectio
     const [costPeriod, setCostPeriod] = useState<'monthly' | 'annual'>('monthly');
     const [selectedLocation, setSelectedLocation] = useState<'both' | 'first' | 'second'>('both');
     const [selectedTravelTime, setSelectedTravelTime] = useState<'15' | '30' | '45'>('30');
+    const [selectedDeparture, setSelectedDeparture] = useState<DepartureTimes>('eightAmWeek');
     const [selectedMode, setSelectedMode] = useState<'walking' | 'cycling' | 'transit'>('transit');
 
     // Compute the modified interview with accessibility panel settings using useMemo to avoid stale renders
@@ -734,9 +872,9 @@ export const LocalisationResultsSection: React.FC<SectionProps> = (props: Sectio
     const modifiedInterview = useMemo<ModifiedInterviewAttributes>(
         () => ({
             ...props.interview,
-            accessibilityPanel: { selectedLocation, selectedTravelTime, selectedMode }
+            accessibilityPanel: { selectedLocation, selectedTravelTime, selectedDeparture, selectedMode }
         }),
-        [props.interview, selectedLocation, selectedTravelTime, selectedMode]
+        [props.interview, selectedLocation, selectedTravelTime, selectedDeparture, selectedMode]
     );
 
     useEffect(() => {
@@ -791,7 +929,7 @@ export const LocalisationResultsSection: React.FC<SectionProps> = (props: Sectio
 
     // Helper to get the points of interest counts for an address
     const getPoisCountsForAddress = (address: AddressInfo): PoisCount | undefined =>
-        address.accessiblePois?.[selectedMode]?.[selectedTravelTimeKey];
+        address.accessiblePois?.[selectedMode]?.[selectedDeparture]?.[selectedTravelTimeKey];
 
     const firstAddressPois = getPoisCountsForAddress(firstAddress);
     const secondAddressPois = getPoisCountsForAddress(secondAddress);
@@ -886,6 +1024,8 @@ export const LocalisationResultsSection: React.FC<SectionProps> = (props: Sectio
                 setSelectedLocation={setSelectedLocation}
                 selectedTravelTime={selectedTravelTime}
                 setSelectedTravelTime={setSelectedTravelTime}
+                selectedDeparture={selectedDeparture}
+                setSelectedDeparture={setSelectedDeparture}
                 selectedMode={selectedMode}
                 setSelectedMode={setSelectedMode}
                 hasAllAccessibilityResults={

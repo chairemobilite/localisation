@@ -44,7 +44,8 @@ module.exports = {
         lng: -140.99778
     }],
     trRoutingScenarios: {
-        SE: '6fff51a9-b6d9-464e-bf2b-eeae574ac75e'
+        week: '6fff51a9-b6d9-464e-bf2b-eeae574ac75e',
+        weekend: '6ac3f408-cd4d-4200-bec6-6be2d01f1bd4'
     },
     emptyScenarioForSimpleModes: '7564af29-f653-4378-8499-6ba3cfa5c462',
     

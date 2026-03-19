@@ -72,6 +72,16 @@ accessibilityPanel.45min: 45 min.
 accessibilityPanel.modeOfTransportTitle: Mode de transport
 accessibilityPanel.collapse: Réduire la fenêtre
 accessibilityPanel.expand: Agrandir la fenêtre
+accessibilityPanel.departureTitle: Heure de départ
+accessibilityPanel.8am: 8h
+accessibilityPanel.12pm: 12h
+accessibilityPanel.5pm: 17h
+accessibilityPanel.10pm: 22h
+accessibilityPanel.week: Semaine
+accessibilityPanel.weekend: Fin de semaine
+accessibilityPanel.noTransitWarningMessage: >-
+    Notez que l’heure de départ n’a pas d’effet pour les modes autres que le transport
+    collectif.
 timeFormat.lessThanOneMin: < 1 min
 timeFormat.minutes: '{{count}} min'
 timeFormat.hours: '{{hours}} h'
