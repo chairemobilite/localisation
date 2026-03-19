@@ -1,28 +1,94 @@
 import { calculateTimeDistanceByMode, getTransitAccessibilityMap } from 'evolution-backend/lib/services/routing';
-import config from 'chaire-lib-common/lib/config/shared/project.config';
-import type {
-    Address,
-    RoutingByModeDistanceAndTime,
-    Destination,
-    AddressAccessibilityMapsDurations
-} from '../common/types';
-import { getDestinationsArray } from '../common/customHelpers';
-import type { RoutingOrTransitMode } from 'chaire-lib-common/lib/config/routingModes';
 import type {
     AccessibilityMapCalculationParameter,
     AccessibilityMapPolygonProperties
 } from 'evolution-backend/lib/services/routing/types';
 import { type UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types/Data';
+import config from 'chaire-lib-common/lib/config/shared/project.config';
+import type { RoutingOrTransitMode } from 'chaire-lib-common/lib/config/routingModes';
+import type {
+    Address,
+    RoutingByModeDistanceAndTime,
+    Destination,
+    AddressAccessibilityMapsDurations,
+    AccessibilityMapsByDeparture
+} from '../common/types';
+import { DEPARTURE_TIMES_IN_HOURS, DEPARTURE_TIMES_KEYS } from '../common/resultsConstants';
+import { getDestinationsArray } from '../common/customHelpers';
 
-const getAccessibilityMapFromAddress = async ({
+const getAccessibilityMapsFromAddress = async (
+    {
+        address,
+        weekScenario,
+        weekendScenario,
+        extraParameters,
+        timeMappings = [15, 30, 45]
+    }: {
+        address: Address;
+        weekScenario?: string;
+        weekendScenario?: string;
+        extraParameters: Partial<AccessibilityMapCalculationParameter>;
+        timeMappings?: number[];
+    },
+    isTransit?: boolean
+): Promise<AccessibilityMapsByDeparture> => {
+    let accessibilityMapsArray: (AddressAccessibilityMapsDurations | null)[];
+
+    // The departure hour and whether it's the week or weekend only matters in transit mode. For the other modes, we only do one calculation to save time.
+    if (isTransit) {
+        const accessibilityMapsArrayWeek = await Promise.all(
+            DEPARTURE_TIMES_IN_HOURS.map(async (departureHour) => {
+                return await getAccessibilityMapFromAddressAndDeparture({
+                    address,
+                    scenario: weekScenario,
+                    extraParameters,
+                    departureHour,
+                    timeMappings
+                });
+            })
+        );
+
+        const accessibilityMapsArrayWeekend = await Promise.all(
+            DEPARTURE_TIMES_IN_HOURS.map(async (departureHour) => {
+                return await getAccessibilityMapFromAddressAndDeparture({
+                    address,
+                    scenario: weekendScenario,
+                    extraParameters,
+                    departureHour,
+                    timeMappings
+                });
+            })
+        );
+
+        accessibilityMapsArray = accessibilityMapsArrayWeek.concat(accessibilityMapsArrayWeekend);
+    } else {
+        const accessibilityMap = await getAccessibilityMapFromAddressAndDeparture({
+            address,
+            scenario: weekScenario,
+            extraParameters,
+            departureHour: 8,
+            timeMappings
+        });
+
+        accessibilityMapsArray = Array(DEPARTURE_TIMES_KEYS.length).fill(accessibilityMap);
+    }
+
+    return Object.fromEntries(
+        DEPARTURE_TIMES_KEYS.map((departure, index) => [departure, accessibilityMapsArray[index]])
+    ) as AccessibilityMapsByDeparture;
+};
+
+const getAccessibilityMapFromAddressAndDeparture = async ({
     address,
     scenario,
     extraParameters,
+    departureHour,
     timeMappings = [15, 30, 45]
 }: {
     address: Address;
     scenario?: string;
     extraParameters: Partial<AccessibilityMapCalculationParameter>;
+    departureHour: number;
     // FIXME Because of speed limitations, the time mappings allow to request
     // higher values for modes like driving and cycling, while mapping to 15, 30
     // and 45 minutes equivalent. This value will not be needed when we actually
@@ -46,8 +112,7 @@ const getAccessibilityMapFromAddress = async ({
             numberOfPolygons: 3,
             calculatePois: true,
             maxTotalTravelTimeMinutes: timeMappings[2],
-            // FIXME Allow to parameterize these values
-            departureSecondsSinceMidnight: 8 * 3600, // 8 AM
+            departureSecondsSinceMidnight: departureHour * 3600,
             ...extraParameters
         });
         if (accessibilityMapResponse.status !== 'success') {
@@ -75,15 +140,23 @@ const getAccessibilityMapFromAddress = async ({
 };
 
 /**
- * Calculate the accessibility map for an address
+ * Calculate the accessibility map of an address for mode transit
  * @param address The address from which to get the accessibility map
- * @returns A multipolygon of the data, or null if the result could not be
- * calculated correctly
+ * @returns An object with several keys corresponding to departure times,
+ * each value being the accessiblity map for that time.
  */
 export const getAccessibilityMapFromAddressForTransit = async (
     address: Address
-): Promise<AddressAccessibilityMapsDurations | null> => {
-    return getAccessibilityMapFromAddress({ address, scenario: config.trRoutingScenarios?.SE, extraParameters: {} });
+): Promise<AccessibilityMapsByDeparture | null> => {
+    return getAccessibilityMapsFromAddress(
+        {
+            address,
+            weekScenario: config.trRoutingScenarios?.week,
+            weekendScenario: config.trRoutingScenarios?.weekend,
+            extraParameters: {}
+        },
+        true
+    );
 };
 
 const walkingSpeedKmPerHour = 5;
@@ -101,29 +174,29 @@ const drivingTimingFactor = drivingSpeedKmPerHour / walkingSpeedKmPerHour;
 export const getAccessibilityMapFromAddressForSimpleModes = async (
     address: Address
 ): Promise<{
-    walking: AddressAccessibilityMapsDurations | null;
-    cycling: AddressAccessibilityMapsDurations | null;
-    driving: AddressAccessibilityMapsDurations | null;
+    walking: AccessibilityMapsByDeparture;
+    cycling: AccessibilityMapsByDeparture;
+    driving: AccessibilityMapsByDeparture;
 }> => {
     // FIXME Hack: we use accessibility map for an empty transit scenario to
     // get isochrones for simple modes. We just need to set the accessEgress
     // time to the maximum duration, with a walking speed corresponding to
     // the speed of the mode.
     return {
-        walking: await getAccessibilityMapFromAddress({
+        walking: await getAccessibilityMapsFromAddress({
             address,
-            scenario: config.emptyScenarioForSimpleModes,
+            weekScenario: config.emptyScenarioForSimpleModes,
             extraParameters: { maxAccessEgressTravelTimeMinutes: 45, walkingSpeedKmPerHour: walkingSpeedKmPerHour }
         }),
-        cycling: await getAccessibilityMapFromAddress({
+        cycling: await getAccessibilityMapsFromAddress({
             address,
-            scenario: config.emptyScenarioForSimpleModes,
+            weekScenario: config.emptyScenarioForSimpleModes,
             extraParameters: { maxAccessEgressTravelTimeMinutes: 45 * cyclingTimingFactor },
             timeMappings: [15 * cyclingTimingFactor, 30 * cyclingTimingFactor, 45 * cyclingTimingFactor]
         }),
-        driving: await getAccessibilityMapFromAddress({
+        driving: await getAccessibilityMapsFromAddress({
             address,
-            scenario: config.emptyScenarioForSimpleModes,
+            weekScenario: config.emptyScenarioForSimpleModes,
             extraParameters: { maxAccessEgressTravelTimeMinutes: 45 * drivingTimingFactor },
             timeMappings: [15 * drivingTimingFactor, 30 * drivingTimingFactor, 45 * drivingTimingFactor]
         })
@@ -148,7 +221,7 @@ export const getRoutingFromAddressToDestination = async (
             return null;
         }
         // Take a week scenario, as defined in the config
-        const scenario = config.trRoutingScenarios?.SE;
+        const scenario = config.trRoutingScenarios?.week;
         if (scenario === undefined) {
             console.error('No transit scenario defined in config for routing calculation');
             return null;

@@ -7,12 +7,13 @@
 import _cloneDeep from 'lodash/cloneDeep';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import * as Status from 'chaire-lib-common/lib/utils/Status';
-import { calculateAccessibilityAndRouting, calculateMonthlyCost } from '../index';
-import { Address, AddressAccessibilityMapsDurations, Destination, RoutingByModeDistanceAndTime } from '../../common/types';
 import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
+import { calculateAccessibilityAndRouting, calculateMonthlyCost } from '../index';
+import type { Address, AddressAccessibilityMapsDurations, Destination, RoutingByModeDistanceAndTime, AccessibilityMapsByDeparture } from '../../common/types';
 import { mortgageMonthlyPayment } from '../mortgage';
 import { predictCarOwnership } from '../carOwnership';
 import { getAccessibilityMapFromAddressForSimpleModes, getAccessibilityMapFromAddressForTransit, getRoutingFromAddressToDestination } from '../routingAndAccessibility';
+import { DEPARTURE_TIMES_KEYS} from '../../common/resultsConstants'
 
 jest.mock('../mortgage', () => ({
     mortgageMonthlyPayment: jest.fn()
@@ -831,7 +832,7 @@ describe('calculateAccessibilityAndRouting', () => {
         properties: {}
     };
 
-    const mockAccessibilityMapOneMode: AddressAccessibilityMapsDurations = {
+    const mockAccessibilityMapOneDeparture: AddressAccessibilityMapsDurations = {
         duration15Minutes: {
             type: 'Feature',
             geometry: {
@@ -896,6 +897,13 @@ describe('calculateAccessibilityAndRouting', () => {
             }
         }
     };
+
+    const mockAccessibilityMapOneMode: AccessibilityMapsByDeparture = Object.fromEntries(
+        DEPARTURE_TIMES_KEYS.map((departure) => [
+            departure,
+            mockAccessibilityMapOneDeparture
+        ])
+    ) as AccessibilityMapsByDeparture;
 
     const mockAccessibilityMap = {
         walking: mockAccessibilityMapOneMode,
@@ -972,7 +980,8 @@ describe('calculateAccessibilityAndRouting', () => {
         });
         testInterview = _cloneDeep(mockInterview);
         config.trRoutingScenarios = {
-            SE: 'testScenario'
+            week: 'testScenario',
+            weekend: 'testScenario'
         } as any;
     });
 

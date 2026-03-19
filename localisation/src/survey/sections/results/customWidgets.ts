@@ -7,7 +7,7 @@ import {
 } from 'evolution-common/lib/services/questionnaire/types';
 import { getActivityMarkerIcon } from 'evolution-common/lib/services/questionnaire/sections/visitedPlaces/activityIconMapping';
 import { getAddressesArray, getDestinationsArray } from '../../common/customHelpers';
-import type { AccessibilityPanelAttrs } from '../../common/types';
+import type { AccessibilityPanelAttrs, DepartureTimes } from '../../common/types';
 
 // Colors taken from a qualitative color scheme from ColorBrewer https://colorbrewer2.org/#type=qualitative&scheme=Accent&n=5
 const colorPalette = ['#7fc97f', '#beaed4', '#fdc086', '#ffff99', '#386cb0'];
@@ -51,6 +51,8 @@ export const comparisonMap: InfoMapWidgetConfig = {
             interviewWithPanel?.accessibilityPanel?.selectedLocation ?? 'both';
         const selectedTravelTime: '15' | '30' | '45' =
             interviewWithPanel?.accessibilityPanel?.selectedTravelTime ?? '30';
+        const selectedDeparture: DepartureTimes =
+            interviewWithPanel?.accessibilityPanel?.selectedDeparture ?? 'eightAmWeek';
         const selectedMode: 'walking' | 'cycling' | 'transit' =
             interviewWithPanel?.accessibilityPanel?.selectedMode ?? 'transit';
 
@@ -108,7 +110,8 @@ export const comparisonMap: InfoMapWidgetConfig = {
                 | 'duration15Minutes'
                 | 'duration30Minutes'
                 | 'duration45Minutes';
-            const accessibilityMap = address.accessibilityMapsByMode?.[selectedMode]?.[durationProperty];
+            const accessibilityMap =
+                address.accessibilityMapsByMode?.[selectedMode]?.[selectedDeparture]?.[durationProperty];
 
             // Add the accessibility map polygons for the selected travel time and mode
             // Use addressIndex to determine color: house #1 (index 0) gets colorPalette[0], house #2 (index 1) gets colorPalette[1]

@@ -314,7 +314,7 @@ export const calculateAccessibilityAndRouting = async (
     routingTimeDistances: { [destinationUuid: string]: RoutingByModeDistanceAndTime | null } | null;
 }> => {
     // Make sure there is a scenario defined, otherwise, do a quick return
-    const scenario = config.trRoutingScenarios?.SE;
+    const scenario = config.trRoutingScenarios?.week;
     if (scenario === undefined) {
         console.error('No transit scenario defined in config for routing and accessibility calculation');
         return {
