@@ -15,12 +15,13 @@ geography: >-
 ownership: Comptez-vous <strong>acheter ou louer</strong> cette maison?
 rentMonthly: <strong>Prix du loyer par mois</strong>
 areUtilitiesIncluded: >-
-    <strong>Le prix des services publics</strong> (électricité, gaz, ...) <strong>est-il
-    inclus dans le loyer?</strong>
+    <strong>Le prix des services publics</strong> (électricité, gaz, parking, ...)
+    <strong>est-il inclus dans le loyer?</strong>
 mortgage: <strong>Montant du prêt hypothécaire</strong>
 interestRate: <strong>Taux d'intérêt du prêt hypothécaire</strong>, en %
 amortizationPeriodInYears: <strong>Période d'amortissement du prêt hypothécaire</strong>
 taxesYearly: <strong>Montant annuel des taxes municipales et scolaires</strong>
 utilitiesMonthly: >-
-    <strong>Montant mensuel des services publics</strong> (électricité, gaz, ...)
+    <strong>Montant mensuel des services publics</strong> (électricité, gaz, parking,
+    ...)
 addresses.save: Enregistrer et continuer
