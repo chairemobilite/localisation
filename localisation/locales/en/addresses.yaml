@@ -15,11 +15,12 @@ geography: >-
 ownership: Do you plan to <strong>buy or rent</strong> this home?
 rentMonthly: <strong>Monthly cost of rent</strong>
 areUtilitiesIncluded: >-
-    <strong>Is the cost of utilities</strong> (electricity, gas, ...) <strong>included
+    <strong>Is the cost of utilities</strong> (electricity, gas, parking, ...) <strong>included
     in the rent?</strong>
 mortgage: <strong>Mortgage amount</strong>
 interestRate: <strong>Mortgage interest rate</strong>, in %
 amortizationPeriodInYears: <strong>Amortization period of the mortgage</strong>
 taxesYearly: <strong>Annual cost of municipal and school taxes</strong>
-utilitiesMonthly: <strong>Monthly cost of utilities</strong> (electricity, gas, ...)
+utilitiesMonthly: <strong>Monthly cost of utilities</strong> (electricity, gas, parking,
+    ...)
 addresses.save: Save and continue
