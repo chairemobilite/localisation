@@ -49,7 +49,7 @@ $ItemColor: #D9D9D9;
     gap: 2rem;
     padding: 0 2rem;
     width: 100%;
-    align-items: center; // Center items vertically
+    align-items: flex-start; // Align items to the top so the comparison panel stays at the top
     position: relative; // Needed for absolute positioning of accessibility panel
 
     // Reset the default styles of the h2, h3, h4 tags
@@ -247,6 +247,7 @@ $ItemColor: #D9D9D9;
     // Buttons
     .button-group {
         display: flex;
+        flex-wrap: wrap; // Wrap the buttons on small screens
         gap: 1.5rem;
 
         button {
@@ -371,6 +372,80 @@ $ItemColor: #D9D9D9;
 
         h2 {
             grid-column: span 2;
+        }
+    }
+
+    // Tablet and smaller: stack the map above the location comparison
+    @media (max-width: 1024px) {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 0 1rem;
+
+        .survey-visited-places-map {
+            flex: none;
+            width: 100%;
+
+            // Override the inline height of the map so the comparison is visible below it.
+            // The minimum height keeps the accessibility panel inside the map on short screens.
+            #info-map {
+                height: max(60vh, 36rem) !important;
+            }
+        }
+
+        .location-comparison {
+            flex: none;
+            max-width: 100%;
+            max-height: none; // The page scrolls instead of the panel
+            overflow-y: visible;
+            border-radius: 2rem;
+        }
+
+        #location-names-section {
+            top: 0; // The panel does not scroll anymore, so stick to the top of the page
+        }
+    }
+
+    // Phone: put the accessibility panel above the map and compact the layout
+    @media (max-width: 600px) {
+        padding: 0 0.5rem;
+        gap: 1rem;
+
+        .accessibility-panel {
+            position: static; // Show the panel above the map
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: 1.5rem;
+        }
+
+        .location-comparison {
+            gap: 2rem;
+            padding: 1rem;
+            border-radius: 1.5rem;
+        }
+
+        .button-group {
+            gap: 0.5rem;
+
+            button {
+                padding: 0.75rem;
+            }
+        }
+
+        // One column per address: housing, transport and total stacked
+        #costs-section {
+            grid-template-columns: 1fr 1fr;
+            grid-template-areas:
+                "costs-section-title costs-section-title"
+                "button-group-costs button-group-costs"
+                "housing-cost-item-1 housing-cost-item-2"
+                "transport-cost-item-1 transport-cost-item-2"
+                "total-cost-item-1 total-cost-item-2"
+                "note-costs-item-1 note-costs-item-2";
+            gap: 1rem;
+        }
+
+        .frequent-destinations-columns {
+            gap: 1rem;
         }
     }
 
