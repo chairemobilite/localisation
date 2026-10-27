@@ -1015,10 +1015,8 @@ export const LocalisationResultsSection: React.FC<SectionProps> = (props: Sectio
 
     return (
         <section className={`survey-section survey-section-shortname-${props.shortname}`}>
-            {/* Map on the left side */}
-            <div className="survey-visited-places-map">{widgetsComponentsByShortname['comparisonMap']}</div>
-
             {/* Accessibility panel on top of the map on the left side */}
+            {/* Rendered before the map so the keyboard focus order matches the visual order on phones */}
             <AccessibilityPanel
                 selectedLocation={selectedLocation}
                 setSelectedLocation={setSelectedLocation}
@@ -1032,6 +1030,9 @@ export const LocalisationResultsSection: React.FC<SectionProps> = (props: Sectio
                     firstAddress.hasAccessibilityResults && secondAddress.hasAccessibilityResults
                 }
             />
+
+            {/* Map on the left side */}
+            <div className="survey-visited-places-map">{widgetsComponentsByShortname['comparisonMap']}</div>
 
             {/* Location comparison on the right side */}
             <section className="location-comparison">
