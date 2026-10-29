@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Localisation</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      line-height: 1.5;
+      max-width: 40rem;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      color: #222;
+    }
+    h1 { font-size: 1.5rem; margin-bottom: 0.25rem; }
+    .prototype {
+      font-size: 0.9rem;
+      color: #555;
+      margin: 0 0 1.25rem;
+      padding: 0.75rem 1rem;
+      border-left: 3px solid #ccc;
+      background: #f8f8f8;
+    }
+    .platforms {
+      font-size: 0.95rem;
+      margin: 1.25rem 0;
+    }
+    .platforms dt {
+      font-weight: 600;
+      margin-top: 0.75rem;
+    }
+    .platforms dt:first-child { margin-top: 0; }
+    .platforms dd {
+      margin: 0.25rem 0 0;
+    }
+    a { color: #0066cc; }
+    .lang-switch {
+      margin-bottom: 1.5rem;
+      font-size: 0.9rem;
+    }
+    .lang-switch button {
+      font: inherit;
+      background: none;
+      border: none;
+      padding: 0;
+      color: #0066cc;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+    .lang-switch button[aria-current="true"] {
+      color: #222;
+      text-decoration: none;
+      cursor: default;
+      font-weight: 600;
+    }
+    .lang-switch span { color: #666; }
+    .funding {
+      margin-top: 2.5rem;
+    }
+    .funding img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+    }
+    [hidden] { display: none; }
+  </style>
+</head>
+<body>
+  <nav class="lang-switch" aria-label="Language">
+    <button type="button" data-lang="fr" aria-current="true">Français</button>
+    <span aria-hidden="true"> · </span>
+    <button type="button" data-lang="en">English</button>
+  </nav>
+
+  <div class="lang-content" data-lang="fr">
+    <h1>Localisation</h1>
+
+    <p class="prototype">
+      <strong>Prototype.</strong> Ce site présente une version expérimentale en
+      développement. De nombreux ajouts sont prévus, notamment le coût du transport
+      en commun, l'impact sur la pollution, et bien plus encore.
+    </p>
+
+    <p>
+      Localisation est un outil open source développé par la Chaire Mobilité de
+      Polytechnique Montréal. Le projet s'articule autour de trois volets&nbsp;:
+      soutenir les ménages dans leur choix de lieu de résidence, aider les
+      planificateurs de transport et accompagner les organismes publics dans
+      l'évaluation de sites. Ce projet a été financé par le gouvernement du
+      Canada.
+    </p>
+
+    <p>
+      Le premier volet (le choix résidentiel) est exploré dans ce prototype.
+      Il combine des modèles de coûts automobiles et de détention de véhicules,
+      une analyse d'accessibilité multimodale (auto, transport collectif, vélo,
+      marche) et la localisation des points d'intérêt. Les volets&nbsp;2 et&nbsp;3
+      (planification de réseau et évaluation de sites) sont implémentés
+      directement dans Transition.
+    </p>
+
+    <dl class="platforms">
+      <dt>
+        <a href="https://github.com/chairemobilite/evolution">Evolution</a>
+      </dt>
+      <dd>
+        Plateforme open source pour concevoir et administrer des enquêtes en
+        mobilité (questionnaires, collecte et gestion des données).
+      </dd>
+      <dt>
+        <a href="https://github.com/chairemobilite/transition">Transition</a>
+      </dt>
+      <dd>
+        Plateforme open source pour éditer et analyser des réseaux de transport
+        collectif, notamment les scénarios d'accessibilité et de planification.
+      </dd>
+    </dl>
+
+    <p>
+      <a href="https://localisation.mobilite.quebec/">Essayer la démo</a>
+      <span aria-hidden="true"> · </span>
+      <a href="https://github.com/chairemobilite/localisation">
+        Voir Localisation GitHub
+      </a>
+    </p>
+
+    <div class="funding">
+      <img
+        src="images/fundedByGoC_fr_black.png"
+        alt="Financé par le gouvernement du Canada"
+        width="800"
+        height="72"
+      >
+    </div>
+  </div>
+
+  <div class="lang-content" data-lang="en" hidden>
+    <h1>Localisation</h1>
+
+    <p class="prototype">
+      <strong>Prototype.</strong> This site presents an experimental work-in-progress
+      version. Many more features are planned, including public transit costs,
+      environmental pollution impacts, and much more.
+    </p>
+
+    <p>
+      Localisation is an open-source tool developed by the Mobility Chair at
+      Polytechnique Montréal. The project is organized around three modules:
+      helping households choose where to live, supporting transit planners, and
+      helping public agencies evaluate facility locations. This project was funded
+      by the Government of Canada.
+    </p>
+
+    <p>
+      The first module (residential choice) is explored in this prototype. It
+      combines vehicle cost and car-ownership models, multimodal accessibility
+      analysis (car, transit, cycling, walking), and points-of-interest data.
+      Modules 2 and 3 (network planning and site evaluation) are implemented
+      directly in Transition.
+    </p>
+
+    <dl class="platforms">
+      <dt>
+        <a href="https://github.com/chairemobilite/evolution">Evolution</a>
+      </dt>
+      <dd>
+        Open-source platform for designing and running mobility surveys
+        (questionnaires, data collection, and management).
+      </dd>
+      <dt>
+        <a href="https://github.com/chairemobilite/transition">Transition</a>
+      </dt>
+      <dd>
+        Open-source platform for editing and analyzing public transit networks,
+        including accessibility and planning scenarios.
+      </dd>
+    </dl>
+
+    <p>
+      <a href="https://localisation.mobilite.quebec/">Try the demo</a>
+      <span aria-hidden="true"> · </span>
+      <a href="https://github.com/chairemobilite/localisation">
+        View Localisation GitHub
+      </a>
+    </p>
+
+    <div class="funding">
+      <img
+        src="images/fundedByGoC_en_black.png"
+        alt="Funded by the Government of Canada"
+        width="800"
+        height="72"
+      >
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'localisation-lang';
+
+    function setLang(lang) {
+      document.documentElement.lang = lang;
+      document.querySelectorAll('[data-lang]').forEach((el) => {
+        const isActive = el.getAttribute('data-lang') === lang;
+        if (el.classList.contains('lang-content')) {
+          el.hidden = !isActive;
+        } else if (el.tagName === 'BUTTON') {
+          el.setAttribute('aria-current', isActive ? 'true' : 'false');
+        }
+      });
+      try {
+        localStorage.setItem(STORAGE_KEY, lang);
+      } catch (_) {}
+    }
+
+    document.querySelectorAll('.lang-switch button').forEach((btn) => {
+      btn.addEventListener('click', () => setLang(btn.getAttribute('data-lang')));
+    });
+
+    const saved = (() => {
+      try {
+        return localStorage.getItem(STORAGE_KEY);
+      } catch (_) {
+        return null;
+      }
+    })();
+    const browser = navigator.language.startsWith('en') ? 'en' : 'fr';
+    setLang(saved === 'en' || saved === 'fr' ? saved : browser);
+  </script>
+</body>
+</html>
